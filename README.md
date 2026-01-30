@@ -24,5 +24,13 @@ It focuses on creating a safe, minimal, and soothing experience for users dealin
 
 ---
 
-## 📂 Project Structure
+
+---
+
+## 🚀 How to Run Locally
+
+1. Clone the repository  
+   ```bash
+   git clone https://github.com/ShreyaGulia/Mindora.git
+
 

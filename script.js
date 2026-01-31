@@ -83,7 +83,6 @@ function addMessage(text, sender) {
   chatBox.appendChild(msg);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
-
 // Event listeners
 sendButton.addEventListener("click", sendMessage);
 chatInput.addEventListener("keypress", (e) => {

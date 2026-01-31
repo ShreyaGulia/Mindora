@@ -36,8 +36,8 @@
     <h2>You're not alone 🤍</h2>
     <p>A quiet space for tired minds and heavy hearts.</p>
     <div class="hero-buttons">
-  <a href="#chat" class="hero-btn">Talk to Chatbot</a>
-  <a href="#music" class="hero-btn">Listen to Music</a>
+  <a href="#chat" class="hero-btn">💬 Talk to Chatbot</a>
+  <a href="#music" class="hero-btn">🎧 Listen to Music</a>
 </div>
 
   </section>
@@ -65,9 +65,11 @@
    
   <section id="chat" class="chat-section">
   <h2>Chat With Us</h2>
-
+  <p class="section-subtitle">
+   A safe space to share your thoughts
+  </p>
   <div class="chat-box" id="chatMessages">
-    <div class="message bot">Hi, I'm here to listen 💙</div>
+    <div class="message bot">Hi, I’m Mindora 🌿 I’m here to listen. , 'bot'</div>
     <!-- Typing Indicator -->
 <div class="typing-indicator" id="typingIndicator">
   <span></span>
@@ -137,6 +139,7 @@
 
   <section class="music-section" id="music">
   <h2>🎵 Relaxing Music</h2>
+  <p class="section-subtitle">Choose a mood and relax your mind</p>
   <div class="music-filters" style="text-align:center; margin-bottom:30px;">
   <button class="mood-btn" data-filter="all">All</button>
   <button class="mood-btn" data-filter="calm">Calm</button>
@@ -147,7 +150,9 @@
   <div class="music-list">
 
     <div class="music-card" data-mood="calm">
+      <p class="now-playing">Now Playing 🎵</p>
       <h3>Calm Piano</h3>
+      <span class="mood-chip calm">Calm</span>
       <p>Soft piano music for relaxing</p>
       <audio controls>
         <source src="./music/song1.mp3" type="audio/mpeg">
@@ -156,7 +161,9 @@
     </div>
 
     <div class="music-card" data-mood="healing">
+      <p class="now-playing">Now Playing 🎵</p>
       <h3>Rain Sounds</h3>
+      <span class="mood-chip heal">Heal</span>
       <p>Gentle rain for deep relaxation</p>
       <audio controls>
         <source src="./music/song2.mp3" type="audio/mpeg">
@@ -164,7 +171,9 @@
     </div>
 
     <div class="music-card" data-mood="sleep">
+      <p class="now-playing">Now Playing 🎵</p>
       <h3>Forest Ambience</h3>
+      <span class="mood-chip relax">Relax</span>
       <p>Nature sounds for calm focus</p>
       <audio controls>
         <source src="./music/song3.mp3" type="audio/mpeg">

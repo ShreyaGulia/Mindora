@@ -4,6 +4,9 @@
   padding: 0;
   box-sizing: border-box;
 }
+section {
+  margin-bottom: 30px;
+}
 
 /* ================= GLOBAL ================= */
 html {
@@ -123,7 +126,9 @@ header {
   display: inline-block;
   transition: all 0.2s ease;
 }
-
+.hero-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+}
 
 /* ================= FEATURES ================= */
 .features {
@@ -144,6 +149,7 @@ header {
 }
 
 /* ================= CHAT ================= */
+
 .chat-section {
   padding: 60px 20px;
   background: #f1faee;
@@ -173,12 +179,14 @@ header {
   padding: 10px 14px;
   border-radius: 15px;
   font-size: 14px;
+  animation: fadeSlide 0.3s ease forwards;
 }
 
 .message.bot {
   align-self: flex-start;
   background: #eeeeee;
   color: #333;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .message.user {
@@ -469,4 +477,33 @@ footer {
   background: #6c63ff;
   color: #fff;
   box-shadow: 0 8px 20px rgba(108, 99, 255, 0.4);
+}
+.section-subtitle {
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+  margin-top: -20px;
+  margin-bottom: 35px;
+}
+.mood-chip {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 12px;
+  margin-top: 6px;
+  color: white;
+}
+
+.mood-chip.calm { background: #6fbf9b; }
+.mood-chip.heal { background: #5898a3; }
+.mood-chip.relax { background: #a29bfe; }
+.now-playing {
+  display: none;
+  font-size: 16px;
+  color: #2f855a;
+  margin-top: 6px;
+}
+
+.music-card.active .now-playing {
+  display: block;
 }

@@ -6,7 +6,7 @@ Mindora is a calming mental wellness web application designed to support users t
 
 ## 🔗 Live Demo
 👉 Live Website:  
-https://shreyagulia.github.io/Mindora/
+ https://shreyagulia.github.io/Mindora/
 
 ---
 

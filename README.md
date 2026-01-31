@@ -1,29 +1,38 @@
-# 🧠 Mindora – Mental Wellness Web App
+# 🌿 Mindora – Mental Wellness Web App
 
-Mindora is a mental wellness web application designed to provide emotional support through an AI-powered chatbot, calming music, and therapist consultation features.  
-It focuses on creating a safe, minimal, and soothing experience for users dealing with stress, anxiety, or overthinking.
-
----
-
-## 🌟 Features
-
-- 💬 **AI Chatbot Support** – Emotion-aware responses for mental well-being  
-- 🎵 **Relaxing Music Section** – Calm piano & nature sounds with mood-based labels  
-- 🎭 **Mood-Based Music Tags** – Helps users choose music based on their emotional state  
-- 🧠 **Therapist Consultation UI** – Clean interface to explore therapist options  
-- 🌙 **Soothing UI/UX** – Designed with calm colors and smooth animations  
-- 📱 **Responsive Design** – Works across devices  
+Mindora is a calming mental wellness web application designed to support users through stress-relief features like a supportive chatbot and mood-based relaxing music.
 
 ---
 
-## 🛠️ Tech Stack
-
-- **Frontend:** HTML, CSS, JavaScript  
-- **Styling:** Custom CSS (Poppins font, animations)  
-- **Version Control:** Git & GitHub  
+## 🔗 Live Demo
+👉 Live Website:  
+https://YOUR-LIVE-LINK-HERE
 
 ---
 
+## ✨ Features
+
+- 💬 Mental Health Chatbot  
+  - Responds to emotions like stress, anxiety, loneliness, and sadness  
+  - Typing indicator for a realistic chat experience
+
+- 🎵 Mood-Based Music Section  
+  - Calm piano, rain, and nature sounds  
+  - Only one track plays at a time  
+  - Visual glow effect while music is playing
+
+- 🎨 Clean & Calming UI  
+  - Minimal and soothing design  
+  - Fully responsive layout  
+
+---
+
+## 🛠 Tech Stack
+
+- HTML5  
+- CSS3  
+- JavaScript (Vanilla JS)  
+- GitHub Pages (Deployment)
 
 ---
 
@@ -32,5 +41,3 @@ It focuses on creating a safe, minimal, and soothing experience for users dealin
 1. Clone the repository  
    ```bash
    git clone https://github.com/ShreyaGulia/Mindora.git
-
-

@@ -14,12 +14,23 @@
 </head>
 
 <body>
+  
+  <div id="sessionBanner" class="session-banner">
+  Session expires in <span id="sessionTimer">--:--</span>
+</div>
 
   <!-- ================= HEADER / NAVBAR ================= -->
 
   <header>
     <nav class="navbar">
-      <h1 class="logo">Mindora</h1>
+      <div class="user-bar">
+      <span id="welcomeUser"></span>
+      <button id="logoutBtn" class="logout-btn">Logout</button>
+      </div>
+      <div class="logo">
+      <img src="mindcare photo.jpg" alt="Mindora Logo">
+      <h1>Mindora</h1>
+      </div>
       <ul class="nav-links">
         <li><a href="#home">Home</a></li>
         <li><a href="#chat">Chat</a></li>
@@ -31,7 +42,6 @@
   </header>
 
   <!-- ================= HOME SECTION ================= -->
-
   <section id="home" class="hero">
     <h2>You're not alone 🤍</h2>
     <p>A quiet space for tired minds and heavy hearts.</p>
@@ -39,7 +49,6 @@
   <a href="#chat" class="hero-btn">💬 Talk to Chatbot</a>
   <a href="#music" class="hero-btn">🎧 Listen to Music</a>
 </div>
-
   </section>
 
   <!-- ================= FEATURES SECTION ================= -->
@@ -93,9 +102,8 @@
    <!-- ================= THERAPIST SECTION ================= -->
 
    <section class="therapist-section" id="therapists">
-  <h2>Consult a Therapist</h2>
+  <h2>Meet our Therapists</h2>
   <p class="therapist-subtext">
-
     Sometimes talking to a real human can help more.  
     Our platform helps you connect with trusted therapists.
   </p>
@@ -104,7 +112,7 @@
 
     <div class="therapist-card">
       <h3>Dr. Asha Verma</h3>
-      <p>Anxiety • Stress • Depression</p>
+      <p>Anxiety • Stress • Depression related</p>
       <p><strong>Experience:</strong> 5+ years</p>
       <p><strong>Mode:</strong> Online</p>
       <button class="request-btn">Request Session</button>
@@ -213,6 +221,10 @@
     <p>© 2026 Mindora. All rights reserved.</p>
     <p>If you need immediate help, contact local helplines.</p>
   </footer>
-<script src="script.js"></script>
+<script src="script.js">
+  if (localStorage.getItem("isLoggedIn") !== "true") {
+  window.location.href = "login.html";
+}
+</script>
 </body>
 </html>

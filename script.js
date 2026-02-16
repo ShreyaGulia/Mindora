@@ -1,4 +1,76 @@
+// 🔐 Auth Guard (ONLY for index.html)
+if (!window.location.pathname.includes("login.html") &&
+    !window.location.pathname.includes("signup.html")) {
+
+  if (localStorage.getItem("isLoggedIn") !== "true") {
+    window.location.href = "login.html";
+  }
+}
+
+if (localStorage.getItem("isLoggedIn") !== "true") {
+  window.location.href = "login.html";
+}
+const userData = JSON.parse(localStorage.getItem("mindoraUser"));
+
+if (userData && document.getElementById("welcomeUser")) {
+  document.getElementById("welcomeUser").innerText =
+    `Hi, ${userData.name} 👋`;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+
+  // ✅ Protect index.html (main app)
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+  const user = JSON.parse(localStorage.getItem("mindoraUser"));
+  const expiry = Number(localStorage.getItem("sessionExpiry") || "0");
+  const sessionExpired = !expiry || Date.now() > expiry;
+  if (!isLoggedIn || !user || sessionExpired) {
+    localStorage.removeItem("isLoggedIn");
+  localStorage.removeItem("mindoraUser");
+  localStorage.removeItem("sessionExpiry");
+    window.location.replace("login.html");
+    return; // stop running rest JS
+  }
+  /* ================= SESSION BANNER LOGIC ================= */
+
+const banner = document.getElementById("sessionBanner");
+const timerEl = document.getElementById("sessionTimer");
+
+function startSessionCountdown() {
+  banner.style.display = "block";
+
+  const interval = setInterval(() => {
+    const expiry = Number(localStorage.getItem("sessionExpiry"));
+    if (!expiry) {
+      banner.style.display = "none";
+      clearInterval(interval);
+      return;
+    }
+
+    const remaining = expiry - Date.now();
+
+    if (remaining <= 0) {
+      banner.style.display = "none";
+      clearInterval(interval);
+      return;
+    }
+
+    const minutes = Math.floor(remaining / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
+
+    timerEl.textContent =
+      `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+
+    // Visual warnings
+    banner.classList.remove("warning", "danger");
+
+    if (minutes < 5) banner.classList.add("danger");
+    else if (minutes < 10) banner.classList.add("warning");
+
+  }, 1000);
+}
+
+startSessionCountdown();
 
   /* ================= CHATBOT ================= */
 
@@ -50,7 +122,18 @@ function sendMessage() {
     const lowerMsg = userText.toLowerCase();
     addMessage(getBotReply(lowerMsg), "bot");
     suggestMusicFromChat(lowerMsg);
-  }, 1200);
+    // ================= LOGOUT =================
+
+const logoutBtn = document.getElementById("logoutBtn");
+
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem("loggedInUser");
+    window.location.href = "login.html";
+  });
+}
+
+  }, 1200); 
 }
 
 // Get bot reply
@@ -220,3 +303,13 @@ function playMusicByMood(mood) {
     addMessage(`I’ve played some ${mood} music for you 🎵`, "bot");
   }, 500);
 }
+// ================= LOGOUT =================
+const logoutBtn = document.getElementById("logoutBtn");
+
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", () => {
+    localStorage.removeItem("isLoggedIn");
+    window.location.href = "login.html";
+  });
+}
+

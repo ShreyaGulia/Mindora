@@ -13,7 +13,7 @@ It provides a safe digital environment with:
 
 ## 🌐 Live Demo
 
-🔗 Live Link: (Add your deployed link here)
+🔗 Live Link: https://shreyagulia.github.io/Mindora/
 
 ---
 

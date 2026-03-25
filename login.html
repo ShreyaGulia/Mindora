@@ -2,26 +2,98 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login | Mindora</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="auth.css">
 </head>
 <body>
-<div class="auth-container">
-  <div class="brand">
-      <div class="brand-badge"><img src="mindcare photo.jpg" alt="logo" class="brand-logo"></div>
-      <h1 class="brand-name">Mindora</h1>
-    </div>
-  <h2 style="margin-bottom: 10px;">Welcome Back..!</h2>
-  <p>We’re glad to see you again :)</p>
-  <input type="email" id="loginEmail" placeholder="Email">
-  <input type="password" id="loginPassword" placeholder="Password">
 
-  <button onclick="login()">Login</button>
+  <!-- Decorative blobs -->
+  <div class="bg-blob blob-1"></div>
+  <div class="bg-blob blob-2"></div>
+  <div class="bg-blob blob-3"></div>
 
-  <div class="auth-link">
-      Don’t have an account? <a href="signup.html">Sign up</a>
+  <!-- Floating leaves -->
+  <div class="leaf leaf-1">🌿</div>
+  <div class="leaf leaf-2">🍃</div>
+  <div class="leaf leaf-3">🌱</div>
+
+  <div class="auth-wrapper">
+
+    <!-- Left panel — illustration side -->
+    <div class="auth-panel-left">
+      <div class="panel-content">
+        <div class="panel-logo">
+          <span class="panel-logo-icon">🌿</span>
+          <span class="panel-logo-name">Mindora</span>
+        </div>
+        <h2 class="panel-headline">You deserve to<br><em>feel better.</em></h2>
+        <p class="panel-sub">A safe, gentle space for your mind. No judgment. No rush. Just you.</p>
+
+        <div class="panel-features">
+          <div class="panel-feat">
+            <span class="feat-icon">💬</span>
+            <span>Talk to Mindora anytime</span>
+          </div>
+          <div class="panel-feat">
+            <span class="feat-icon">🧠</span>
+            <span>Connect with real therapists</span>
+          </div>
+          <div class="panel-feat">
+            <span class="feat-icon">🎵</span>
+            <span>Calming music for your mood</span>
+          </div>
+        </div>
+
+        <div class="panel-quote">
+          <p>"Asking for help is the bravest thing you can do."</p>
+        </div>
+      </div>
     </div>
-</div>
-<script src="auth.js"></script>
+
+    <!-- Right panel — form -->
+    <div class="auth-panel-right">
+      <div class="auth-container">
+
+        <h2>Welcome Back 👋</h2>
+        <p>We're glad you're here. Let's pick up where you left off.</p>
+
+        <!-- Form -->
+        <div class="input-group">
+          <span class="input-icon">✉️</span>
+          <input type="email" id="loginEmail" placeholder="Email address" autocomplete="email">
+        </div>
+
+        <div class="input-group">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
+          <button class="toggle-pw" type="button" onclick="togglePw('loginPassword', this)">👁</button>
+        </div>
+
+        <div class="auth-options">
+          <label class="remember-me">
+            <input type="checkbox"> Remember me
+          </label>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <button class="auth-btn" onclick="login()">
+          <span>Log In</span>
+          <span class="btn-arrow">→</span>
+        </button>
+
+        <div class="auth-divider"><span>or</span></div>
+
+        <div class="auth-link">
+          Don't have an account? <a href="signup.html">Sign up free</a>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script src="auth.js"></script>
 </body>
 </html>

@@ -2,29 +2,122 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Signup | Mindora</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up | Mindora</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="auth.css">
 </head>
 <body>
-
-<div class="auth-container">
-  <div class="brand">
-      <div class="brand-badge"><img src="mindcare photo.jpg" alt="logo" class="brand-logo"></div>
-      <h1 class="brand-name">Mindora</h1>
+ 
+  <!-- Decorative blobs -->
+  <div class="bg-blob blob-1"></div>
+  <div class="bg-blob blob-2"></div>
+  <div class="bg-blob blob-3"></div>
+ 
+  <!-- Floating leaves -->
+  <div class="leaf leaf-1">🌿</div>
+  <div class="leaf leaf-2">🍃</div>
+  <div class="leaf leaf-3">🌱</div>
+ 
+  <div class="auth-wrapper">
+ 
+    <!-- Left panel -->
+    <div class="auth-panel-left">
+      <div class="panel-content">
+        <div class="panel-logo">
+          <span class="panel-logo-icon">🌿</span>
+          <span class="panel-logo-name">Mindora</span>
+        </div>
+        <h2 class="panel-headline">Your calm<br><em>starts here.</em></h2>
+        <p class="panel-sub">Join thousands of people who chose to prioritise their mental wellbeing. It takes one small step.</p>
+ 
+        <div class="panel-features">
+          <div class="panel-feat">
+            <span class="feat-icon">🔒</span>
+            <span>100% private & secure</span>
+          </div>
+          <div class="panel-feat">
+            <span class="feat-icon">⚡</span>
+            <span>Free to get started</span>
+          </div>
+          <div class="panel-feat">
+            <span class="feat-icon">🌿</span>
+            <span>No spam, ever</span>
+          </div>
+        </div>
+ 
+        <div class="panel-stat-row">
+          <div class="panel-stat">
+            <span class="stat-num">2,400+</span>
+            <span class="stat-lbl">People helped</span>
+          </div>
+          <div class="panel-stat">
+            <span class="stat-num">98%</span>
+            <span class="stat-lbl">Satisfaction</span>
+          </div>
+          <div class="panel-stat">
+            <span class="stat-num">24/7</span>
+            <span class="stat-lbl">Always here</span>
+          </div>
+        </div>
+      </div>
     </div>
-  <h2 style="margin-bottom: 10px;">Create Account</h2>
-    <p class="subtext">Start your calm journey with us 🌿</p>
-  <input type="text" id="signupName" placeholder="Name">
-  <input type="email" id="signupEmail" placeholder="Email">
-  <input type="password" id="signupPassword" placeholder="Password">
-
-  <button onclick="signup()">Sign Up</button>
-
- <div class="auth-link">
-    Already have an account? <a href="login.html">Login</a>
+ 
+    <!-- Right panel — form -->
+    <div class="auth-panel-right">
+      <div class="auth-container">
+ 
+        <h2>Create Account 🌱</h2>
+        <p class="subtext">Start your calm journey with us today.</p>
+ 
+        <!-- Form -->
+        <div class="input-group">
+          <span class="input-icon">😊</span>
+          <input type="text" id="signupName" placeholder="Your full name" autocomplete="name">
+        </div>
+ 
+        <div class="input-group">
+          <span class="input-icon">✉️</span>
+          <input type="email" id="signupEmail" placeholder="Email address" autocomplete="email">
+        </div>
+ 
+        <div class="input-group">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="signupPassword" placeholder="Create a password" autocomplete="new-password">
+          <button class="toggle-pw" type="button" onclick="togglePw('signupPassword', this)">👁</button>
+        </div>
+ 
+        <!-- Password strength bar -->
+        <div class="pw-strength-wrap" id="pwStrengthWrap">
+          <div class="pw-strength-bar">
+            <div class="pw-strength-fill" id="pwFill"></div>
+          </div>
+          <span class="pw-strength-label" id="pwLabel">Enter a password</span>
+        </div>
+ 
+        <div class="auth-terms">
+          <label>
+            <input type="checkbox" id="termsCheck">
+            I agree to the <a href="#">Terms of Use</a> and <a href="#">Privacy Policy</a>
+          </label>
+        </div>
+ 
+        <button class="auth-btn" onclick="signup()">
+          <span>Create My Account</span>
+          <span class="btn-arrow">→</span>
+        </button>
+ 
+        <div class="auth-divider"><span>or</span></div>
+ 
+        <div class="auth-link">
+          Already have an account? <a href="login.html">Log in</a>
+        </div>
+ 
+      </div>
+    </div>
+ 
   </div>
-</div>
-
-<script src="auth.js"></script>
-</body>
+ 
+  <script src="auth.js"></script>
+  </body>
 </html>

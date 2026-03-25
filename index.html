@@ -4,227 +4,788 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Mindora</title>
-
-  <!-- Google Font -->
-
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="data:,">
-
 </head>
 
 <body>
-  
+
   <div id="sessionBanner" class="session-banner">
-  Session expires in <span id="sessionTimer">--:--</span>
-</div>
+    Session expires in <span id="sessionTimer">--:--</span>
+  </div>
 
   <!-- ================= HEADER / NAVBAR ================= -->
-
-  <header>
+  <header id="mainHeader">
     <nav class="navbar">
-      <div class="user-bar">
-      <span id="welcomeUser"></span>
-      <button id="logoutBtn" class="logout-btn">Logout</button>
-      </div>
+
+      <!-- LOGO -->
       <div class="logo">
-      <img src="mindcare photo.jpg" alt="Mindora Logo">
-      <h1>Mindora</h1>
+        <div class="logo-icon">🌿</div>
+        <h1>Mindora</h1>
       </div>
-      <ul class="nav-links">
-        <li><a href="#home">Home</a></li>
-        <li><a href="#chat">Chat</a></li>
-        <li><a href="#therapists">Therapist</a></li>
-        <li><a href="#music">Music</a></li>
-        <li><a href="#about">About</a></li>
+
+      <!-- NAV LINKS (center) -->
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#home"       class="nav-link" data-section="home">Home</a></li>
+        <li><a href="#chat"       class="nav-link" data-section="chat">Chat</a></li>
+        <li><a href="#therapists" class="nav-link" data-section="therapists">Therapist</a></li>
+        <li><a href="#music"      class="nav-link" data-section="music">Music</a></li>
+        <li><a href="#about"      class="nav-link" data-section="about">About</a></li>
+        <!-- Sliding active indicator -->
+        <div class="nav-indicator" id="navIndicator"></div>
       </ul>
+
+      <!-- RIGHT SIDE: user info + logout -->
+      <div class="nav-right">
+        <div class="user-pill">
+          <span class="user-avatar" id="userAvatar">U</span>
+          <span id="welcomeUser"></span>
+        </div>
+        <button id="logoutBtn" class="logout-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </button>
+      </div>
+
+      <!-- HAMBURGER (mobile) -->
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
     </nav>
+
+    <!-- MOBILE DRAWER -->
+    <div class="mobile-drawer" id="mobileDrawer">
+      <a href="#home"       class="mobile-link" data-section="home">🏠 Home</a>
+      <a href="#chat"       class="mobile-link" data-section="chat">💬 Chat</a>
+      <a href="#therapists" class="mobile-link" data-section="therapists">🧑‍⚕️ Therapist</a>
+      <a href="#music"      class="mobile-link" data-section="music">🎵 Music</a>
+      <a href="#about"      class="mobile-link" data-section="about">ℹ️ About</a>
+      <div class="mobile-divider"></div>
+      <div class="mobile-user">
+        <span id="mobileWelcome"></span>
+        <button id="mobileLogout" class="logout-btn">Logout</button>
+      </div>
+    </div>
   </header>
 
-  <!-- ================= HOME SECTION ================= -->
+<!-- ================= Home SECTION ================= -->
   <section id="home" class="hero">
-    <h2>You're not alone 🤍</h2>
-    <p>A quiet space for tired minds and heavy hearts.</p>
+  <!-- Floating ambient blobs (pure CSS, no images) -->
+  <div class="hero-blob hero-blob-1"></div>
+  <div class="hero-blob hero-blob-2"></div>
+  <div class="hero-blob hero-blob-3"></div>
+ 
+  <div class="hero-content">
+ 
+    <!-- Pill badge -->
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Mental Wellness Platform
+    </div>
+ 
+    <h2 class="hero-title">
+      You're not alone <span class="hero-heart">🤍</span>
+    </h2>
+ 
+    <p class="hero-subtitle">
+      A quiet space for tired minds and heavy hearts.<br>
+      We listen. We care. We're here.
+    </p>
+ 
     <div class="hero-buttons">
-  <a href="#chat" class="hero-btn">💬 Talk to Chatbot</a>
-  <a href="#music" class="hero-btn">🎧 Listen to Music</a>
-</div>
-  </section>
-
-  <!-- ================= FEATURES SECTION ================= -->
-
-  <section class="features">
-    <div class="feature-card">
-      <h3>🗣 Chat Support</h3>
-      <p>Express your thoughts freely and safely.</p>
+      <a href="#chat"  class="hero-btn hero-btn-primary">
+        <span class="btn-icon">💬</span>
+        Talk to Chatbot
+      </a>
+      <a href="#music" class="hero-btn hero-btn-secondary">
+        <span class="btn-icon">🎧</span>
+        Listen to Music
+      </a>
     </div>
-
-    <div class="feature-card">
-      <h3>🎵 Stress Relief Music</h3>
-      <p>Relax your mind with calming sounds.</p>
+ 
+    <!-- Trust strip -->
+    <div class="hero-trust">
+      <div class="trust-item">
+        <span class="trust-num">10k+</span>
+        <span class="trust-label">Users Supported</span>
+      </div>
+      <div class="trust-divider"></div>
+      <div class="trust-item">
+        <span class="trust-num">3</span>
+        <span class="trust-label">Expert Therapists</span>
+      </div>
+      <div class="trust-divider"></div>
+      <div class="trust-item">
+        <span class="trust-num">24/7</span>
+        <span class="trust-label">Always Available</span>
+      </div>
     </div>
-
-    <div class="feature-card">
-      <h3>🧠 Guided Help</h3>
-      <p>Gentle guidance when life feels heavy.</p>
+ 
+  </div>
+ 
+  <!-- Decorative floating card -->
+  <div class="hero-float-card">
+    <div class="float-card-inner">
+      <div class="float-avatar">🌿</div>
+      <div>
+        <p class="float-name">Mindora Bot</p>
+        <p class="float-msg">Hi there 💙 How are you feeling today?</p>
+      </div>
     </div>
-  </section>
-
+    <div class="float-typing">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+ 
+</section>
+ 
+ 
+<!-- ================= FEATURES SECTION ================= -->
+<section class="features-section">
+ 
+  <div class="features-header">
+    <p class="features-label">What we offer</p>
+    <h2 class="features-title">Everything you need to feel better</h2>
+    <p class="features-sub">Simple tools. Real comfort. Always within reach.</p>
+  </div>
+ 
+  <div class="features-grid">
+ 
+    <div class="feature-card" data-color="teal">
+      <div class="feature-icon-wrap">
+        <span class="feature-icon">🗣</span>
+      </div>
+      <h3>Chat Support</h3>
+      <p>Express your thoughts freely and safely with our empathetic AI chatbot, available anytime.</p>
+      <a href="#chat" class="feature-link">Start chatting →</a>
+    </div>
+ 
+    <div class="feature-card" data-color="purple">
+      <div class="feature-icon-wrap">
+        <span class="feature-icon">🎵</span>
+      </div>
+      <h3>Stress Relief Music</h3>
+      <p>Handpicked calm piano, rain sounds, and nature tracks. Let the music ease your mind.</p>
+      <a href="#music" class="feature-link">Listen now →</a>
+      <div class="feature-card-glow"></div>
+    </div>
+ 
+    <div class="feature-card" data-color="green">
+      <div class="feature-icon-wrap">
+        <span class="feature-icon">🧠</span>
+      </div>
+      <h3>Guided Help</h3>
+      <p>Gentle, expert guidance when life feels heavy. Connect with real therapists online.</p>
+      <a href="#therapists" class="feature-link">Meet therapists →</a>
+    </div>
+ 
+    <div class="feature-card" data-color="rose">
+      <div class="feature-icon-wrap">
+        <span class="feature-icon">🌙</span>
+      </div>
+      <h3>Mood Tracking</h3>
+      <p>Understand your emotional patterns and take small steps toward a calmer, lighter life.</p>
+      <a href="#chat" class="feature-link">Track mood →</a>
+    </div>
+ 
+  </div>
+ 
+</section>
   <!-- ================= CHATBOT SECTION ================= -->
-   
   <section id="chat" class="chat-section">
-  <h2>Chat With Us</h2>
-  <p class="section-subtitle">
-   A safe space to share your thoughts
-  </p>
-  <div class="chat-box" id="chatMessages">
-    <div class="message bot">Hi, I’m Mindora 🌿 I’m here to listen. , 'bot'</div>
-    <!-- Typing Indicator -->
-<div class="typing-indicator" id="typingIndicator">
-  <span></span>
-  <span></span>
-  <span></span>
-</div>
-
+  <h2>Chat With Us 🌿</h2>
+  <p class="section-subtitle">A safe space to share your thoughts — anytime, without judgment.</p>
+ 
+  <div class="mood-select-row">
+    <button class="mood-pill" onclick="setMood(this,'😔 Feeling low')">😔 Low</button>
+    <button class="mood-pill" onclick="setMood(this,'😐 Just okay')">😐 Okay</button>
+    <button class="mood-pill" onclick="setMood(this,'😰 Feeling anxious')">😰 Anxious</button>
+    <button class="mood-pill" onclick="setMood(this,'😤 Really stressed')">😤 Stressed</button>
+    <button class="mood-pill" onclick="setMood(this,'🙂 Pretty good')">🙂 Good</button>
   </div>
-
-  <div class="chat-input">
-    <input
-      type="text"
-      id="userInput"
-      placeholder="Type how you're feeling..."
-    />
-    <button id="sendBtn">Send</button>
+ 
+  <div class="chat-header-bar">
+    <div class="chat-avatar">M</div>
+    <div class="chat-header-info">
+      <h4 id="chatHeaderName">Mindora 🌿</h4>
+      <span id="chatHeaderStatus">Online · Here to listen</span>
+    </div>
+  </div>
+ 
+  <div class="chat-box" id="chatBox">
+    <div class="message bot">
+      Hi, I'm Mindora 🌿 I'm here to listen. How are you feeling today?
+      <span class="message-time">Just now</span>
+    </div>
+    <div class="chat-quick-replies" id="quickReplies">
+      <button class="qr-chip" onclick="sendQuick(this)">I've been really stressed 😤</button>
+      <button class="qr-chip" onclick="sendQuick(this)">I can't stop overthinking 💭</button>
+      <button class="qr-chip" onclick="sendQuick(this)">I just need to talk</button>
+    </div>
+    <div class="typing-indicator" id="typingIndicator">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+ 
+  <div class="chat-input-wrap">
+    <div class="chat-suggestions">
+      <button class="suggest-chip" onclick="fillInput(this)">I feel overwhelmed</button>
+      <button class="suggest-chip" onclick="fillInput(this)">I can't sleep well</button>
+      <button class="suggest-chip" onclick="fillInput(this)">I feel lonely</button>
+      <button class="suggest-chip" onclick="fillInput(this)">Talk to a therapist</button>
+      <button class="suggest-chip" onclick="fillInput(this)">Breathing exercise</button>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="userInput" placeholder="Type how you're feeling..."
+        onkeypress="if(event.key==='Enter') sendMessage()"/>
+      <button onclick="sendMessage()">Send ➤</button>
+    </div>
   </div>
 </section>
-
-
-   <!-- ================= THERAPIST SECTION ================= -->
-
-   <section class="therapist-section" id="therapists">
-  <h2>Meet our Therapists</h2>
+ 
+  <!-- ================= THERAPIST SECTION ================= -->
+  <section class="therapist-section" id="therapists">
+  <h2>Meet Our Therapists</h2>
   <p class="therapist-subtext">
-    Sometimes talking to a real human can help more.  
-    Our platform helps you connect with trusted therapists.
+    Real people, genuine care. Our therapists have helped hundreds work through what feels impossible.
   </p>
-
-  <div class="therapist-cards">
-
-    <div class="therapist-card">
-      <h3>Dr. Asha Verma</h3>
-      <p>Anxiety • Stress • Depression related</p>
-      <p><strong>Experience:</strong> 5+ years</p>
-      <p><strong>Mode:</strong> Online</p>
-      <button class="request-btn">Request Session</button>
+ 
+  <button class="sessions-toggle-btn" onclick="toggleSessionHistory()">
+    📋 My Sessions
+    <span class="sessions-count-badge" id="sessionsCount">0</span>
+  </button>
+ 
+  <!-- Session History Panel -->
+  <div class="session-history" id="sessionHistory">
+    <div class="session-history-header">
+      <h4>Your Booked Sessions</h4>
+      <span id="sessionHistoryMeta">No sessions yet</span>
     </div>
-
-    <div class="therapist-card">
-      <h3>Dr. Rohan Mehta</h3>
-      <p>Overthinking • Burnout • Self-esteem</p>
-      <p><strong>Experience:</strong> 7+ years</p>
-      <p><strong>Mode:</strong> Online / Offline</p>
-      <button class="request-btn">Request Session</button>
+    <div id="sessionListContainer">
+      <div class="session-history-empty">
+        <span>🗓️</span>
+        You haven't booked any sessions yet. Request one below!
+      </div>
     </div>
-
-    <div class="therapist-card">
-      <h3>Dr. Neha Sharma</h3>
-      <p>Sleep Issues • Stress • Emotional Healing</p>
-      <p><strong>Experience:</strong> 4+ years</p>
-      <p><strong>Mode:</strong> Online</p>
-      <button class="request-btn">Request Session</button>
-    </div>
-
   </div>
-
-  <p class="therapist-disclaimer" style="color: black;">
-    ⚠️ This platform does not provide medical diagnosis.  
-    If you are in crisis, please contact local emergency services.
+ 
+  <div class="therapist-filters">
+    <button class="t-filter-btn active" onclick="filterTherapists(this,'all')">All</button>
+    <button class="t-filter-btn" onclick="filterTherapists(this,'anxiety')">Anxiety</button>
+    <button class="t-filter-btn" onclick="filterTherapists(this,'stress')">Stress</button>
+    <button class="t-filter-btn" onclick="filterTherapists(this,'sleep')">Sleep</button>
+    <button class="t-filter-btn" onclick="filterTherapists(this,'burnout')">Burnout</button>
+  </div>
+ 
+  <div class="therapist-cards" id="therapistCards">
+ 
+    <!-- Dr. Asha Verma -->
+    <div class="therapist-card" data-tags="anxiety stress depression">
+      <div class="card-photo">
+        <div class="card-photo-initials bg1">AV</div>
+        <div class="availability-dot">Available today</div>
+      </div>
+      <div class="card-info">
+        <h3>Dr. Asha Verma</h3>
+        <div class="card-role">Clinical Psychologist · NIMHANS, Bengaluru</div>
+        <p class="card-about">"I believe healing starts when you feel truly heard. My approach is gentle, practical, and rooted in your own strengths."</p>
+        <div class="card-meta">
+          <div class="card-meta-row"><span>🎓</span> M.Phil Clinical Psychology</div>
+          <div class="card-meta-row"><span>💼</span> 5+ years · 200+ clients</div>
+          <div class="card-meta-row"><span>🖥️</span> Online sessions only</div>
+          <div class="card-meta-row"><span>🗣️</span> English, Hindi</div>
+        </div>
+        <div class="card-tags">
+          <span class="card-tag">Anxiety</span>
+          <span class="card-tag">Stress</span>
+          <span class="card-tag">Depression</span>
+          <span class="card-tag">CBT</span>
+        </div>
+      </div>
+      <div class="card-footer-row">
+        <div class="card-rating-small">★ 4.9 <span>· 98 reviews</span></div>
+        <button class="request-btn" onclick="openBookingModal('Dr. Asha Verma','Clinical Psychologist','green')">Request Session</button>
+      </div>
+    </div>
+ 
+    <!-- Dr. Rohan Mehta -->
+    <div class="therapist-card" data-tags="burnout stress overthinking">
+      <div class="card-photo">
+        <div class="card-photo-initials bg2">RM</div>
+        <div class="availability-dot">Available today</div>
+      </div>
+      <div class="card-info">
+        <h3>Dr. Rohan Mehta</h3>
+        <div class="card-role">Psychotherapist · TISS, Mumbai</div>
+        <p class="card-about">"Burnout and overthinking are signs, not flaws. Together we'll figure out what your mind is really trying to tell you."</p>
+        <div class="card-meta">
+          <div class="card-meta-row"><span>🎓</span> M.A. Clinical Psychology</div>
+          <div class="card-meta-row"><span>💼</span> 7+ years · 350+ clients</div>
+          <div class="card-meta-row"><span>🖥️</span> Online & in-person (Mumbai)</div>
+          <div class="card-meta-row"><span>🗣️</span> English, Hindi, Marathi</div>
+        </div>
+        <div class="card-tags">
+          <span class="card-tag">Overthinking</span>
+          <span class="card-tag">Burnout</span>
+          <span class="card-tag">Self-esteem</span>
+          <span class="card-tag">DBT</span>
+        </div>
+      </div>
+      <div class="card-footer-row">
+        <div class="card-rating-small">★ 4.8 <span>· 134 reviews</span></div>
+        <button class="request-btn" onclick="openBookingModal('Dr. Rohan Mehta','Psychotherapist','purple')">Request Session</button>
+      </div>
+    </div>
+ 
+    <!-- Dr. Neha Sharma -->
+    <div class="therapist-card" data-tags="sleep stress emotional">
+      <div class="card-photo">
+        <div class="card-photo-initials bg3">NS</div>
+        <div class="availability-dot">Available today</div>
+      </div>
+      <div class="card-info">
+        <h3>Dr. Neha Sharma</h3>
+        <div class="card-role">Counseling Psychologist · Delhi University</div>
+        <p class="card-about">"Sleep and emotional wellbeing are deeply connected. I help people find rest — both in their body and their mind."</p>
+        <div class="card-meta">
+          <div class="card-meta-row"><span>🎓</span> M.Sc Counseling Psychology</div>
+          <div class="card-meta-row"><span>💼</span> 4+ years · 180+ clients</div>
+          <div class="card-meta-row"><span>🖥️</span> Online sessions only</div>
+          <div class="card-meta-row"><span>🗣️</span> English, Hindi, Punjabi</div>
+        </div>
+        <div class="card-tags">
+          <span class="card-tag">Sleep Issues</span>
+          <span class="card-tag">Stress</span>
+          <span class="card-tag">Emotional Healing</span>
+          <span class="card-tag">Mindfulness</span>
+        </div>
+      </div>
+      <div class="card-footer-row">
+        <div class="card-rating-small">★ 4.9 <span>· 112 reviews</span></div>
+        <button class="request-btn" onclick="openBookingModal('Dr. Neha Sharma','Counseling Psychologist','blue')">Request Session</button>
+      </div>
+    </div>
+ 
+  </div>
+ 
+  <p class="therapist-disclaimer">
+    ⚠️ This platform does not provide medical diagnosis. If you are in crisis, please contact local emergency services or a trusted mental health professional immediately.
   </p>
 </section>
 
+<!-- ════════════════════════════════
+     BOOKING MODAL
+════════════════════════════════ -->
+<div class="modal-overlay" id="bookingModal">
+  <div class="modal">
+ 
+    <div class="modal-header">
+      <div class="modal-doc-avatar" id="modalDocAvatar">AV</div>
+      <div class="modal-header-text">
+        <h3 id="modalDocName">Dr. Asha Verma</h3>
+        <p id="modalDocRole">Clinical Psychologist</p>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+ 
+    <div class="modal-steps">
+      <div class="modal-step active" id="step-ind-1">1. Your Details</div>
+      <div class="modal-step" id="step-ind-2">2. Schedule</div>
+      <div class="modal-step" id="step-ind-3">3. Confirm</div>
+    </div>
+ 
+    <div class="modal-body">
+ 
+      <!-- Step 1 -->
+      <div class="step-panel active" id="step1">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="fieldName" placeholder="Your full name"/>
+          </div>
+          <div class="form-group">
+            <label>Age *</label>
+            <input type="number" id="fieldAge" placeholder="e.g. 24" min="10" max="100"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Email Address *</label>
+          <input type="email" id="fieldEmail" placeholder="you@example.com"/>
+        </div>
+        <div class="form-group">
+          <label>Phone Number <span style="color:#9ca3af;font-weight:400;">(optional)</span></label>
+          <input type="tel" id="fieldPhone" placeholder="+91 98765 43210"/>
+        </div>
+        <div class="form-group">
+          <label>What are you mainly struggling with?</label>
+          <div class="concern-chips" id="concernChips">
+            <button class="concern-chip" onclick="toggleChip(this)">Anxiety</button>
+            <button class="concern-chip" onclick="toggleChip(this)">Stress</button>
+            <button class="concern-chip" onclick="toggleChip(this)">Overthinking</button>
+            <button class="concern-chip" onclick="toggleChip(this)">Sleep issues</button>
+            <button class="concern-chip" onclick="toggleChip(this)">Low mood</button>
+            <button class="concern-chip" onclick="toggleChip(this)">Relationship issues</button>
+            <button class="concern-chip" onclick="toggleChip(this)">Work / Burnout</button>
+            <button class="concern-chip" onclick="toggleChip(this)">Self-esteem</button>
+            <button class="concern-chip" onclick="toggleChip(this)">Something else</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Have you spoken to a therapist before?</label>
+          <select id="fieldPrior">
+            <option value="">Select...</option>
+            <option>No, this is my first time</option>
+            <option>Yes, a while ago</option>
+            <option>Yes, I see one regularly</option>
+          </select>
+        </div>
+      </div>
+ 
+      <!-- Step 2 -->
+      <div class="step-panel" id="step2">
+        <div class="form-group">
+          <label>Preferred Date *</label>
+          <input type="date" id="fieldDate"/>
+        </div>
+        <div class="form-group">
+          <label>Session Type *</label>
+          <select id="fieldMode">
+            <option value="">Select session type...</option>
+            <option>Video call (Zoom / Google Meet)</option>
+            <option>Phone call</option>
+            <option>Chat / Text session</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Pick a time slot *</label>
+          <div class="time-slots">
+            <button class="time-slot" onclick="selectSlot(this)">9:00 AM</button>
+            <button class="time-slot" onclick="selectSlot(this)">10:00 AM</button>
+            <button class="time-slot unavailable">11:00 AM</button>
+            <button class="time-slot" onclick="selectSlot(this)">12:00 PM</button>
+            <button class="time-slot unavailable">2:00 PM</button>
+            <button class="time-slot" onclick="selectSlot(this)">3:00 PM</button>
+            <button class="time-slot" onclick="selectSlot(this)">4:00 PM</button>
+            <button class="time-slot" onclick="selectSlot(this)">5:00 PM</button>
+            <button class="time-slot unavailable">6:00 PM</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Anything specific you'd like to discuss? <span style="color:#9ca3af;font-weight:400;">(optional)</span></label>
+          <textarea id="fieldNote" rows="3" placeholder="e.g. I've been feeling overwhelmed at work lately and can't seem to switch off…"></textarea>
+        </div>
+      </div>
+ 
+      <!-- Step 3 -->
+      <div class="step-panel" id="step3">
+        <div class="confirm-box" id="confirmBox"></div>
+        <p class="confirm-note">📧 A confirmation will be sent to your email. The therapist will reach out 30 min before your session with the meeting link. Sessions are 50 minutes long.</p>
+      </div>
+ 
+      <!-- Step 4: Success -->
+      <div class="step-panel" id="step4">
+        <div class="success-screen">
+          <div class="success-icon">✅</div>
+          <h3>Session Booked!</h3>
+          <p>Your session with <strong id="successDocName"></strong> has been confirmed.<br>Check your email for the details.</p>
+          <div class="booking-ref" id="bookingRef">REF-######</div>
+          <p style="font-size:12px;color:#9ca3af;margin-top:4px;">Save this for your records</p>
+        </div>
+      </div>
+ 
+    </div><!-- end modal-body -->
+ 
+    <div class="modal-footer" id="modalFooter">
+      <button class="btn-back" id="btnBack" onclick="modalBack()" style="visibility:hidden">← Back</button>
+      <button class="btn-next" id="btnNext" onclick="modalNext()">Next →</button>
+    </div>
+ 
+  </div>
+</div>
 
   <!-- ================= MUSIC SECTION ================= -->
-
-  <section class="music-section" id="music">
-  <h2>🎵 Relaxing Music</h2>
-  <p class="section-subtitle">Choose a mood and relax your mind</p>
-  <div class="music-filters" style="text-align:center; margin-bottom:30px;">
-  <button class="mood-btn" data-filter="all">All</button>
-  <button class="mood-btn" data-filter="calm">Calm</button>
-  <button class="mood-btn" data-filter="healing">Healing</button>
-  <button class="mood-btn" data-filter="sleep">Sleep</button>
-</div>
-
-  <div class="music-list">
-
-    <div class="music-card" data-mood="calm">
-      <p class="now-playing">Now Playing 🎵</p>
-      <h3>Calm Piano</h3>
-      <span class="mood-chip calm">Calm</span>
-      <p>Soft piano music for relaxing</p>
-      <audio controls>
-        <source src="./music/song1.mp3" type="audio/mpeg">
-      </audio>
-
-    </div>
-
-    <div class="music-card" data-mood="healing">
-      <p class="now-playing">Now Playing 🎵</p>
-      <h3>Rain Sounds</h3>
-      <span class="mood-chip heal">Heal</span>
-      <p>Gentle rain for deep relaxation</p>
-      <audio controls>
-        <source src="./music/song2.mp3" type="audio/mpeg">
-      </audio>
-    </div>
-
-    <div class="music-card" data-mood="sleep">
-      <p class="now-playing">Now Playing 🎵</p>
-      <h3>Forest Ambience</h3>
-      <span class="mood-chip relax">Relax</span>
-      <p>Nature sounds for calm focus</p>
-      <audio controls>
-        <source src="./music/song3.mp3" type="audio/mpeg">
-      </audio>
-    </div>
-
+  <!-- ===================== MUSIC SECTION HTML ===================== -->
+<section class="music-section" id="music">
+ 
+  <div class="music-bg-glow"></div>
+ 
+  <!-- Header -->
+  <div class="music-header">
+    <p class="music-eyebrow">✦ Sound Therapy</p>
+    <h2>Relaxing Music</h2>
+    <p class="section-subtitle">Let sound carry the weight your mind is holding.</p>
   </div>
+ 
+  <!-- Mood filter pills -->
+  <div class="music-filters">
+    <button class="mood-btn active" data-filter="all">All Moods</button>
+    <button class="mood-btn" data-filter="calm">🌊 Calm</button>
+    <button class="mood-btn" data-filter="healing">🌧️ Healing</button>
+    <button class="mood-btn" data-filter="sleep">🌙 Sleep</button>
+  </div>
+ 
+  <!-- Track list -->
+  <div class="music-list">
+ 
+    <!-- Track 1 -->
+    <div class="music-card" data-mood="calm">
+      <div class="track-left">
+        <div class="track-cover cover-calm">
+          <span class="track-cover-icon">🎹</span>
+          <div class="cover-ring ring-1"></div>
+          <div class="cover-ring ring-2"></div>
+        </div>
+        <div class="track-info">
+          <p class="now-playing">▶ Now Playing</p>
+          <h3 class="track-name">Calm Piano</h3>
+          <p class="track-desc">Soft piano melodies for a quiet mind</p>
+          <span class="mood-chip calm">Calm</span>
+        </div>
+      </div>
+      <div class="track-right">
+        <audio controls>
+          <source src="./music/song1.mp3" type="audio/mpeg">
+        </audio>
+      </div>
+    </div>
+ 
+    <!-- Track 2 -->
+    <div class="music-card" data-mood="healing">
+      <div class="track-left">
+        <div class="track-cover cover-healing">
+          <span class="track-cover-icon">🌧️</span>
+          <div class="cover-ring ring-1"></div>
+          <div class="cover-ring ring-2"></div>
+        </div>
+        <div class="track-info">
+          <p class="now-playing">▶ Now Playing</p>
+          <h3 class="track-name">Rain Sounds</h3>
+          <p class="track-desc">Gentle rain for deep relaxation</p>
+          <span class="mood-chip heal">Healing</span>
+        </div>
+      </div>
+      <div class="track-right">
+        <audio controls>
+          <source src="./music/song2.mp3" type="audio/mpeg">
+        </audio>
+      </div>
+    </div>
+ 
+    <!-- Track 3 -->
+    <div class="music-card" data-mood="sleep">
+      <div class="track-left">
+        <div class="track-cover cover-sleep">
+          <span class="track-cover-icon">🌲</span>
+          <div class="cover-ring ring-1"></div>
+          <div class="cover-ring ring-2"></div>
+        </div>
+        <div class="track-info">
+          <p class="now-playing">▶ Now Playing</p>
+          <h3 class="track-name">Forest Ambience</h3>
+          <p class="track-desc">Nature sounds for calm focus</p>
+          <span class="mood-chip relax">Sleep</span>
+        </div>
+      </div>
+      <div class="track-right">
+        <audio controls>
+          <source src="./music/song3.mp3" type="audio/mpeg">
+        </audio>
+      </div>
+    </div>
+ 
+  </div>
+ 
+  <p class="music-footer-note">🎧 Use headphones for the best experience</p>
+ 
 </section>
 
-
-  <!-- ================= ABOUT SECTION ================= -->
-
-  <section id="about" class="about-section">
-    <h2>About Mindora</h2>
-    <p>
-      Mindora is a supportive platform designed to help people
-      dealing with overthinking, stress, and emotional exhaustion.
-      You are always heard here.
-    </p>
-  </section>
-
-  <!-- ================= DISCLAIMER SECTION ================= -->
-
-  <section id="disclaimer" class="disclaimer-section">
-    <h2>Disclaimer</h2>
-    <p>
-      This platform is not a substitute for professional medical
-      advice, diagnosis, or treatment.
-      If you are in danger, please contact a mental health professional
-      or local emergency services immediately.
-    </p>
-  </section>
-
-  <!-- ================= FOOTER ================= -->
-
-  <footer>
-    <p>© 2026 Mindora. All rights reserved.</p>
-    <p>If you need immediate help, contact local helplines.</p>
-  </footer>
-<script src="script.js">
-  if (localStorage.getItem("isLoggedIn") !== "true") {
-  window.location.href = "login.html";
-}
-</script>
+  <!-- =================== ABOUT SECTION HTML =================== -->
+<section id="about" class="about-section">
+ 
+  <!-- Floating background circles (pure CSS, decorative) -->
+  <div class="about-blob about-blob-1"></div>
+  <div class="about-blob about-blob-2"></div>
+ 
+  <div class="about-inner">
+ 
+    <!-- Left: text -->
+    <div class="about-text">
+      <p class="about-eyebrow">Who We Are</p>
+      <h2 class="about-title">About <span>Mindora</span></h2>
+      <p class="about-lead">
+        Mindora is a supportive platform designed to help people dealing with
+        overthinking, stress, and emotional exhaustion.
+        <strong>You are always heard here.</strong>
+      </p>
+      <p class="about-body">
+        We believe that mental wellness is not a luxury — it's a necessity.
+        Whether you need a quiet space to vent, calming music to breathe to,
+        or a real therapist to talk with, Mindora is built around you.
+      </p>
+ 
+      <div class="about-values">
+        <div class="about-value">
+          <div class="about-value-icon">🔒</div>
+          <div>
+            <h4>Private & Safe</h4>
+            <p>Everything you share stays between you and Mindora.</p>
+          </div>
+        </div>
+        <div class="about-value">
+          <div class="about-value-icon">💚</div>
+          <div>
+            <h4>Always Here</h4>
+            <p>Support available any time of day, no appointment needed.</p>
+          </div>
+        </div>
+        <div class="about-value">
+          <div class="about-value-icon">🧠</div>
+          <div>
+            <h4>Evidence-Based</h4>
+            <p>Guided by CBT, mindfulness, and real clinical frameworks.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- Right: stat cards -->
+    <div class="about-stats">
+      <div class="about-stat-card">
+        <div class="about-stat-num">2,400+</div>
+        <div class="about-stat-label">People supported</div>
+      </div>
+      <div class="about-stat-card accent-purple">
+        <div class="about-stat-num">3</div>
+        <div class="about-stat-label">Certified therapists</div>
+      </div>
+      <div class="about-stat-card accent-teal">
+        <div class="about-stat-num">24 / 7</div>
+        <div class="about-stat-label">Always available</div>
+      </div>
+      <div class="about-stat-card accent-warm">
+        <div class="about-stat-num">98%</div>
+        <div class="about-stat-label">Satisfaction rate</div>
+      </div>
+    </div>
+ 
+  </div>
+</section>
+ 
+ 
+<!-- =================== DISCLAIMER SECTION HTML =================== -->
+<section id="disclaimer" class="disclaimer-section">
+  <div class="disclaimer-inner">
+ 
+    <div class="disclaimer-icon-wrap">
+      <span class="disclaimer-icon">⚠️</span>
+    </div>
+ 
+    <div class="disclaimer-content">
+      <h2>Important Disclaimer</h2>
+      <p class="disclaimer-lead">
+        Mindora is a wellness support platform, not a medical service.
+      </p>
+      <p class="disclaimer-body">
+        This platform is <strong>not a substitute</strong> for professional medical advice,
+        diagnosis, or treatment. The chatbot and resources provided here are meant for
+        general emotional support only. Always consult a qualified mental health
+        professional for clinical concerns.
+      </p>
+ 
+      <div class="disclaimer-cards">
+        <div class="disclaimer-card">
+          <span>🚨</span>
+          <div>
+            <h4>In an emergency?</h4>
+            <p>Please call your local emergency services or go to the nearest hospital immediately.</p>
+          </div>
+        </div>
+        <div class="disclaimer-card">
+          <span>📞</span>
+          <div>
+            <h4>Need to talk right now?</h4>
+            <p>iCall India helpline: <strong>9152987821</strong> — free, confidential, available Mon–Sat.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+  </div>
+</section>
+ 
+ 
+<!-- =================== FOOTER HTML =================== -->
+<footer>
+ 
+  <div class="footer-inner">
+ 
+    <!-- Brand -->
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <span class="footer-logo-icon">🌿</span>
+        <span class="footer-logo-name">Mindora</span>
+      </div>
+      <p class="footer-tagline">A quiet space for tired minds<br>and heavy hearts.</p>
+      <div class="footer-socials">
+        <a href="#" class="footer-social" title="Instagram">📸</a>
+        <a href="#" class="footer-social" title="Twitter">🐦</a>
+        <a href="#" class="footer-social" title="Email">✉️</a>
+      </div>
+    </div>
+ 
+    <!-- Nav links -->
+    <div class="footer-nav">
+      <h4 class="footer-nav-title">Quick Links</h4>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#chat">Chat with Mindora</a></li>
+        <li><a href="#therapists">Our Therapists</a></li>
+        <li><a href="#music">Relaxing Music</a></li>
+        <li><a href="#about">About Us</a></li>
+      </ul>
+    </div>
+ 
+    <!-- Support -->
+    <div class="footer-nav">
+      <h4 class="footer-nav-title">Support</h4>
+      <ul>
+        <li><a href="#disclaimer">Disclaimer</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Use</a></li>
+        <li><a href="#">Contact Us</a></li>
+      </ul>
+    </div>
+ 
+    <!-- Crisis helpline -->
+    <div class="footer-helpline">
+      <h4 class="footer-nav-title">Crisis Helplines 🇮🇳</h4>
+      <div class="helpline-item">
+        <span class="helpline-name">iCall</span>
+        <span class="helpline-num">9152987821</span>
+      </div>
+      <div class="helpline-item">
+        <span class="helpline-name">Vandrevala Foundation</span>
+        <span class="helpline-num">1860-2662-345</span>
+      </div>
+      <div class="helpline-item">
+        <span class="helpline-name">NIMHANS</span>
+        <span class="helpline-num">080-46110007</span>
+      </div>
+    </div>
+ 
+  </div>
+ 
+  <!-- Bottom bar -->
+  <div class="footer-bottom">
+    <p>© 2026 Mindora. All rights reserved. Made with 💚 for mental wellness.</p>
+    <p class="footer-bottom-note">If you need immediate help, please reach out to a local helpline.</p>
+  </div>
+ 
+</footer>
+  <script src="script.js"></script>
 </body>
 </html>

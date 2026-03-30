@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Therapist Dashboard | Mindora</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f8f7;
+            color: #2f3e46;
+        }
+
+        /* ── Navbar ── */
+        .t-navbar {
+            background: #fff;
+            padding: 14px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        .t-navbar-brand {
+            font-size: 20px;
+            font-weight: 700;
+            color: #52796f;
+        }
+
+        .t-navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .t-therapist-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #2f3e46;
+        }
+
+        .t-logout-btn {
+            padding: 8px 18px;
+            border-radius: 20px;
+            border: 1.5px solid #e5e7eb;
+            background: white;
+            color: #6b7280;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .t-logout-btn:hover {
+            background: #e74c3c;
+            color: white;
+            border-color: #e74c3c;
+        }
+
+        /* ── Layout ── */
+        .t-layout {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            min-height: calc(100vh - 60px);
+        }
+
+        /* ── Sidebar ── */
+        .t-sidebar {
+            background: #1e2d2b;
+            padding: 28px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .t-sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 24px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .t-sidebar-item:hover,
+        .t-sidebar-item.active {
+            background: rgba(82, 121, 111, 0.2);
+            color: #fff;
+            border-left-color: #6fbf9b;
+        }
+
+        .t-sidebar-item span {
+            font-size: 18px;
+        }
+
+        /* ── Main content ── */
+        .t-main {
+            padding: 32px 36px;
+        }
+
+        .t-page {
+            display: none;
+        }
+
+        .t-page.active {
+            display: block;
+        }
+
+        /* ── Stats row ── */
+        .t-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .t-stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 22px 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eef2f0;
+        }
+
+        .t-stat-num {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e2d2b;
+        }
+
+        .t-stat-label {
+            font-size: 13px;
+            color: #7a9090;
+            margin-top: 4px;
+        }
+
+        /* ── Table ── */
+        .t-table-wrap {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .t-table-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid #f0f4f2;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e2d2b;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f9fafb;
+            padding: 12px 20px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        td {
+            padding: 14px 20px;
+            font-size: 13px;
+            color: #2f3e46;
+            border-top: 1px solid #f5f7fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-confirmed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-cancelled {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-completed {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .action-btn {
+            padding: 6px 14px;
+            border-radius: 10px;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-right: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-accept {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .btn-accept:hover {
+            background: #52796f;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-cancel:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        /* ── Availability form ── */
+        .t-form {
+            max-width: 500px;
+        }
+
+        .t-form-group {
+            margin-bottom: 18px;
+        }
+
+        .t-form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .t-form-group input,
+        .t-form-group select {
+            width: 100%;
+            padding: 11px 14px;
+            border-radius: 10px;
+            border: 1.5px solid #e5e7eb;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .t-form-group input:focus,
+        .t-form-group select:focus {
+            border-color: #52796f;
+        }
+
+        .t-save-btn {
+            padding: 12px 28px;
+            border-radius: 12px;
+            background: #52796f;
+            color: white;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .t-save-btn:hover {
+            background: #3d6155;
+            transform: translateY(-1px);
+        }
+
+        /* ── Pending verification notice ── */
+        .pending-notice {
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            border-radius: 14px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .pending-notice p {
+            font-size: 14px;
+            color: #92400e;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <div class="t-navbar">
+        <div class="t-navbar-brand">🌿 Mindora — Therapist Portal</div>
+        <div class="t-navbar-right">
+            <span class="t-therapist-name" id="tName">Loading...</span>
+            <button class="t-logout-btn" onclick="therapistLogout()">Logout</button>
+        </div>
+    </div>
+
+    <!-- Layout -->
+    <div class="t-layout">
+
+        <!-- Sidebar -->
+        <div class="t-sidebar">
+            <div class="t-sidebar-item active" onclick="showPage('dashboard',this)">
+                <span>📊</span> Dashboard
+            </div>
+            <div class="t-sidebar-item" onclick="showPage('sessions',this)">
+                <span>📅</span> Sessions
+            </div>
+            <div class="t-sidebar-item" onclick="showPage('availability',this)">
+                <span>🕐</span> Availability
+            </div>
+            <div class="t-sidebar-item" onclick="showPage('earnings',this)">
+                <span>💰</span> Earnings
+            </div>
+        </div>
+
+        <!-- Main -->
+        <div class="t-main">
+
+            <!-- Dashboard Page -->
+            <div class="t-page active" id="page-dashboard">
+                <h2 style="margin-bottom:24px;font-size:22px;">Welcome back 👋</h2>
+                <div id="pendingNotice"></div>
+                <div class="t-stats">
+                    <div class="t-stat-card">
+                        <div class="t-stat-num" id="totalSessions">—</div>
+                        <div class="t-stat-label">Total sessions</div>
+                    </div>
+                    <div class="t-stat-card">
+                        <div class="t-stat-num" id="pendingSessions">—</div>
+                        <div class="t-stat-label">Upcoming confirmed</div>
+                    </div>
+                    <div class="t-stat-card">
+                        <div class="t-stat-num" id="totalEarnings">—</div>
+                        <div class="t-stat-label">Total earnings (₹)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sessions Page -->
+            <div class="t-page" id="page-sessions">
+                <h2 style="margin-bottom:24px;font-size:22px;">Your Sessions</h2>
+                <div class="t-table-wrap">
+                    <div class="t-table-header">All Booked Sessions</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Patient</th>
+                                <th>Date & Time</th>
+                                <th>Mode</th>
+                                <th>Concerns</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sessionsTableBody">
+                            <tr>
+                                <td colspan="6" style="text-align:center;color:#9ca3af;padding:30px;">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Availability Page -->
+            <div class="t-page" id="page-availability">
+                <h2 style="margin-bottom:24px;font-size:22px;">Set Availability & Pricing</h2>
+                <div class="t-form">
+                    <div class="t-form-group">
+                        <label>Working days</label>
+                        <input type="text" id="avDays" placeholder="e.g. Mon,Tue,Wed,Thu,Fri"
+                            value="Mon,Tue,Wed,Thu,Fri" />
+                    </div>
+                    <div class="t-form-group">
+                        <label>Start time</label>
+                        <input type="time" id="avStart" value="09:00" />
+                    </div>
+                    <div class="t-form-group">
+                        <label>End time</label>
+                        <input type="time" id="avEnd" value="18:00" />
+                    </div>
+                    <div class="t-form-group">
+                        <label>Session fee (₹ flat)</label>
+                        <input type="number" id="avSessionFee" placeholder="e.g. 299" />
+                    </div>
+                    <div class="t-form-group">
+                        <label>Per-minute rate (₹)</label>
+                        <input type="number" id="avPricePerMin" placeholder="e.g. 2" />
+                    </div>
+                    <button class="t-save-btn" onclick="saveAvailability()">Save Changes</button>
+                    <p id="avMsg" style="margin-top:12px;font-size:13px;color:#52796f;"></p>
+                </div>
+            </div>
+
+            <!-- Earnings Page -->
+            <div class="t-page" id="page-earnings">
+                <h2 style="margin-bottom:24px;font-size:22px;">Earnings</h2>
+                <div class="t-stat-card" style="max-width:300px;margin-bottom:24px;">
+                    <div class="t-stat-num" id="earningsDisplay">₹—</div>
+                    <div class="t-stat-label">Total earned (after 20% platform fee)</div>
+                </div>
+                <p style="font-size:13px;color:#9ca3af;">
+                    Payments are settled weekly. Platform commission is 20% per session.
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const T_API = 'http://localhost:5000/api';
+        let tToken = localStorage.getItem('therapistToken');
+        let dashData = null;
+
+        // Guard — redirect if not logged in
+        if (!tToken) window.location.href = 'therapist-login.html';
+
+        // Page switching
+        function showPage(name, el) {
+            document.querySelectorAll('.t-page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.t-sidebar-item').forEach(i => i.classList.remove('active'));
+            document.getElementById('page-' + name).classList.add('active');
+            el.classList.add('active');
+        }
+
+        // Load dashboard data
+        async function loadDashboard() {
+            try {
+                const res = await fetch(`${T_API}/therapist/dashboard`, {
+                    headers: { 'Authorization': `Bearer ${tToken}` }
+                });
+                if (res.status === 401) { therapistLogout(); return; }
+                dashData = await res.json();
+
+                // Navbar
+                document.getElementById('tName').textContent = dashData.therapist.name;
+
+                // Stats
+                document.getElementById('totalSessions').textContent = dashData.totalSessions;
+                document.getElementById('pendingSessions').textContent = dashData.pendingSessions;
+                document.getElementById('totalEarnings').textContent = '₹' + dashData.earnings;
+                document.getElementById('earningsDisplay').textContent = '₹' + dashData.earnings;
+
+                // Pending verification notice
+                if (!dashData.therapist.isVerified) {
+                    document.getElementById('pendingNotice').innerHTML = `
+          <div class="pending-notice">
+            <span style="font-size:24px;">⏳</span>
+            <p>Your account is pending admin verification. You can set up your profile but cannot accept sessions yet.</p>
+          </div>`;
+                }
+
+                // Populate sessions table
+                const tbody = document.getElementById('sessionsTableBody');
+                if (dashData.sessions.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:30px;">No sessions yet</td></tr>`;
+                } else {
+                    tbody.innerHTML = dashData.sessions.map(s => `
+          <tr>
+            <td><strong>${s.user?.name || '—'}</strong><br>
+                <span style="font-size:12px;color:#9ca3af;">${s.user?.email || ''}</span></td>
+            <td>${s.date}<br><span style="font-size:12px;color:#9ca3af;">${s.time}</span></td>
+            <td>${s.mode}</td>
+            <td style="font-size:12px;">${s.concerns || '—'}</td>
+            <td><span class="status-badge status-${s.status}">${s.status}</span></td>
+            <td>
+              ${s.status === 'confirmed' ? `
+                <button class="action-btn btn-accept" onclick="startSession('${s.ref}','${s.user?.name}')">Start</button>
+                <button class="action-btn btn-cancel" onclick="cancelSession('${s._id}')">Cancel</button>
+              ` : '—'}
+            </td>
+          </tr>
+        `).join('');
+                }
+
+                // Pre-fill availability form
+                const av = dashData.therapist.availability;
+                if (av) {
+                    document.getElementById('avDays').value = (av.days || []).join(',');
+                    document.getElementById('avStart').value = av.start || '09:00';
+                    document.getElementById('avEnd').value = av.end || '18:00';
+                }
+                document.getElementById('avSessionFee').value = dashData.therapist.sessionFee || 299;
+                document.getElementById('avPricePerMin').value = dashData.therapist.pricePerMin || 2;
+
+            } catch (err) {
+                console.error('Dashboard error:', err);
+            }
+        }
+
+        async function saveAvailability() {
+            const body = {
+                days: document.getElementById('avDays').value.split(',').map(d => d.trim()),
+                start: document.getElementById('avStart').value,
+                end: document.getElementById('avEnd').value,
+                sessionFee: Number(document.getElementById('avSessionFee').value),
+                pricePerMin: Number(document.getElementById('avPricePerMin').value)
+            };
+
+            try {
+                const res = await fetch(`${T_API}/therapist/availability`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${tToken}` },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                document.getElementById('avMsg').textContent = data.message || 'Saved!';
+            } catch (err) {
+                document.getElementById('avMsg').textContent = 'Save failed.';
+            }
+        }
+
+        async function cancelSession(id) {
+            if (!confirm('Cancel this session?')) return;
+            await fetch(`${T_API}/therapist/session/${id}/cancel`, {
+                method: 'PUT', headers: { 'Authorization': `Bearer ${tToken}` }
+            });
+            loadDashboard();
+        }
+
+        function startSession(ref, patientName) {
+            // Opens real-time session — same socket room as user
+            localStorage.setItem('activeSessionRef', ref);
+            localStorage.setItem('activePatientName', patientName);
+            window.location.href = 'therapist-session.html';
+        }
+
+        function therapistLogout() {
+            localStorage.removeItem('therapistToken');
+            window.location.href = 'therapist-login.html';
+        }
+
+        loadDashboard();
+    </script>
+</body>
+
+</html>

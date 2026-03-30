@@ -19,69 +19,87 @@
   <!-- ================= HEADER / NAVBAR ================= -->
   <header id="mainHeader">
     <nav class="navbar">
-
-      <!-- LOGO -->
       <div class="logo">
         <div class="logo-icon">🌿</div>
         <h1>Mindora</h1>
       </div>
 
-      <div class="user-bar">
-        <span class="wallet-badge" id="walletBadge">💰 ₹0</span>
-      </div>
-
-      <!-- NAV LINKS (center) -->
-      <ul class="nav-links" id="navLinks">
-        <li><a href="#home" class="nav-link" data-section="home">Home</a></li>
-        <li><a href="#chat" class="nav-link" data-section="chat">Chat</a></li>
+      <ul class="nav-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#chat">Chat</a></li>
         <li><a href="#wellness">Find Match</a></li>
-        <li><a href="#therapists" class="nav-link" data-section="therapists">Therapist</a></li>
-        <li><a href="#music" class="nav-link" data-section="music">Music</a></li>
-        <li><a href="#about" class="nav-link" data-section="about">About</a></li>
-        <!-- Sliding active indicator -->
-        <div class="nav-indicator" id="navIndicator"></div>
+        <li><a href="#therapists">Therapists</a></li>
+        <li><a href="#music">Music</a></li>
+        <li><a href="#about">About</a></li>
       </ul>
 
-      <!-- RIGHT SIDE: user info + logout -->
       <div class="nav-right">
-        <div class="user-pill">
-          <span class="user-avatar" id="userAvatar">U</span>
-          <span id="welcomeUser"></span>
+        <!-- Wallet badge -->
+        <div class="wallet-badge" id="walletBadge" onclick="openProfilePanel('wallet')">
+          💰 <span id="walletAmount">₹0</span>
         </div>
-        <button id="logoutBtn" class="logout-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
-          Logout
-        </button>
+
+        <!-- Profile button -->
+        <div class="profile-btn-wrap">
+          <button class="profile-btn" id="profileBtn" onclick="toggleProfileMenu()">
+            <div class="profile-avatar" id="profileAvatar">U</div>
+            <span id="profileName">User</span>
+            <span class="profile-chevron">▾</span>
+          </button>
+
+          <!-- Dropdown menu -->
+          <div class="profile-dropdown" id="profileDropdown">
+            <div class="pd-header">
+              <div class="pd-avatar" id="pdAvatar">U</div>
+              <div>
+                <div class="pd-name" id="pdName">User</div>
+                <div class="pd-email" id="pdEmail">user@example.com</div>
+              </div>
+            </div>
+            <div class="pd-divider"></div>
+            <div class="pd-item" onclick="openProfilePanel('wallet')">
+              <span class="pd-icon">💰</span>
+              <div>
+                <div class="pd-item-title">Wallet</div>
+                <div class="pd-item-sub">Balance & top-up</div>
+              </div>
+            </div>
+            <div class="pd-item" onclick="openProfilePanel('sessions')">
+              <span class="pd-icon">📅</span>
+              <div>
+                <div class="pd-item-title">My Sessions</div>
+                <div class="pd-item-sub">Booked & past sessions</div>
+              </div>
+            </div>
+            <div class="pd-item" onclick="openProfilePanel('mood')">
+              <span class="pd-icon">😊</span>
+              <div>
+                <div class="pd-item-title">Mood History</div>
+                <div class="pd-item-sub">Your last 30 mood logs</div>
+              </div>
+            </div>
+            <div class="pd-divider"></div>
+            <div class="pd-item pd-logout" onclick="logoutUser()">
+              <span class="pd-icon">🚪</span>
+              <div class="pd-item-title">Logout</div>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <!-- HAMBURGER (mobile) -->
-      <button class="hamburger" id="hamburger" aria-label="Menu">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-
     </nav>
-
-    <!-- MOBILE DRAWER -->
-    <div class="mobile-drawer" id="mobileDrawer">
-      <a href="#home" class="mobile-link" data-section="home">🏠 Home</a>
-      <a href="#chat" class="mobile-link" data-section="chat">💬 Chat</a>
-      <a href="#therapists" class="mobile-link" data-section="therapists">🧑‍⚕️ Therapist</a>
-      <a href="#music" class="mobile-link" data-section="music">🎵 Music</a>
-      <a href="#about" class="mobile-link" data-section="about">ℹ️ About</a>
-      <div class="mobile-divider"></div>
-      <div class="mobile-user">
-        <span id="mobileWelcome"></span>
-        <button id="mobileLogout" class="logout-btn">Logout</button>
-      </div>
-    </div>
   </header>
+
+  <!-- ================= PROFILE PANEL (slide-in drawer) ================= -->
+  <div class="profile-panel-overlay" id="profileOverlay" onclick="closeProfilePanel()"></div>
+  <div class="profile-panel" id="profilePanel">
+    <div class="pp-header">
+      <h3 id="ppTitle">Wallet</h3>
+      <button class="pp-close" onclick="closeProfilePanel()">✕</button>
+    </div>
+    <div class="pp-body" id="ppBody">
+      <!-- Content loaded dynamically -->
+    </div>
+  </div>
 
   <!-- ================= Home SECTION ================= -->
   <section id="home" class="hero">

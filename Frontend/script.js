@@ -186,6 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  setupNavbar();
   loadTherapists();
   loadWallet();
   /* ─────────────────────────────────────────────
@@ -894,3 +895,214 @@ async function loadWallet() {
 }
 
 // Call loadWallet inside DOMContentLoaded alongside loadTherapists()
+// ================= NAVBAR PROFILE SETUP =================
+
+function setupNavbar() {
+  const userData = JSON.parse(localStorage.getItem('mindoraUser') || '{}');
+  const initial = (userData.name || 'U')[0].toUpperCase();
+  const name = userData.name || 'User';
+  const email = userData.email || '';
+
+  // Set initials and name in navbar
+  if (document.getElementById('profileAvatar')) document.getElementById('profileAvatar').textContent = initial;
+  if (document.getElementById('profileName')) document.getElementById('profileName').textContent = name;
+  if (document.getElementById('pdAvatar')) document.getElementById('pdAvatar').textContent = initial;
+  if (document.getElementById('pdName')) document.getElementById('pdName').textContent = name;
+  if (document.getElementById('pdEmail')) document.getElementById('pdEmail').textContent = email;
+  if (document.getElementById('welcomeUser')) document.getElementById('welcomeUser').textContent = `Hi, ${name} 👋`;
+}
+
+// Toggle dropdown
+function toggleProfileMenu() {
+  const dropdown = document.getElementById('profileDropdown');
+  const btn = document.getElementById('profileBtn');
+  dropdown.classList.toggle('open');
+  btn.classList.toggle('open');
+
+  // Close when clicking outside
+  if (dropdown.classList.contains('open')) {
+    setTimeout(() => {
+      document.addEventListener('click', closeProfileMenuOutside);
+    }, 10);
+  }
+}
+
+function closeProfileMenuOutside(e) {
+  const wrap = document.querySelector('.profile-btn-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('profileDropdown').classList.remove('open');
+    document.getElementById('profileBtn').classList.remove('open');
+    document.removeEventListener('click', closeProfileMenuOutside);
+  }
+}
+
+// ================= PROFILE PANEL =================
+
+const moodEmojis = { awful: '😞', low: '😔', okay: '😐', good: '🙂', great: '😊' };
+
+function openProfilePanel(tab) {
+  // Close dropdown
+  document.getElementById('profileDropdown').classList.remove('open');
+  document.getElementById('profileBtn').classList.remove('open');
+
+  // Open panel
+  document.getElementById('profileOverlay').classList.add('open');
+  document.getElementById('profilePanel').classList.add('open');
+
+  if (tab === 'wallet') loadWalletPanel();
+  if (tab === 'sessions') loadSessionsPanel();
+  if (tab === 'mood') loadMoodPanel();
+}
+
+function closeProfilePanel() {
+  document.getElementById('profileOverlay').classList.remove('open');
+  document.getElementById('profilePanel').classList.remove('open');
+}
+
+// ── Wallet Panel ──
+async function loadWalletPanel() {
+  document.getElementById('ppTitle').textContent = '💰 Wallet';
+  document.getElementById('ppBody').innerHTML = '<p style="color:#9ca3af;font-size:13px;">Loading...</p>';
+
+  const token = localStorage.getItem('mindoraToken');
+  if (!token) { document.getElementById('ppBody').innerHTML = '<p>Please log in.</p>'; return; }
+
+  try {
+    const res = await fetch(`${API_BASE}/wallet`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const wallet = await res.json();
+
+    document.getElementById('ppBody').innerHTML = `
+      <div class="wallet-balance-card">
+        <div class="wallet-balance-label">Available Balance</div>
+        <div class="wallet-balance-amount">₹${wallet.balance}</div>
+      </div>
+
+      <div class="topup-row">
+        <input type="number" class="topup-input" id="topupAmount" placeholder="Enter amount (₹)" min="50"/>
+        <button class="topup-btn" onclick="addWalletFunds()">Add Money</button>
+      </div>
+      <p id="topupMsg" style="font-size:13px;color:#52796f;margin-bottom:16px;"></p>
+
+      <div class="txn-title">Transaction History</div>
+      ${wallet.transactions.length === 0
+        ? '<p style="color:#9ca3af;font-size:13px;">No transactions yet.</p>'
+        : wallet.transactions.slice().reverse().map(t => `
+          <div class="txn-item">
+            <div>
+              <div class="txn-desc">${t.description}</div>
+              <div class="txn-date">${new Date(t.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+            </div>
+            <div class="txn-amount ${t.type === 'credit' ? 'txn-credit' : 'txn-debit'}">
+              ${t.type === 'credit' ? '+' : '−'}₹${t.amount}
+            </div>
+          </div>`).join('')
+      }
+    `;
+  } catch (err) {
+    document.getElementById('ppBody').innerHTML = '<p style="color:#e74c3c;">Could not load wallet. Is backend running?</p>';
+  }
+}
+
+async function addWalletFunds() {
+  const amount = document.getElementById('topupAmount').value;
+  const token = localStorage.getItem('mindoraToken');
+  if (!amount || amount < 1) { alert('Enter a valid amount'); return; }
+
+  try {
+    const res = await fetch(`${API_BASE}/wallet/add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ amount: Number(amount) })
+    });
+    const data = await res.json();
+    document.getElementById('topupMsg').textContent = `✓ Added ₹${amount}. New balance: ₹${data.balance}`;
+    document.getElementById('walletAmount').textContent = `₹${data.balance}`;
+    setTimeout(loadWalletPanel, 800);
+  } catch (err) {
+    alert('Top-up failed.');
+  }
+}
+
+// ── Sessions Panel ──
+async function loadSessionsPanel() {
+  document.getElementById('ppTitle').textContent = '📅 My Sessions';
+  document.getElementById('ppBody').innerHTML = '<p style="color:#9ca3af;font-size:13px;">Loading...</p>';
+
+  const token = localStorage.getItem('mindoraToken');
+  if (!token) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/sessions/my`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const sessions = await res.json();
+
+    if (!sessions.length) {
+      document.getElementById('ppBody').innerHTML = `
+        <p style="color:#9ca3af;font-size:13px;text-align:center;margin-top:40px;">
+          No sessions booked yet.<br>Browse therapists to book your first session.
+        </p>`;
+      return;
+    }
+
+    document.getElementById('ppBody').innerHTML = sessions.map(s => `
+      <div class="session-item-card">
+        <div class="si-top">
+          <div class="si-name">${s.therapist?.name || 'Therapist'}</div>
+          <span class="si-status si-${s.status}">${s.status}</span>
+        </div>
+        <div class="si-detail">📅 ${s.date} · ${s.time}</div>
+        <div class="si-detail">🖥️ ${s.mode}</div>
+        ${s.concerns ? `<div class="si-detail">💬 ${s.concerns}</div>` : ''}
+        <div class="si-ref">${s.ref}</div>
+      </div>`).join('');
+  } catch (err) {
+    document.getElementById('ppBody').innerHTML = '<p style="color:#e74c3c;">Could not load sessions.</p>';
+  }
+}
+
+// ── Mood History Panel ──
+async function loadMoodPanel() {
+  document.getElementById('ppTitle').textContent = '😊 Mood History';
+  document.getElementById('ppBody').innerHTML = '<p style="color:#9ca3af;font-size:13px;">Loading...</p>';
+
+  const token = localStorage.getItem('mindoraToken');
+  if (!token) return;
+
+  try {
+    const res = await fetch(`${API_BASE}/mood/history`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const logs = await res.json();
+
+    if (!logs.length) {
+      document.getElementById('ppBody').innerHTML = `
+        <p style="color:#9ca3af;font-size:13px;text-align:center;margin-top:40px;">
+          No mood logs yet.<br>Use the mood tracker in the chat section.
+        </p>`;
+      return;
+    }
+
+    document.getElementById('ppBody').innerHTML = logs.map(l => `
+      <div class="mood-item">
+        <div class="mood-emoji">${moodEmojis[l.mood] || '😐'}</div>
+        <div>
+          <div class="mood-label">${l.mood}</div>
+          ${l.note ? `<div class="mood-note">"${l.note}"</div>` : ''}
+        </div>
+        <div class="mood-date">${new Date(l.loggedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</div>
+      </div>`).join('');
+  } catch (err) {
+    document.getElementById('ppBody').innerHTML = '<p style="color:#e74c3c;">Could not load mood history.</p>';
+  }
+}
+
+// ── Logout ──
+function logoutUser() {
+  localStorage.removeItem('mindoraToken');
+  localStorage.removeItem('isLoggedIn');
+  localStorage.removeItem('mindoraUser');
+  localStorage.removeItem('sessionExpiry');
+  window.location.href = 'login.html';
+}
+
+// Call setupNavbar and loadWallet inside DOMContentLoaded
+// add these two lines there:
+// setupNavbar();
+// loadWallet();

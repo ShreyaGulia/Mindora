@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Therapist Login | Mindora</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="auth.css">
+</head>
+
+<body>
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+
+    <div class="auth-wrapper">
+        <div class="auth-panel-left">
+            <div class="panel-content">
+                <div class="panel-logo">
+                    <span class="panel-logo-icon">🌿</span>
+                    <span class="panel-logo-name">Mindora</span>
+                </div>
+                <h2 class="panel-headline">Therapist<br><em>Portal</em></h2>
+                <p class="panel-sub">Manage your sessions, set availability, and track your earnings — all in one place.
+                </p>
+                <div class="panel-features">
+                    <div class="panel-feat"><span class="feat-icon">📅</span><span>View & manage sessions</span></div>
+                    <div class="panel-feat"><span class="feat-icon">💰</span><span>Track your earnings</span></div>
+                    <div class="panel-feat"><span class="feat-icon">🕐</span><span>Set your availability</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-panel-right">
+            <div class="auth-container">
+                <div class="brand">
+                    <div class="brand-badge"
+                        style="background:#eef5f2;font-size:22px;display:flex;align-items:center;justify-content:center;">
+                        🩺</div>
+                    <h1 class="brand-name">Therapist Login</h1>
+                </div>
+                <h2>Welcome back 👋</h2>
+                <p>Log in to your therapist portal.</p>
+
+                <div class="input-group">
+                    <span class="input-icon">✉️</span>
+                    <input type="email" id="tEmail" placeholder="Your email address" />
+                </div>
+                <div class="input-group">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="tPassword" placeholder="Your password" />
+                </div>
+
+                <button class="auth-btn" onclick="therapistLogin()">
+                    <span>Log In</span><span class="btn-arrow">→</span>
+                </button>
+
+                <div class="auth-divider"><span>or</span></div>
+                <div class="auth-link">New therapist? <a href="therapist-register.html">Register here</a></div>
+                <div class="auth-link" style="margin-top:8px;"><a href="login.html">For User login ⟶</a></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function therapistLogin() {
+            const email = document.getElementById('tEmail').value.trim();
+            const password = document.getElementById('tPassword').value;
+
+            if (!email || !password) { alert('Please fill all fields'); return; }
+
+            try {
+                const res = await fetch('http://localhost:5000/api/therapist-auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (!res.ok) { alert(data.message || 'Login failed'); return; }
+
+                localStorage.setItem('therapistToken', data.token);
+                localStorage.setItem('therapistUser', JSON.stringify(data.therapist));
+                window.location.href = 'therapist-dashboard.html';
+            } catch (err) {
+                alert('Could not connect to server.');
+            }
+        }
+    </script>
+</body>
+
+</html>

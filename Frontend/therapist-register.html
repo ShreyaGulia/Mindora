@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Therapist Register | Mindora</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="auth.css">
+</head>
+
+<body>
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+
+    <div class="auth-wrapper">
+        <div class="auth-panel-left">
+            <div class="panel-content">
+                <div class="panel-logo">
+                    <span class="panel-logo-icon">🌿</span>
+                    <span class="panel-logo-name">Mindora</span>
+                </div>
+                <h2 class="panel-headline">Join as a<br><em>Therapist</em></h2>
+                <p class="panel-sub">Help people heal. Your registration is reviewed by our admin team before
+                    activation.</p>
+                <div class="panel-features">
+                    <div class="panel-feat"><span class="feat-icon">✅</span><span>Admin verification required</span>
+                    </div>
+                    <div class="panel-feat"><span class="feat-icon">🔒</span><span>Your credentials are secure</span>
+                    </div>
+                    <div class="panel-feat"><span class="feat-icon">💚</span><span>Start earning once verified</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="auth-panel-right">
+            <div class="auth-container">
+                <div class="brand">
+                    <div class="brand-badge"
+                        style="background:#eef5f2;font-size:22px;display:flex;align-items:center;justify-content:center;">
+                        🩺</div>
+                    <h1 class="brand-name">Therapist Registration</h1>
+                </div>
+                <h2>Create your profile 🌱</h2>
+
+                <div class="input-group">
+                    <span class="input-icon">😊</span>
+                    <input type="text" id="tName" placeholder="Full name (with title e.g. Dr.)" />
+                </div>
+                <div class="input-group">
+                    <span class="input-icon">✉️</span>
+                    <input type="email" id="tEmail" placeholder="Email address" />
+                </div>
+                <div class="input-group">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="tPassword" placeholder="Create password" />
+                </div>
+                <div class="input-group">
+                    <span class="input-icon">🎓</span>
+                    <input type="text" id="tSpec" placeholder="Specialization (e.g. Anxiety, CBT)" />
+                </div>
+                <div class="input-group">
+                    <span class="input-icon">💼</span>
+                    <input type="text" id="tExp" placeholder="Experience (e.g. 5+ years)" />
+                </div>
+                <div class="input-group">
+                    <span class="input-icon">🏫</span>
+                    <input type="text" id="tInst" placeholder="Institution / Qualification" />
+                </div>
+                <div class="input-group">
+                    <span class="input-icon">🗣️</span>
+                    <input type="text" id="tLangs" placeholder="Languages (e.g. English,Hindi)" />
+                </div>
+
+                <button class="auth-btn" onclick="therapistRegister()">
+                    <span>Submit Registration</span><span class="btn-arrow">→</span>
+                </button>
+
+                <div class="auth-link" style="margin-top:14px;">
+                    Already registered? <a href="therapist-login.html">Log in</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function therapistRegister() {
+            const body = {
+                name: document.getElementById('tName').value.trim(),
+                email: document.getElementById('tEmail').value.trim(),
+                password: document.getElementById('tPassword').value,
+                specialization: document.getElementById('tSpec').value.trim(),
+                experience: document.getElementById('tExp').value.trim(),
+                institution: document.getElementById('tInst').value.trim(),
+                languages: document.getElementById('tLangs').value.trim()
+            };
+
+            if (!body.name || !body.email || !body.password) {
+                alert('Name, email and password are required');
+                return;
+            }
+
+            try {
+                const res = await fetch('http://localhost:5000/api/therapist-auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+
+                if (!res.ok) { alert(data.message || 'Registration failed'); return; }
+
+                alert('Registration submitted! You will be notified once admin verifies your account.');
+                window.location.href = 'therapist-login.html';
+            } catch (err) {
+                alert('Could not connect to server.');
+            }
+        }
+    </script>
+</body>
+
+</html>

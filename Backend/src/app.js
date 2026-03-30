@@ -11,6 +11,9 @@ const cookieParser = require('cookie-parser');
 const { generalLimiter } = require('./middleware/rateLimiter');
 const wellnessRoutes = require('./routes/wellnessRoutes');
 const walletRoutes = require('./routes/walletRoutes');
+const therapistAuthRoutes = require('./routes/therapistAuthRoutes');
+const therapistDashRoutes = require('./routes/therapistDashRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
@@ -39,7 +42,10 @@ app.use('/api/mood', require('./routes/moodRoutes'));
 app.use('/api/chat', require('./routes/chatRoutes'));
 app.use('/api/ai', require('./routes/aiChatRoutes'));
 app.use('/api/wellness', wellnessRoutes);
-app.use('/api/wallet', walletRoutes);  // Phase 4 AI
+app.use('/api/wallet', walletRoutes);
+app.use('/api/therapist-auth', therapistAuthRoutes);
+app.use('/api/therapist', therapistDashRoutes);
+app.use('/api/admin', adminRoutes);  // Phase 4 AI
 
 // ── Health check ──
 app.get('/api/health', (req, res) => {

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="auth.css">
 </head>
+
 <body>
 
   <!-- Decorative blobs -->
@@ -55,41 +57,48 @@
     <!-- Right panel — form -->
     <div class="auth-panel-right">
       <div class="auth-container">
-
+        <div class="brand">
+          <div class="brand-badge"
+            style="background:#eef5f2;font-size:22px;display:flex;align-items:center;justify-content:center;">
+            👤</div>
+          <h1 class="brand-name">User Login</h1>
+        </div>
         <h2>Welcome Back 👋</h2>
         <p>We're glad you're here. Let's pick up where you left off.</p>
 
         <!-- Form -->
         <form id="loginForm">
-         <p id="loginError" style="display:none;color:red;"></p>
-        <div class="input-group">
-          <span class="input-icon">✉️</span>
-          <input type="email" id="email" placeholder="Email address" autocomplete="email">
-        </div>
+          <p id="loginError" style="display:none;color:red;"></p>
+          <div class="input-group">
+            <span class="input-icon">✉️</span>
+            <input type="email" id="email" placeholder="Email address" autocomplete="email">
+          </div>
 
-        <div class="input-group">
-          <span class="input-icon">🔒</span>
-          <input type="password" id="password" placeholder="Password" autocomplete="current-password">
-          <button class="toggle-pw" type="button" onclick="togglePw('password', this)">👁</button>
-        </div>
+          <div class="input-group">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="password" placeholder="Password" autocomplete="current-password">
+            <button class="toggle-pw" type="button" onclick="togglePw('password', this)">👁</button>
+          </div>
 
-        <div class="auth-options">
-          <label class="remember-me">
-            <input type="checkbox"> Remember me
-          </label>
-          <a href="#" class="forgot-link">Forgot password?</a>
-        </div>
+          <div class="auth-options">
+            <label class="remember-me">
+              <input type="checkbox"> Remember me
+            </label>
+            <a href="#" class="forgot-link">Forgot password?</a>
+          </div>
 
-        <button type="submit" class="auth-btn">
-          <span>Log In</span>
-          <span class="btn-arrow">→</span>
-        </button>
+          <button type="submit" class="auth-btn">
+            <span>Log In</span>
+            <span class="btn-arrow">→</span>
+          </button>
 
-        <div class="auth-divider"><span>or</span></div>
+          <div class="auth-divider"><span>or</span></div>
 
-        <div class="auth-link">
-          Don't have an account? <a href="signup.html">Sign up free</a>
-        </div>
+          <div class="auth-link">
+            Don't have an account? <a href="signup.html">Sign up free</a>
+          </div>
+          <div class="auth-link" style="margin-top:8px;"><a href="therapist-login.html">For Therapist login ⟶</a>
+          </div>
         </form>
 
       </div>
@@ -99,4 +108,5 @@
 
   <script src="auth.js"></script>
 </body>
+
 </html>

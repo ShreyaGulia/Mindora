@@ -1,7 +1,7 @@
 require('dotenv').config();
-const mongoose   = require('mongoose');
-const connectDB  = require('./db');
-const Therapist  = require('../models/Therapist');
+const mongoose = require('mongoose');
+const connectDB = require('./db');
+const Therapist = require('../models/Therapist');
 
 const therapists = [
   {
@@ -13,9 +13,10 @@ const therapists = [
     mode: 'Online',
     languages: ['English', 'Hindi'],
     tags: ['Anxiety', 'Stress', 'Depression', 'CBT'],
-    rating: 4.9,
-    reviewCount: 98,
-    color: 'green'
+    rating: 4.9, reviewCount: 98,
+    color: 'green',
+    pricePerMin: 2, sessionFee: 299,
+    isVerified: true
   },
   {
     name: 'Dr. Rohan Mehta',
@@ -26,9 +27,10 @@ const therapists = [
     mode: 'Online / Offline',
     languages: ['English', 'Hindi', 'Marathi'],
     tags: ['Overthinking', 'Burnout', 'Self-esteem', 'DBT'],
-    rating: 4.8,
-    reviewCount: 134,
-    color: 'purple'
+    rating: 4.8, reviewCount: 134,
+    color: 'purple',
+    pricePerMin: 3, sessionFee: 399,
+    isVerified: true
   },
   {
     name: 'Dr. Neha Sharma',
@@ -39,9 +41,10 @@ const therapists = [
     mode: 'Online',
     languages: ['English', 'Hindi', 'Punjabi'],
     tags: ['Sleep Issues', 'Stress', 'Emotional Healing', 'Mindfulness'],
-    rating: 4.9,
-    reviewCount: 112,
-    color: 'blue'
+    rating: 4.9, reviewCount: 112,
+    color: 'blue',
+    pricePerMin: 2, sessionFee: 249,
+    isVerified: true
   }
 ];
 

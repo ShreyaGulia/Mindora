@@ -71,20 +71,22 @@
         <p class="subtext">Start your calm journey with us today.</p>
  
         <!-- Form -->
+        <form id="signupForm">
+         <p id="signupError" style="display:none;color:red;"></p>
         <div class="input-group">
           <span class="input-icon">😊</span>
-          <input type="text" id="signupName" placeholder="Your full name" autocomplete="name">
+          <input type="text" id="name" placeholder="Your full name" autocomplete="name">
         </div>
  
         <div class="input-group">
           <span class="input-icon">✉️</span>
-          <input type="email" id="signupEmail" placeholder="Email address" autocomplete="email">
+          <input type="email" id="email" placeholder="Email address" autocomplete="email">
         </div>
  
         <div class="input-group">
           <span class="input-icon">🔒</span>
-          <input type="password" id="signupPassword" placeholder="Create a password" autocomplete="new-password">
-          <button class="toggle-pw" type="button" onclick="togglePw('signupPassword', this)">👁</button>
+          <input type="password" id="password" placeholder="Create a password" autocomplete="new-password">
+          <button class="toggle-pw" type="button" onclick="togglePw('password', this)">👁</button>
         </div>
  
         <!-- Password strength bar -->
@@ -102,7 +104,7 @@
           </label>
         </div>
  
-        <button class="auth-btn" onclick="signup()">
+        <button type="submit" class="auth-btn">
           <span>Create My Account</span>
           <span class="btn-arrow">→</span>
         </button>
@@ -112,6 +114,7 @@
         <div class="auth-link">
           Already have an account? <a href="login.html">Log in</a>
         </div>
+        </form>
  
       </div>
     </div>

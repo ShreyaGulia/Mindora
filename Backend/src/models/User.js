@@ -23,6 +23,15 @@ const userSchema = new mongoose.Schema({
     enum: ['free', 'pro'],
     default: 'free'
   },
+  avatar: {
+    type: String,
+    default: ''        // URL or base64 string
+  },
+  preferences: {
+    theme:         { type: String, default: 'light' },
+    notifications: { type: Boolean, default: true },
+    language:      { type: String, default: 'en' }
+  },
   createdAt: {
     type: Date,
     default: Date.now

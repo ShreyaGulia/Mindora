@@ -60,15 +60,17 @@
         <p>We're glad you're here. Let's pick up where you left off.</p>
 
         <!-- Form -->
+        <form id="loginForm">
+         <p id="loginError" style="display:none;color:red;"></p>
         <div class="input-group">
           <span class="input-icon">✉️</span>
-          <input type="email" id="loginEmail" placeholder="Email address" autocomplete="email">
+          <input type="email" id="email" placeholder="Email address" autocomplete="email">
         </div>
 
         <div class="input-group">
           <span class="input-icon">🔒</span>
-          <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
-          <button class="toggle-pw" type="button" onclick="togglePw('loginPassword', this)">👁</button>
+          <input type="password" id="password" placeholder="Password" autocomplete="current-password">
+          <button class="toggle-pw" type="button" onclick="togglePw('password', this)">👁</button>
         </div>
 
         <div class="auth-options">
@@ -78,7 +80,7 @@
           <a href="#" class="forgot-link">Forgot password?</a>
         </div>
 
-        <button class="auth-btn" onclick="login()">
+        <button type="submit" class="auth-btn">
           <span>Log In</span>
           <span class="btn-arrow">→</span>
         </button>
@@ -88,6 +90,7 @@
         <div class="auth-link">
           Don't have an account? <a href="signup.html">Sign up free</a>
         </div>
+        </form>
 
       </div>
     </div>

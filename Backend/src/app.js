@@ -1,24 +1,61 @@
+/* =============================================================
+   Mindora — app.js  (Phase 4 Final)
+   All routes wired: auth, user, therapists,
+   sessions, mood, chat history, AI chat
+   ============================================================= */
+
 const express = require('express');
-const cors    = require('cors');
-const morgan  = require('morgan');
+const cors = require('cors');
+const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
+const { generalLimiter } = require('./middleware/rateLimiter');
+const wellnessRoutes = require('./routes/wellnessRoutes');
+const walletRoutes = require('./routes/walletRoutes');
 
 const app = express();
 
-// Allow your frontend origin to call this backend
+// ── CORS ──
 app.use(cors({
-  origin: ['http://127.0.0.1:5500', 'http://localhost:5500'],  // your frontend Live Server URL
+  origin: true,
   credentials: true
 }));
 
-// Parse incoming JSON request bodies
+// ── Parsers ──
 app.use(express.json());
+app.use(cookieParser());
 
-// Log every request to the console during development
+// ── Logger ──
 app.use(morgan('dev'));
 
-// Health check route — visit http://localhost:5000/api/health to confirm server is running
+// ── General rate limiter on all routes ──
+app.use(generalLimiter);
+
+// ── Routes ──
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/user/profile', require('./routes/userRoutes'));
+app.use('/api/therapists', require('./routes/therapistRoutes'));
+app.use('/api/sessions', require('./routes/sessionRoutes'));
+app.use('/api/mood', require('./routes/moodRoutes'));
+app.use('/api/chat', require('./routes/chatRoutes'));
+app.use('/api/ai', require('./routes/aiChatRoutes'));
+app.use('/api/wellness', wellnessRoutes);
+app.use('/api/wallet', walletRoutes);  // Phase 4 AI
+
+// ── Health check ──
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Mindora API is running' });
+  res.json({
+    status: 'ok',
+    message: 'Mindora API is running',
+    phase: 'Phase 4 — AI Chatbot Integration active'
+  });
+});
+
+// ── 404 handler ──
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route ${req.originalUrl} not found.`
+  });
 });
 
 module.exports = app;

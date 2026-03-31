@@ -1,0 +1,51 @@
+﻿[dotenv@17.3.1] injecting env (9) from .env -- tip: ≡ƒ¢í∩╕Å auth for agents: https://vestauth.com
+node : C:\Users\hp\Downloads\Mindca
+re_website\Backend\node_modules\rou
+ter\lib\route.js:228
+At line:1 char:1
++ node src/server.js > error.log 
+2>&1
++ 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotS 
+   pecified: (C:\Users\hp\Dow...i  
+  b\route.js:228:String) [], Rem   
+ oteException
+    + FullyQualifiedErrorId : Nati 
+   veCommandError
+ 
+        throw new 
+TypeError('argument handler must 
+be a function')
+        ^
+
+TypeError: argument handler must 
+be a function
+    at Route.<computed> [as put] (C
+:\Users\hp\Downloads\Mindcare_websi
+te\Backend\node_modules\router\lib\
+route.js:228:15)
+    at Router.<computed> [as put] (
+C:\Users\hp\Downloads\Mindcare_webs
+ite\Backend\node_modules\router\ind
+ex.js:448:19)
+    at Object.<anonymous> (C:\Users
+\hp\Downloads\Mindcare_website\Back
+end\src\routes\sessionRoutes.js:15:
+8)
+    at Module._compile (node:intern
+al/modules/cjs/loader:1761:14)
+    at Object..js (node:internal/mo
+dules/cjs/loader:1893:10)
+    at Module.load (node:internal/m
+odules/cjs/loader:1481:32)
+    at Module._load (node:internal/
+modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync 
+(node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:interna
+l/modules/cjs/loader:245:24)
+    at Module.require (node:interna
+l/modules/cjs/loader:1504:12)
+
+Node.js v24.11.1

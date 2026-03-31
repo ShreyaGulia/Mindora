@@ -14,7 +14,7 @@ const seedAdmin = async () => {
     await Admin.create({
         name: 'Mindora Admin',
         email: 'shreya10109@gmail.com',
-        password: 'Shreya15052005'
+        password: password
     });
 
     console.log('Admin seeded: shreya10109@gmail.com / Shreya15052005');

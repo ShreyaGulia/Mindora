@@ -8,7 +8,7 @@ const bookedSessionSchema = new mongoose.Schema({
   },
   therapist: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Therapist',
+    ref: 'TherapistUser',
     required: true
   },
   date: { type: String, required: true },       // "15 Jun 2025"

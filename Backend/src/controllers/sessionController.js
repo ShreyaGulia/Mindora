@@ -1,119 +1,79 @@
 const BookedSession = require('../models/BookedSession');
-const Therapist     = require('../models/Therapist');
+const TherapistUser = require('../models/TherapistUser');
 
-/* ─────────────────────────────────────────
-   POST /api/sessions/book
-   Save a new session booking
-   Maps to your existing booking modal flow
-───────────────────────────────────────── */
-exports.bookSession = async (req, res) => {
+// POST /api/sessions/book
+const bookSession = async (req, res) => {
   try {
     const { therapistId, date, time, mode, concerns, note } = req.body;
 
-    // 1. Validate required fields
-    if (!therapistId || !date || !time || !mode) {
-      return res.status(400).json({
-        success: false,
-        message: 'Therapist, date, time, and mode are required.'
-      });
-    }
-
-    // 2. Confirm therapist exists
-    const therapist = await Therapist.findById(therapistId);
+    // Validate therapist exists and is verified
+    const therapist = await TherapistUser.findById(therapistId);
     if (!therapist) {
-      return res.status(404).json({
-        success: false,
-        message: 'Therapist not found.'
-      });
+      return res.status(404).json({ message: 'Therapist not found' });
+    }
+    if (!therapist.isVerified) {
+      return res.status(400).json({ message: 'This therapist is not yet verified' });
     }
 
-    // 3. Generate unique booking reference (e.g. REF-A1B2C3)
     const ref = 'REF-' + Math.random().toString(36).substr(2, 6).toUpperCase();
 
-    // 4. Save session
     const session = await BookedSession.create({
-      user:      req.user.id,   // from protect middleware
+      user: req.user.id,
       therapist: therapistId,
       date,
       time,
       mode,
-      concerns:  concerns || '',
-      note:      note     || '',
-      ref
+      concerns,
+      note,
+      ref,
+      status: 'confirmed'
     });
 
-    // 5. Populate therapist details for response
-    await session.populate('therapist', 'name role institution');
+    const populated = await BookedSession.findById(session._id)
+      .populate('therapist', 'name role specialization');
 
-    return res.status(201).json({
-      success: true,
-      message: 'Session booked successfully.',
-      session
+    res.status(201).json({
+      message: 'Session booked successfully',
+      session: populated
     });
   } catch (err) {
-    console.error('bookSession error:', err);
-    return res.status(500).json({ success: false, message: 'Server error.' });
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
 
-/* ─────────────────────────────────────────
-   GET /api/sessions/my
-   Fetch all sessions for the logged-in user
-   (most recent first)
-───────────────────────────────────────── */
-exports.getMySessions = async (req, res) => {
+// GET /api/sessions/my
+const getMySessions = async (req, res) => {
   try {
-    const sessions = await BookedSession
-      .find({ user: req.user.id })
-      .populate('therapist', 'name role institution color')
-      .sort({ bookedAt: -1 });   // newest first
+    const sessions = await BookedSession.find({ user: req.user.id })
+      .populate('therapist', 'name specialization role')
+      .sort({ bookedAt: -1 });
 
-    return res.status(200).json({
-      success: true,
-      count: sessions.length,
-      sessions
-    });
+    res.json(sessions);
   } catch (err) {
-    console.error('getMySessions error:', err);
-    return res.status(500).json({ success: false, message: 'Server error.' });
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
 
-/* ─────────────────────────────────────────
-   PUT /api/sessions/:id/cancel
-   Cancel a booked session
-───────────────────────────────────────── */
-exports.cancelSession = async (req, res) => {
+// PUT /api/sessions/:id/cancel
+const cancelSession = async (req, res) => {
   try {
-    const session = await BookedSession.findOne({
-      _id:  req.params.id,
-      user: req.user.id       // ensure user owns this session
-    });
+    const session = await BookedSession.findById(req.params.id);
 
     if (!session) {
-      return res.status(404).json({
-        success: false,
-        message: 'Session not found.'
-      });
+      return res.status(404).json({ message: 'Session not found' });
     }
 
-    if (session.status === 'cancelled') {
-      return res.status(400).json({
-        success: false,
-        message: 'Session is already cancelled.'
-      });
+    if (session.user.toString() !== req.user.id) {
+      return res.status(401).json({ message: 'User not authorized to cancel this session' });
     }
 
     session.status = 'cancelled';
     await session.save();
 
-    return res.status(200).json({
-      success: true,
-      message: 'Session cancelled.',
-      session
-    });
+    res.json({ message: 'Session cancelled successfully', session });
   } catch (err) {
-    console.error('cancelSession error:', err);
-    return res.status(500).json({ success: false, message: 'Server error.' });
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+
+module.exports = { bookSession, getMySessions, cancelSession };

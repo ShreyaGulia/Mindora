@@ -1,5 +1,7 @@
 const express = require('express');
-const router  = express.Router();
+const router = express.Router();
+
+const { checkAiLimit } = require('../middleware/checkPlan');
 
 const {
   saveChat,
@@ -10,8 +12,8 @@ const {
 const { protect } = require('../middleware/authMiddleware');
 
 // All chat routes are protected
-router.post('/save',      protect, saveChat);        // POST /api/chat/save
-router.get('/history',    protect, getChatHistory);  // GET  /api/chat/history
-router.get('/history/:id',protect, getChatById);     // GET  /api/chat/history/:id
+router.post('/save', protect, checkAiLimit, saveChat);        // POST /api/chat/save
+router.get('/history', protect, getChatHistory);  // GET  /api/chat/history
+router.get('/history/:id', protect, getChatById);     // GET  /api/chat/history/:id
 
 module.exports = router;

@@ -11,16 +11,155 @@ function authHeaders() {
   };
 }
 
-// Load therapists from DB on page load
+// ================= LOAD REAL THERAPISTS FROM DB =================
+
+// Colors cycle through for the initials avatar background
+const cardColors = ['color-1', 'color-2', 'color-3', 'color-4', 'color-5'];
+
+// Build initials from name — "Dr. Asha Verma" → "AV"
+function getInitials(name) {
+  return name
+    .split(' ')
+    .filter(w => !w.includes('.'))   // skip "Dr."
+    .map(w => w[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+}
+
 async function loadTherapists() {
+  const cardsContainer = document.getElementById('therapistCards');
+  const emptyState = document.getElementById('therapistEmpty');
+  const filterRow = document.getElementById('therapistFilters');
+  const loadingEl = document.getElementById('therapistLoading');
+
   try {
     const res = await fetch(`${API_BASE}/therapists`);
     const list = await res.json();
-    console.log('Therapists from DB:', list);
-    // list is now a real array from MongoDB
+
+    // Hide loading spinner
+    if (loadingEl) loadingEl.style.display = 'none';
+
+    if (!Array.isArray(list) || list.length === 0) {
+      // No verified therapists yet — show empty state
+      if (emptyState) emptyState.style.display = 'block';
+      return;
+    }
+
+    // Show filter buttons only when there are therapists
+    if (filterRow) filterRow.style.display = 'flex';
+    if (emptyState) emptyState.style.display = 'none';
+
+    // Store globally so filter can work on them
+    window._therapistList = list;
+
+    renderTherapistCards(list);
+
   } catch (err) {
     console.error('Failed to load therapists:', err);
+    if (loadingEl) loadingEl.innerHTML = '<p style="color:#e74c3c;">Could not load therapists. Is the backend running?</p>';
   }
+}
+
+function renderTherapistCards(list) {
+  const container = document.getElementById('therapistCards');
+  const loadingEl = document.getElementById('therapistLoading');
+
+  // Remove loading if still there
+  if (loadingEl) loadingEl.style.display = 'none';
+
+  if (list.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:#9ca3af;font-size:14px;">
+        No therapists match this filter.
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = list.map((t, i) => {
+    const initials = getInitials(t.name);
+    const colorClass = cardColors[i % cardColors.length];
+
+    // Build tags from specialization field if tags array is empty
+    const tags = (t.tags && t.tags.length > 0)
+      ? t.tags
+      : (t.specialization ? t.specialization.split(',').map(s => s.trim()) : []);
+
+    const languages = (t.languages && t.languages.length > 0)
+      ? t.languages.join(', ')
+      : 'English';
+
+    const fee = t.sessionFee || 299;
+    const experience = t.experience || 'Experienced';
+    const mode = t.mode || 'Online';
+    const role = t.specialization || t.role || 'Therapist';
+
+    return `
+      <div class="therapist-card" data-tags="${tags.join(' ').toLowerCase()}">
+
+        <div class="card-photo">
+          <div class="card-photo-initials ${colorClass}">${initials}</div>
+          <div class="card-verified-badge">✓ Verified</div>
+        </div>
+
+        <div class="card-info">
+          <h3>${t.name}</h3>
+          <div class="card-role">${role}</div>
+
+          <div class="card-meta">
+            <div class="card-meta-row">
+              <span>💼</span> ${experience}
+            </div>
+            <div class="card-meta-row">
+              <span>🖥️</span> ${mode}
+            </div>
+            <div class="card-meta-row">
+              <span>🗣️</span> ${languages}
+            </div>
+            ${t.institution ? `
+            <div class="card-meta-row">
+              <span>🎓</span> ${t.institution}
+            </div>` : ''}
+          </div>
+
+          ${tags.length > 0 ? `
+          <div class="card-tags">
+            ${tags.slice(0, 4).map(tag => `<span class="card-tag">${tag}</span>`).join('')}
+          </div>` : ''}
+        </div>
+
+        <div class="card-footer-row">
+          <div class="card-fee">₹${fee} <span>/ session</span></div>
+          <button class="request-btn"
+            onclick="openBookingModal('${t.name}', '${role}', '${t._id}')">
+            Book Session
+          </button>
+        </div>
+
+      </div>
+    `;
+  }).join('');
+}
+
+// Filter cards by tag keyword
+function filterTherapists(btn, tag) {
+  document.querySelectorAll('.t-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  if (!window._therapistList) return;
+
+  if (tag === 'all') {
+    renderTherapistCards(window._therapistList);
+    return;
+  }
+
+  const filtered = window._therapistList.filter(t => {
+    const tags = (t.tags || []).join(' ').toLowerCase();
+    const spec = (t.specialization || '').toLowerCase();
+    return tags.includes(tag) || spec.includes(tag);
+  });
+
+  renderTherapistCards(filtered);
 }
 
 // Auto-save every chat message to backend
@@ -103,6 +242,37 @@ document.addEventListener("DOMContentLoaded", () => {
     // Show typing indicator
     typingIndicator.style.display = 'flex';
     chatBox.scrollTop = chatBox.scrollHeight;
+
+    const token = localStorage.getItem('mindoraToken');
+    if (token) {
+      try {
+        const limitRes = await fetch(`${API_BASE}/chat/save`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ sender: 'user', text })
+        });
+
+        if (limitRes.status === 429) {
+          const limitData = await limitRes.json();
+          typingIndicator.style.display = 'none';
+          addMessage(
+            `⚠️ You've used all ${limitData.limit} free AI messages for today.\n` +
+            `Upgrade to Pro for unlimited messages.\n` +
+            `Resets at midnight.`,
+            'bot'
+          );
+          return;
+        }
+      } catch (err) {
+        // silently continue if save fails
+        console.error('Save message error:', err);
+      }
+    }
+    setTimeout(() => {
+      typingIndicator.style.display = 'none';
+      addMessage(getBotReply(text), 'bot');
+      suggestMusicFromChat(text.toLowerCase());
+    }, 900 + Math.random() * 600);
 
     try {
       // Call the AI backend
@@ -346,43 +516,47 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedSlot = "";
   let currentDoc = { name: "", role: "", color: "green" };
 
-  function openBookingModal(name, role, color) {
-    currentDoc = { name, role, color };
+  function openBookingModal(name, role, therapistId) {
+    currentDoc = { name, role, therapistId };
     currentStep = 1;
-    selectedSlot = "";
+    selectedSlot = '';
 
     ["fieldName", "fieldAge", "fieldEmail", "fieldPhone", "fieldNote"].forEach(id => {
-      const el = document.getElementById(id); if (el) el.value = "";
+      const el = document.getElementById(id);
+      if (el) el.value = "";
     });
-    const fp = document.getElementById("fieldPrior"); if (fp) fp.value = "";
-    const fm = document.getElementById("fieldMode"); if (fm) fm.value = "";
-    const fd = document.getElementById("fieldDate"); if (fd) fd.value = "";
-    document.querySelectorAll(".concern-chip").forEach(c => c.classList.remove("selected"));
-    document.querySelectorAll(".time-slot:not(.unavailable)").forEach(s => s.classList.remove("selected"));
+    document.getElementById('fieldPrior') && (document.getElementById('fieldPrior').value = '');
+    document.getElementById('fieldMode') && (document.getElementById('fieldMode').value = '');
+    document.getElementById('fieldDate') && (document.getElementById('fieldDate').value = '');
+    document.querySelectorAll('.concern-chip').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('.time-slot:not(.unavailable)').forEach(s => s.classList.remove('selected'));
 
-    const saved = JSON.parse(localStorage.getItem("mindoraUser") || "null");
+    // Pre-fill from saved user
+    const saved = JSON.parse(localStorage.getItem('mindoraUser') || 'null');
     if (saved) {
-      const fn = document.getElementById("fieldName"); if (fn && saved.name) fn.value = saved.name;
-      const fe = document.getElementById("fieldEmail"); if (fe && saved.email) fe.value = saved.email;
+      if (saved.name && document.getElementById('fieldName')) document.getElementById('fieldName').value = saved.name;
+      if (saved.email && document.getElementById('fieldEmail')) document.getElementById('fieldEmail').value = saved.email;
     }
 
-    const fdDate = document.getElementById("fieldDate");
-    if (fdDate) fdDate.min = new Date().toISOString().split("T")[0];
+    // Min date = today
+    const dateEl = document.getElementById('fieldDate');
+    if (dateEl) dateEl.min = new Date().toISOString().split('T')[0];
 
-    const docNameEl = document.getElementById("modalDocName");
-    const docRoleEl = document.getElementById("modalDocRole");
-    const docAvatarEl = document.getElementById("modalDocAvatar");
-    if (docNameEl) docNameEl.textContent = name;
-    if (docRoleEl) docRoleEl.textContent = role;
-    if (docAvatarEl) {
-      docAvatarEl.textContent = avatarInitials[name] || name.slice(3, 5);
-      docAvatarEl.style.background = avatarColors[color] || "#52796f";
+    // Update modal header
+    const nameEl = document.getElementById('modalDocName');
+    const roleEl = document.getElementById('modalDocRole');
+    const avEl = document.getElementById('modalDocAvatar');
+
+    if (nameEl) nameEl.textContent = name;
+    if (roleEl) roleEl.textContent = role;
+    if (avEl) {
+      avEl.textContent = getInitials(name);
+      avEl.style.background = '#52796f';
     }
 
     updateModalUI();
-    const modal = document.getElementById("bookingModal");
-    if (modal) modal.classList.add("open");
-    document.body.style.overflow = "hidden";
+    const modal = document.getElementById('bookingModal');
+    if (modal) { modal.classList.add('open'); document.body.style.overflow = 'hidden'; }
   }
 
   function closeModal() {
@@ -467,38 +641,69 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   }
 
-  function modalNext() {
+  async function modalNext() {
     if (!validateStep()) return;
     if (currentStep === 2) buildConfirmBox();
 
     if (currentStep === 3) {
-      const sessions = getSessions();
-      const ref = "REF-" + Math.random().toString(36).substr(2, 6).toUpperCase();
-      const dateVal = document.getElementById("fieldDate").value;
-      const formatted = new Date(dateVal).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
-      const concerns = [...document.querySelectorAll(".concern-chip.selected")].map(c => c.textContent).join(", ") || "General";
+      const token = localStorage.getItem('mindoraToken');
 
-      sessions.push({
-        ref,
-        docName: currentDoc.name,
-        role: currentDoc.role,
-        color: currentDoc.color,
-        date: formatted,
+      const concerns = [...document.querySelectorAll('.concern-chip.selected')]
+        .map(c => c.textContent).join(', ') || 'General';
+
+      const bookingData = {
+        therapistId: currentDoc.therapistId,
+        date: document.getElementById('fieldDate').value,
         time: selectedSlot,
-        mode: document.getElementById("fieldMode").value,
+        mode: document.getElementById('fieldMode').value,
         concerns,
-        bookedOn: new Date().toLocaleDateString("en-IN")
-      });
-      saveSessions(sessions);
-      renderSessionHistory();
+        note: document.getElementById('fieldNote')?.value || ''
+      };
 
-      const sdn = document.getElementById("successDocName");
-      const brf = document.getElementById("bookingRef");
-      if (sdn) sdn.textContent = currentDoc.name;
-      if (brf) brf.textContent = ref;
-      currentStep = 4;
-      updateModalUI();
-      return;
+      try {
+        const res = await fetch(`${API_BASE}/sessions/book`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(bookingData)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          if (data.code === 'UPGRADE_REQUIRED') {
+            closeModal();
+            const go = confirm(
+              '⭐ Booking sessions requires the Pro plan.\n\n' +
+              'Pro includes:\n' +
+              '• Unlimited therapist bookings\n' +
+              '• Unlimited AI messages\n' +
+              '• Full history & wallet\n\n' +
+              'Go to pricing page?'
+            );
+            if (go) window.location.href = 'pricing.html';
+          } else {
+            alert(data.message || 'Booking failed. Please try again.');
+          }
+          return;
+        }
+        // Show success screen
+        const successName = document.getElementById('successDocName');
+        const bookingRef = document.getElementById('bookingRef');
+        if (successName) successName.textContent = currentDoc.name;
+        if (bookingRef) bookingRef.textContent = data.session.ref;
+
+        currentStep = 4;
+        updateModalUI();
+
+      } catch (err) {
+        alert('Could not connect to server. Make sure backend is running.');
+        console.error(err);
+      }
+
+      return;  // important — stop here
     }
 
     currentStep++;
@@ -952,6 +1157,7 @@ function openProfilePanel(tab) {
   if (tab === 'wallet') loadWalletPanel();
   if (tab === 'sessions') loadSessionsPanel();
   if (tab === 'mood') loadMoodPanel();
+  if (tab === 'billing') loadBillingPanel();
 }
 
 function closeProfilePanel() {
@@ -1004,22 +1210,20 @@ async function loadWalletPanel() {
 }
 
 async function addWalletFunds() {
-  const amount = document.getElementById('topupAmount').value;
-  const token = localStorage.getItem('mindoraToken');
-  if (!amount || amount < 1) { alert('Enter a valid amount'); return; }
+  // ── Wallet top-up using Stripe ──
+  // Opens the pricing page's payment modal adapted for wallet top-up
+  function addWalletFunds() {
+    const amountInput = document.getElementById('topupAmount');
+    const amount = amountInput ? Number(amountInput.value) : 0;
 
-  try {
-    const res = await fetch(`${API_BASE}/wallet/add`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-      body: JSON.stringify({ amount: Number(amount) })
-    });
-    const data = await res.json();
-    document.getElementById('topupMsg').textContent = `✓ Added ₹${amount}. New balance: ₹${data.balance}`;
-    document.getElementById('walletAmount').textContent = `₹${data.balance}`;
-    setTimeout(loadWalletPanel, 800);
-  } catch (err) {
-    alert('Top-up failed.');
+    if (!amount || amount < 10) {
+      alert('Please enter a minimum top-up of ₹10');
+      return;
+    }
+
+    // Redirect to pricing page with top-up amount as a URL param
+    // The pricing page handles the Stripe payment flow
+    window.location.href = `pricing.html?topup=${amount}`;
   }
 }
 
@@ -1102,7 +1306,99 @@ function logoutUser() {
   window.location.href = 'login.html';
 }
 
-// Call setupNavbar and loadWallet inside DOMContentLoaded
-// add these two lines there:
-// setupNavbar();
-// loadWallet();
+async function loadBillingPanel() {
+  document.getElementById('ppTitle').textContent = '🧾 Billing & Plan';
+  document.getElementById('ppBody').innerHTML = '<p style="color:#9ca3af;font-size:13px;">Loading...</p>';
+
+  const token = localStorage.getItem('mindoraToken');
+  if (!token) {
+    document.getElementById('ppBody').innerHTML = '<p style="color:#9ca3af;">Please log in.</p>';
+    return;
+  }
+
+  try {
+    const [planRes, billRes] = await Promise.all([
+      fetch(`${API_BASE}/payment/plan-status`, { headers: { 'Authorization': `Bearer ${token}` } }),
+      fetch(`${API_BASE}/payment/billing-history`, { headers: { 'Authorization': `Bearer ${token}` } })
+    ]);
+
+    const plan = await planRes.json();
+    const bills = await billRes.json();
+
+    const purposeLabels = {
+      wallet_topup: '💰 Wallet Top-up',
+      pro_monthly: '⭐ Pro Plan (Monthly)',
+      pro_yearly: '⭐ Pro Plan (Yearly)'
+    };
+
+    const expiryText = plan.plan === 'pro' && plan.planExpiresAt
+      ? `Expires ${new Date(plan.planExpiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`
+      : '';
+
+    const aiInfo = plan.plan === 'free'
+      ? `${plan.aiMessagesLeft} of ${plan.aiMessagesLimit} AI messages left today`
+      : 'Unlimited AI messages';
+
+    document.getElementById('ppBody').innerHTML = `
+
+      <!-- Current plan card -->
+      <div style="background:${plan.plan === 'pro' ? 'linear-gradient(135deg,#dbeafe,#eff6ff)' : 'linear-gradient(135deg,#f0faf5,#e8f5ef)'};
+                  border-radius:16px; padding:20px; margin-bottom:20px;
+                  border:1px solid ${plan.plan === 'pro' ? '#93c5fd' : '#b2deca'};">
+        <div style="font-size:16px;font-weight:700;color:${plan.plan === 'pro' ? '#1e40af' : '#065f46'};margin-bottom:4px;">
+          ${plan.plan === 'pro' ? '⭐ Pro Plan' : '🌱 Free Plan'}
+        </div>
+        <div style="font-size:12.5px;color:#6b7280;margin-bottom:2px;">${expiryText || 'No expiry'}</div>
+        <div style="font-size:12.5px;color:#6b7280;">${aiInfo}</div>
+        ${plan.plan === 'free' ? `
+          <a href="pricing.html" style="display:inline-block;margin-top:12px;padding:9px 20px;
+             border-radius:20px;background:#52796f;color:white;font-size:12.5px;
+             font-weight:500;text-decoration:none;transition:background 0.2s;">
+             Upgrade to Pro →
+          </a>` : `
+          <a href="pricing.html" style="display:inline-block;margin-top:12px;padding:9px 20px;
+             border-radius:20px;background:#1d4ed8;color:white;font-size:12.5px;
+             font-weight:500;text-decoration:none;">
+             Renew / Manage Plan
+          </a>`
+      }
+      </div>
+
+      <!-- Stripe badge -->
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#9ca3af;margin-bottom:18px;">
+        🔒 Payments secured by Stripe
+      </div>
+
+      <!-- Payment history -->
+      <div style="font-size:14px;font-weight:600;color:#1e2d2b;margin-bottom:12px;">Payment History</div>
+
+      ${!Array.isArray(bills) || bills.length === 0
+        ? `<p style="color:#9ca3af;font-size:13px;text-align:center;padding:24px 0;">
+             No payments yet.
+           </p>`
+        : bills.map(b => `
+          <div class="txn-item">
+            <div>
+              <div class="txn-desc">${purposeLabels[b.purpose] || b.purpose}</div>
+              <div class="txn-date">${new Date(b.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</div>
+              <div style="font-size:11px;color:#d1d5db;margin-top:2px;font-family:monospace;">
+                ${b.stripePaymentIntentId ? b.stripePaymentIntentId.slice(0, 28) + '...' : b.status}
+              </div>
+            </div>
+            <div>
+              <div class="txn-amount ${b.status === 'succeeded' ? 'txn-credit' : ''}">
+                ₹${b.amountDisplay}
+              </div>
+              <div style="font-size:11px;color:${b.status === 'succeeded' ? '#6ee7b7' : b.status === 'failed' ? '#fca5a5' : '#fcd34d'};text-align:right;margin-top:3px;">
+                ${b.status}
+              </div>
+            </div>
+          </div>`).join('')
+      }
+    `;
+  } catch (err) {
+    document.getElementById('ppBody').innerHTML =
+      '<p style="color:#e74c3c;font-size:13px;">Could not load billing info. Is the backend running?</p>';
+    console.error(err);
+  }
+}

@@ -18,20 +18,34 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Password is required'],
     minlength: 6
   },
+
+  // ── Stripe customer ID (created on first payment) ──
+  stripeCustomerId: {
+    type: String,
+    default: null
+  },
+
+  // ── Subscription plan ──
   plan: {
     type: String,
     enum: ['free', 'pro'],
     default: 'free'
   },
-  avatar: {
-    type: String,
-    default: ''        // URL or base64 string
+  planExpiresAt: {
+    type: Date,
+    default: null
   },
-  preferences: {
-    theme:         { type: String, default: 'light' },
-    notifications: { type: Boolean, default: true },
-    language:      { type: String, default: 'en' }
+
+  // ── AI message rate limiting (resets every 24 hours) ──
+  aiMessagesToday: {
+    type: Number,
+    default: 0
   },
+  aiMessagesResetAt: {
+    type: Date,
+    default: Date.now
+  },
+
   createdAt: {
     type: Date,
     default: Date.now

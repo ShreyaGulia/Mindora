@@ -1,67 +1,82 @@
-/* =============================================================
-   Mindora — app.js  (Phase 4 Final)
-   All routes wired: auth, user, therapists,
-   sessions, mood, chat history, AI chat
-   ============================================================= */
-
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const cookieParser = require('cookie-parser');
-const { generalLimiter } = require('./middleware/rateLimiter');
+
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const therapistRoutes = require('./routes/therapistRoutes');
+const sessionRoutes = require('./routes/sessionRoutes');
+const moodRoutes = require('./routes/moodRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 const wellnessRoutes = require('./routes/wellnessRoutes');
 const walletRoutes = require('./routes/walletRoutes');
 const therapistAuthRoutes = require('./routes/therapistAuthRoutes');
 const therapistDashRoutes = require('./routes/therapistDashRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 const app = express();
 
-// ── CORS ──
 app.use(cors({
-  origin: true,
+  origin: ['http://127.0.0.1:5500', 'http://localhost:5500'],
   credentials: true
 }));
 
-// ── Parsers ──
-app.use(express.json());
-app.use(cookieParser());
+// ─────────────────────────────────────────────────────
+// IMPORTANT: Stripe webhook needs the RAW request body
+// to verify the signature. We capture it BEFORE express.json()
+// parses the body for the webhook route only.
+// For all other routes, express.json() runs normally.
+// ─────────────────────────────────────────────────────
+app.use((req, res, next) => {
+  if (req.originalUrl === '/api/payment/webhook') {
+    let rawData = '';
+    req.on('data', chunk => { rawData += chunk; });
+    req.on('end', () => {
+      req.rawBody = rawData;
+      try {
+        req.body = JSON.parse(rawData);
+      } catch (e) {
+        req.body = {};
+      }
+      next();
+    });
+  } else {
+    next();
+  }
+});
 
-// ── Logger ──
+app.use(express.json());
 app.use(morgan('dev'));
 
-// ── General rate limiter on all routes ──
-app.use(generalLimiter);
+// ── Health check ──
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Mindora API is running' });
+});
 
-// ── Routes ──
-app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/user/profile', require('./routes/userRoutes'));
-app.use('/api/therapists', require('./routes/therapistRoutes'));
-app.use('/api/sessions', require('./routes/sessionRoutes'));
-app.use('/api/mood', require('./routes/moodRoutes'));
-app.use('/api/chat', require('./routes/chatRoutes'));
-app.use('/api/ai', require('./routes/aiChatRoutes'));
+// ── All routes ──
+app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
+app.use('/api/therapists', therapistRoutes);
+app.use('/api/sessions', sessionRoutes);
+app.use('/api/mood', moodRoutes);
+app.use('/api/chat', chatRoutes);
 app.use('/api/wellness', wellnessRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/therapist-auth', therapistAuthRoutes);
 app.use('/api/therapist', therapistDashRoutes);
-app.use('/api/admin', adminRoutes);  // Phase 4 AI
-
-// ── Health check ──
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    message: 'Mindora API is running',
-    phase: 'Phase 4 — AI Chatbot Integration active'
-  });
-});
+app.use('/api/admin', adminRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // ── 404 handler ──
 app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: `Route ${req.originalUrl} not found.`
-  });
+  res.status(404).json({ message: `Route ${req.originalUrl} not found` });
+});
+
+// ── Global error handler ──
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong', error: err.message });
 });
 
 module.exports = app;

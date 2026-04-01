@@ -78,6 +78,13 @@
                 <div class="pd-item-sub">Your last 30 mood logs</div>
               </div>
             </div>
+            <div class="pd-item" onclick="openProfilePanel('billing')">
+              <span class="pd-icon">🧾</span>
+              <div>
+                <div class="pd-item-title">Billing & Plan</div>
+                <div class="pd-item-sub">Invoices and subscription</div>
+              </div>
+            </div>
             <div class="pd-divider"></div>
             <div class="pd-item pd-logout" onclick="logoutUser()">
               <span class="pd-icon">🚪</span>
@@ -348,7 +355,8 @@
   <section class="therapist-section" id="therapists">
     <h2>Meet Our Therapists</h2>
     <p class="therapist-subtext">
-      Real people, genuine care. Our therapists have helped hundreds work through what feels impossible.
+      Connect with real, verified mental health professionals
+      who are registered on our platform.
     </p>
 
     <button class="sessions-toggle-btn" onclick="toggleSessionHistory()">
@@ -370,110 +378,33 @@
       </div>
     </div>
 
-    <div class="therapist-filters">
-      <button class="t-filter-btn active" onclick="filterTherapists(this,'all')">All</button>
-      <button class="t-filter-btn" onclick="filterTherapists(this,'anxiety')">Anxiety</button>
-      <button class="t-filter-btn" onclick="filterTherapists(this,'stress')">Stress</button>
-      <button class="t-filter-btn" onclick="filterTherapists(this,'sleep')">Sleep</button>
-      <button class="t-filter-btn" onclick="filterTherapists(this,'burnout')">Burnout</button>
+    <!-- Filter buttons -->
+    <div class="therapist-filters" id="therapistFilters" style="display:none;">
+      <button class="t-filter-btn active" data-filter="all" onclick="filterTherapists(this,'all')">All</button>
+      <button class="t-filter-btn" data-filter="anxiety" onclick="filterTherapists(this,'anxiety')">Anxiety</button>
+      <button class="t-filter-btn" data-filter="stress" onclick="filterTherapists(this,'stress')">Stress</button>
+      <button class="t-filter-btn" data-filter="sleep" onclick="filterTherapists(this,'sleep')">Sleep</button>
+      <button class="t-filter-btn" data-filter="burnout" onclick="filterTherapists(this,'burnout')">Burnout</button>
     </div>
 
+    <!-- Cards render here dynamically -->
     <div class="therapist-cards" id="therapistCards">
 
-      <!-- Dr. Asha Verma -->
-      <div class="therapist-card" data-tags="anxiety stress depression">
-        <div class="card-photo">
-          <div class="card-photo-initials bg1">AV</div>
-          <div class="availability-dot">Available today</div>
-        </div>
-        <div class="card-info">
-          <h3>Dr. Asha Verma</h3>
-          <div class="card-role">Clinical Psychologist · NIMHANS, Bengaluru</div>
-          <p class="card-about">"I believe healing starts when you feel truly heard. My approach is gentle, practical,
-            and rooted in your own strengths."</p>
-          <div class="card-meta">
-            <div class="card-meta-row"><span>🎓</span> M.Phil Clinical Psychology</div>
-            <div class="card-meta-row"><span>💼</span> 5+ years · 200+ clients</div>
-            <div class="card-meta-row"><span>🖥️</span> Online sessions only</div>
-            <div class="card-meta-row"><span>🗣️</span> English, Hindi</div>
-          </div>
-          <div class="card-tags">
-            <span class="card-tag">Anxiety</span>
-            <span class="card-tag">Stress</span>
-            <span class="card-tag">Depression</span>
-            <span class="card-tag">CBT</span>
-          </div>
-        </div>
-        <div class="card-footer-row">
-          <div class="card-rating-small">★ 4.9 <span>· 98 reviews</span></div>
-          <button class="request-btn"
-            onclick="openBookingModal('Dr. Asha Verma','Clinical Psychologist','green')">Request Session</button>
-        </div>
-      </div>
-
-      <!-- Dr. Rohan Mehta -->
-      <div class="therapist-card" data-tags="burnout stress overthinking">
-        <div class="card-photo">
-          <div class="card-photo-initials bg2">RM</div>
-          <div class="availability-dot">Available today</div>
-        </div>
-        <div class="card-info">
-          <h3>Dr. Rohan Mehta</h3>
-          <div class="card-role">Psychotherapist · TISS, Mumbai</div>
-          <p class="card-about">"Burnout and overthinking are signs, not flaws. Together we'll figure out what your mind
-            is really trying to tell you."</p>
-          <div class="card-meta">
-            <div class="card-meta-row"><span>🎓</span> M.A. Clinical Psychology</div>
-            <div class="card-meta-row"><span>💼</span> 7+ years · 350+ clients</div>
-            <div class="card-meta-row"><span>🖥️</span> Online & in-person (Mumbai)</div>
-            <div class="card-meta-row"><span>🗣️</span> English, Hindi, Marathi</div>
-          </div>
-          <div class="card-tags">
-            <span class="card-tag">Overthinking</span>
-            <span class="card-tag">Burnout</span>
-            <span class="card-tag">Self-esteem</span>
-            <span class="card-tag">DBT</span>
-          </div>
-        </div>
-        <div class="card-footer-row">
-          <div class="card-rating-small">★ 4.8 <span>· 134 reviews</span></div>
-          <button class="request-btn" onclick="openBookingModal('Dr. Rohan Mehta','Psychotherapist','purple')">Request
-            Session</button>
-        </div>
-      </div>
-
-      <!-- Dr. Neha Sharma -->
-      <div class="therapist-card" data-tags="sleep stress emotional">
-        <div class="card-photo">
-          <div class="card-photo-initials bg3">NS</div>
-          <div class="availability-dot">Available today</div>
-        </div>
-        <div class="card-info">
-          <h3>Dr. Neha Sharma</h3>
-          <div class="card-role">Counseling Psychologist · Delhi University</div>
-          <p class="card-about">"Sleep and emotional wellbeing are deeply connected. I help people find rest — both in
-            their body and their mind."</p>
-          <div class="card-meta">
-            <div class="card-meta-row"><span>🎓</span> M.Sc Counseling Psychology</div>
-            <div class="card-meta-row"><span>💼</span> 4+ years · 180+ clients</div>
-            <div class="card-meta-row"><span>🖥️</span> Online sessions only</div>
-            <div class="card-meta-row"><span>🗣️</span> English, Hindi, Punjabi</div>
-          </div>
-          <div class="card-tags">
-            <span class="card-tag">Sleep Issues</span>
-            <span class="card-tag">Stress</span>
-            <span class="card-tag">Emotional Healing</span>
-            <span class="card-tag">Mindfulness</span>
-          </div>
-        </div>
-        <div class="card-footer-row">
-          <div class="card-rating-small">★ 4.9 <span>· 112 reviews</span></div>
-          <button class="request-btn"
-            onclick="openBookingModal('Dr. Neha Sharma','Counseling Psychologist','blue')">Request Session</button>
-        </div>
+      <!-- Loading state shown while API call is in progress -->
+      <div class="therapist-loading" id="therapistLoading">
+        <div class="loading-spinner"></div>
+        <p>Finding verified therapists...</p>
       </div>
 
     </div>
+
+    <!-- Empty state shown when no therapists are registered yet -->
+    <div class="therapist-empty" id="therapistEmpty" style="display:none;">
+      <div class="empty-icon">🌱</div>
+      <h3>No therapists available yet</h3>
+      <p>Verified therapists will appear here once they register and get approved.</p>
+    </div>
+
 
     <p class="therapist-disclaimer">
       ⚠️ This platform does not provide medical diagnosis. If you are in crisis, please contact local emergency services

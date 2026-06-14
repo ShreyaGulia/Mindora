@@ -15,7 +15,8 @@ const therapistProtect = (req, res, next) => {
             return res.status(403).json({ message: 'Access denied — therapists only' });
         }
 
-        req.user = { id: decoded.id, email: decoded.email };
+        req.user = { id: decoded.id, email: decoded.email, name: decoded.name, isVerified: decoded.isVerified };
+        req.therapistId = decoded.id;
         next();
     } catch (err) {
         res.status(401).json({ message: 'Token invalid or expired' });

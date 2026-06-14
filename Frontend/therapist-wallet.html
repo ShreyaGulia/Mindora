@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wallet — MindCare</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #f4f6fb;
+            color: #1a1a2e;
+        }
+
+        .page {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 32px 16px 60px;
+        }
+
+        /* ── Header ──────────────────────────────────────────── */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+
+        .page-header h1 {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .back-link {
+            font-size: 14px;
+            color: #6c63ff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* ── Balance hero ────────────────────────────────────── */
+        .balance-hero {
+            background: linear-gradient(135deg, #6c63ff 0%, #a78bfa 100%);
+            border-radius: 18px;
+            padding: 32px 28px;
+            color: #fff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .balance-label {
+            font-size: 13px;
+            opacity: .8;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            margin-bottom: 8px;
+        }
+
+        .balance-amount {
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .balance-sub {
+            font-size: 13px;
+            opacity: .75;
+            margin-top: 4px;
+        }
+
+        .balance-stats {
+            display: flex;
+            gap: 28px;
+        }
+
+        .bstat {
+            text-align: center;
+        }
+
+        .bstat-val {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .bstat-lbl {
+            font-size: 12px;
+            opacity: .75;
+            margin-top: 2px;
+        }
+
+        /* ── Cards ───────────────────────────────────────────── */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 620px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, .07);
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 18px;
+            color: #1a1a2e;
+        }
+
+        /* ── Form ────────────────────────────────────────────── */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: #555;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #1a1a2e;
+            background: #fafafa;
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #6c63ff;
+            background: #fff;
+        }
+
+        /* ── Method tabs ─────────────────────────────────────── */
+        .method-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .method-tab {
+            flex: 1;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1.5px solid #e0e0e0;
+            color: #888;
+            transition: all .2s;
+        }
+
+        .method-tab.active {
+            border-color: #6c63ff;
+            background: #f0effe;
+            color: #6c63ff;
+        }
+
+        /* ── Buttons ─────────────────────────────────────────── */
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all .2s;
+            margin-top: 4px;
+        }
+
+        .btn-primary {
+            background: #6c63ff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #574fd6;
+        }
+
+        .btn-primary:disabled {
+            background: #b8b3ff;
+            cursor: not-allowed;
+        }
+
+        .btn-outline {
+            background: #fff;
+            color: #6c63ff;
+            border: 1.5px solid #6c63ff;
+            margin-top: 10px;
+        }
+
+        .btn-outline:hover {
+            background: #f0effe;
+        }
+
+        /* ── Alert ───────────────────────────────────────────── */
+        .alert {
+            padding: 11px 15px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 14px;
+            display: none;
+        }
+
+        .alert.error {
+            background: #fff0f0;
+            color: #c0392b;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .alert.success {
+            background: #f0fff4;
+            color: #1e7e34;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        /* ── Pending notice ──────────────────────────────────── */
+        .pending-box {
+            background: #fffbf0;
+            border: 1px solid #fde9a2;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #7d5a00;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ── Transactions ────────────────────────────────────── */
+        .tx-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .tx-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 0;
+            border-bottom: 1px solid #f0f0f5;
+        }
+
+        .tx-item:last-child {
+            border-bottom: none;
+        }
+
+        .tx-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .tx-icon.credit {
+            background: #f0fff4;
+        }
+
+        .tx-icon.debit {
+            background: #fff0f0;
+        }
+
+        .tx-icon.withdrawal {
+            background: #fffbf0;
+        }
+
+        .tx-icon.refund {
+            background: #f0effe;
+        }
+
+        .tx-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .tx-desc {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .tx-date {
+            font-size: 11px;
+            color: #aaa;
+            margin-top: 2px;
+        }
+
+        .tx-amount {
+            font-size: 15px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .tx-amount.credit {
+            color: #27ae60;
+        }
+
+        .tx-amount.debit {
+            color: #e74c3c;
+        }
+
+        .tx-amount.withdrawal {
+            color: #f39c12;
+        }
+
+        .tx-amount.refund {
+            color: #6c63ff;
+        }
+
+        .tx-status {
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 8px;
+            font-weight: 700;
+            margin-left: 6px;
+        }
+
+        .tx-status.pending {
+            background: #fffbf0;
+            color: #7d5a00;
+        }
+
+        .tx-status.completed {
+            background: #f0fff4;
+            color: #155724;
+        }
+
+        .tx-status.failed {
+            background: #fff0f0;
+            color: #7b1c1c;
+        }
+
+        /* ── Empty ───────────────────────────────────────────── */
+        .empty {
+            text-align: center;
+            padding: 32px 16px;
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .empty-icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+
+        /* ── Load more ───────────────────────────────────────── */
+        .load-more {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 13px;
+            color: #6c63ff;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .load-more:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+
+        <!-- Header -->
+        <div class="page-header">
+            <h1>💰 My Wallet</h1>
+            <a href="therapist-dashboard.html" class="back-link">← Dashboard</a>
+        </div>
+
+        <!-- Balance Hero -->
+        <div class="balance-hero">
+            <div>
+                <div class="balance-label">Available Balance</div>
+                <div class="balance-amount" id="balanceAmount">₹0</div>
+                <div class="balance-sub" id="pendingText"></div>
+            </div>
+            <div class="balance-stats">
+                <div class="bstat">
+                    <div class="bstat-val" id="totalEarned">₹0</div>
+                    <div class="bstat-lbl">Total Earned</div>
+                </div>
+                <div class="bstat">
+                    <div class="bstat-val" id="totalWithdrawn">₹0</div>
+                    <div class="bstat-lbl">Withdrawn</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-2">
+
+            <!-- ── Withdraw card ──────────────────────────────────── -->
+            <div class="card">
+                <div class="card-title">💸 Request Withdrawal</div>
+
+                <div class="alert" id="withdrawAlert"></div>
+
+                <div id="pendingWithdrawBox" class="pending-box" style="display:none">
+                    ⏳ You have <strong id="pendingAmount"></strong> pending withdrawal being processed.
+                </div>
+
+                <div class="form-group">
+                    <label>Amount (₹)</label>
+                    <input type="number" id="withdrawAmount" placeholder="Enter amount (min ₹100)" min="100"
+                        step="50" />
+                </div>
+
+                <div class="form-group">
+                    <label>Payout Method</label>
+                    <div class="method-tabs">
+                        <div class="method-tab active" id="tabUpi" onclick="selectMethod('upi')">📱 UPI</div>
+                        <div class="method-tab" id="tabBank" onclick="selectMethod('bank')">🏦 Bank</div>
+                    </div>
+                </div>
+
+                <div id="upiFields">
+                    <div class="form-group">
+                        <label>UPI ID</label>
+                        <input type="text" id="withdrawUpi" placeholder="yourname@upi" />
+                    </div>
+                </div>
+
+                <div id="bankFields" style="display:none">
+                    <div class="form-group">
+                        <label>Account Holder Name</label>
+                        <input type="text" id="bankName" placeholder="Full name" />
+                    </div>
+                    <div class="form-group">
+                        <label>Account Number</label>
+                        <input type="text" id="bankAccNo" placeholder="Account number" />
+                    </div>
+                    <div class="form-group">
+                        <label>IFSC Code</label>
+                        <input type="text" id="bankIfsc" placeholder="HDFC0001234" style="text-transform:uppercase" />
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="withdrawBtn" onclick="requestWithdrawal()">
+                    Request Withdrawal
+                </button>
+            </div>
+
+            <!-- ── Payout details card ────────────────────────────── -->
+            <div class="card">
+                <div class="card-title">⚙️ Save Payout Details</div>
+                <p style="font-size:13px;color:#888;margin-bottom:16px">
+                    Save your payout details so you don't have to enter them every time.
+                </p>
+
+                <div class="alert" id="payoutAlert"></div>
+
+                <div class="method-tabs">
+                    <div class="method-tab active" id="saveTabUpi" onclick="selectSaveMethod('upi')">📱 UPI</div>
+                    <div class="method-tab" id="saveTabBank" onclick="selectSaveMethod('bank')">🏦 Bank</div>
+                </div>
+
+                <div id="saveUpiFields">
+                    <div class="form-group">
+                        <label>UPI ID</label>
+                        <input type="text" id="saveUpiId" placeholder="yourname@upi" />
+                    </div>
+                </div>
+
+                <div id="saveBankFields" style="display:none">
+                    <div class="form-group">
+                        <label>Account Holder Name</label>
+                        <input type="text" id="saveBankName" placeholder="Full name" />
+                    </div>
+                    <div class="form-group">
+                        <label>Account Number</label>
+                        <input type="text" id="saveBankAccNo" placeholder="Account number" />
+                    </div>
+                    <div class="form-group">
+                        <label>IFSC Code</label>
+                        <input type="text" id="saveBankIfsc" placeholder="HDFC0001234"
+                            style="text-transform:uppercase" />
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="savePayoutDetails()">Save Details</button>
+            </div>
+
+        </div>
+
+        <!-- ── Transaction History ──────────────────────────────── -->
+        <div class="card">
+            <div class="card-title">📋 Transaction History</div>
+            <div class="tx-list" id="txList">
+                <div class="empty">
+                    <div class="empty-icon">💳</div>Loading...
+                </div>
+            </div>
+            <div class="load-more" id="loadMoreBtn" onclick="loadMore()" style="display:none">
+                Load more →
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const token = localStorage.getItem('therapistToken');
+        if (!token) window.location.href = 'therapist-login.html';
+
+        let withdrawMethod = 'upi';
+        let saveMethod = 'upi';
+        let currentPage = 1;
+        let totalPages = 1;
+
+        const TX_ICONS = {
+            credit: '💚',
+            debit: '🔴',
+            withdrawal: '🏦',
+            refund: '↩️',
+        };
+
+        // ── Load wallet data ───────────────────────────────────
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadWallet();
+            await loadTransactions(1);
+        });
+
+        async function loadWallet() {
+            try {
+                const res = await fetch('/api/wallet', { headers: { Authorization: `Bearer ${token}` } });
+                const data = await res.json();
+                if (!data.success) return;
+
+                const w = data.data;
+                document.getElementById('balanceAmount').textContent = '₹' + w.balance.toLocaleString('en-IN');
+                document.getElementById('totalEarned').textContent = '₹' + w.totalEarned.toLocaleString('en-IN');
+                document.getElementById('totalWithdrawn').textContent = '₹' + w.totalWithdrawn.toLocaleString('en-IN');
+
+                if (w.pendingWithdrawal > 0) {
+                    document.getElementById('pendingText').textContent =
+                        `₹${w.pendingWithdrawal.toLocaleString('en-IN')} pending withdrawal`;
+                    document.getElementById('pendingAmount').textContent =
+                        '₹' + w.pendingWithdrawal.toLocaleString('en-IN');
+                    document.getElementById('pendingWithdrawBox').style.display = 'flex';
+                }
+
+                // Pre-fill saved payout details
+                if (w.upiId) {
+                    document.getElementById('withdrawUpi').value = w.upiId;
+                    document.getElementById('saveUpiId').value = w.upiId;
+                }
+                if (w.bankAccountName) {
+                    document.getElementById('bankName').value = w.bankAccountName;
+                    document.getElementById('saveBankName').value = w.bankAccountName;
+                }
+                if (w.bankAccountNumber) {
+                    document.getElementById('bankAccNo').value = w.bankAccountNumber;
+                    document.getElementById('saveBankAccNo').value = w.bankAccountNumber;
+                }
+                if (w.bankIFSC) {
+                    document.getElementById('bankIfsc').value = w.bankIFSC;
+                    document.getElementById('saveBankIfsc').value = w.bankIFSC;
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function loadTransactions(page) {
+            try {
+                const res = await fetch(`/api/wallet/transactions?page=${page}&limit=10`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (!data.success) return;
+
+                totalPages = data.data.pages;
+                currentPage = page;
+
+                const list = document.getElementById('txList');
+
+                if (page === 1) {
+                    if (data.data.transactions.length === 0) {
+                        list.innerHTML = `<div class="empty"><div class="empty-icon">💳</div>No transactions yet</div>`;
+                        return;
+                    }
+                    list.innerHTML = '';
+                }
+
+                data.data.transactions.forEach(tx => {
+                    list.innerHTML += renderTx(tx);
+                });
+
+                document.getElementById('loadMoreBtn').style.display =
+                    currentPage < totalPages ? 'block' : 'none';
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function renderTx(tx) {
+            const isCredit = tx.type === 'credit' || tx.type === 'refund';
+            const prefix = isCredit ? '+' : '-';
+            const amtClass = tx.type;
+            const date = new Date(tx.createdAt).toLocaleDateString('en-IN', {
+                day: 'numeric', month: 'short', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+            const statusHtml = tx.status !== 'completed'
+                ? `<span class="tx-status ${tx.status}">${tx.status}</span>` : '';
+
+            return `
+      <div class="tx-item">
+        <div class="tx-icon ${tx.type}">${TX_ICONS[tx.type] || '💰'}</div>
+        <div class="tx-info">
+          <div class="tx-desc">${tx.description}</div>
+          <div class="tx-date">${date}</div>
+        </div>
+        <div>
+          <span class="tx-amount ${amtClass}">${prefix}₹${tx.amount.toLocaleString('en-IN')}</span>
+          ${statusHtml}
+        </div>
+      </div>`;
+        }
+
+        function loadMore() { loadTransactions(currentPage + 1); }
+
+        // ── Method toggles ─────────────────────────────────────
+        function selectMethod(m) {
+            withdrawMethod = m;
+            document.getElementById('tabUpi').classList.toggle('active', m === 'upi');
+            document.getElementById('tabBank').classList.toggle('active', m === 'bank');
+            document.getElementById('upiFields').style.display = m === 'upi' ? 'block' : 'none';
+            document.getElementById('bankFields').style.display = m === 'bank' ? 'block' : 'none';
+        }
+
+        function selectSaveMethod(m) {
+            saveMethod = m;
+            document.getElementById('saveTabUpi').classList.toggle('active', m === 'upi');
+            document.getElementById('saveTabBank').classList.toggle('active', m === 'bank');
+            document.getElementById('saveUpiFields').style.display = m === 'upi' ? 'block' : 'none';
+            document.getElementById('saveBankFields').style.display = m === 'bank' ? 'block' : 'none';
+        }
+
+        // ── Withdraw ───────────────────────────────────────────
+        async function requestWithdrawal() {
+            const amount = Number(document.getElementById('withdrawAmount').value);
+            if (!amount || amount < 100) {
+                return showAlert('withdrawAlert', 'Enter a valid amount (min ₹100).', 'error');
+            }
+
+            const body = { amount, method: withdrawMethod };
+            if (withdrawMethod === 'upi') {
+                body.upiId = document.getElementById('withdrawUpi').value.trim();
+                if (!body.upiId) return showAlert('withdrawAlert', 'Enter your UPI ID.', 'error');
+            } else {
+                body.bankAccountName = document.getElementById('bankName').value.trim();
+                body.bankAccountNumber = document.getElementById('bankAccNo').value.trim();
+                body.bankIFSC = document.getElementById('bankIfsc').value.trim();
+                if (!body.bankAccountName || !body.bankAccountNumber || !body.bankIFSC) {
+                    return showAlert('withdrawAlert', 'Fill all bank details.', 'error');
+                }
+            }
+
+            const btn = document.getElementById('withdrawBtn');
+            btn.disabled = true; btn.textContent = 'Processing...';
+
+            try {
+                const res = await fetch('/api/wallet/withdraw', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify(body),
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    showAlert('withdrawAlert', data.message, 'success');
+                    document.getElementById('balanceAmount').textContent =
+                        '₹' + data.data.balance.toLocaleString('en-IN');
+                    document.getElementById('withdrawAmount').value = '';
+                    await loadTransactions(1);
+                } else {
+                    showAlert('withdrawAlert', data.message, 'error');
+                }
+            } catch (e) {
+                showAlert('withdrawAlert', 'Network error. Try again.', 'error');
+            }
+            btn.disabled = false; btn.textContent = 'Request Withdrawal';
+        }
+
+        // ── Save payout details ────────────────────────────────
+        async function savePayoutDetails() {
+            const body = { method: saveMethod };
+            if (saveMethod === 'upi') {
+                body.upiId = document.getElementById('saveUpiId').value.trim();
+                if (!body.upiId) return showAlert('payoutAlert', 'Enter your UPI ID.', 'error');
+            } else {
+                body.bankAccountName = document.getElementById('saveBankName').value.trim();
+                body.bankAccountNumber = document.getElementById('saveBankAccNo').value.trim();
+                body.bankIFSC = document.getElementById('saveBankIfsc').value.trim().toUpperCase();
+                if (!body.bankAccountName || !body.bankAccountNumber || !body.bankIFSC) {
+                    return showAlert('payoutAlert', 'Fill all bank details.', 'error');
+                }
+            }
+
+            try {
+                const res = await fetch('/api/wallet/payout-details', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify(body),
+                });
+                const data = await res.json();
+                showAlert('payoutAlert', data.message, data.success ? 'success' : 'error');
+            } catch (e) {
+                showAlert('payoutAlert', 'Network error. Try again.', 'error');
+            }
+        }
+
+        // ── Alert helper ───────────────────────────────────────
+        function showAlert(id, msg, type) {
+            const el = document.getElementById(id);
+            el.textContent = msg;
+            el.className = `alert ${type}`;
+            setTimeout(() => { el.className = 'alert'; }, 5000);
+        }
+    </script>
+</body>
+
+</html>

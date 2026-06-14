@@ -6,7 +6,8 @@ const {
     confirmPayment,
     handleWebhook,
     getBillingHistory,
-    getPlanStatus
+    getPlanStatus,
+    processRefund
 } = require('../controllers/paymentController');
 
 // Webhook — NO auth middleware, Stripe sends its own signature
@@ -18,5 +19,6 @@ router.post('/create-intent', protect, createPaymentIntent);
 router.post('/confirm', protect, confirmPayment);
 router.get('/billing-history', protect, getBillingHistory);
 router.get('/plan-status', protect, getPlanStatus);
+router.post('/refund', protect, processRefund);
 
 module.exports = router;

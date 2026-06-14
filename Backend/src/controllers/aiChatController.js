@@ -72,29 +72,34 @@ exports.chat = async (req, res) => {
     // 5. Extract reply (simpler than Claude)
     const reply = aiResponse.choices[0].message.content;
 
-    // 6. Save chat history (unchanged)
+    // 6. Save AI Chat history to ChatHistory model
     if (req.user) {
       try {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
+        // Find existing AI chat thread
         let chatSession = await ChatHistory.findOne({
-          user: req.user.id,
-          createdAt: { $gte: today }
+          userId: req.user._id,
+          therapistId: null
         });
-
+    
         if (!chatSession) {
-          chatSession = new ChatHistory({ user: req.user.id, messages: [] });
+          chatSession = new ChatHistory({ 
+            userId: req.user._id, 
+            therapistId: null,
+            messages: [] 
+          });
         }
-
+    
         chatSession.messages.push(
-          { sender: 'user', text: trimmedMessage },
+          { sender: 'user', senderId: req.user._id, text: trimmedMessage },
           { sender: 'bot', text: reply }
         );
-
+        chatSession.lastMessage = reply.slice(0, 100);
+        chatSession.lastMessageAt = new Date();
+        chatSession.lastMessageBy = 'bot';
+    
         await chatSession.save();
       } catch (saveErr) {
-        console.error('Chat history save error:', saveErr.message);
+        console.error('AI chat auto-save failed:', saveErr.message);
       }
     }
 

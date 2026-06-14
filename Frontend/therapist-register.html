@@ -111,7 +111,8 @@
 
                 if (!res.ok) { alert(data.message || 'Registration failed'); return; }
 
-                alert('Registration submitted! You will be notified once admin verifies your account.');
+                const status = await statusRes.json();
+
                 window.location.href = 'therapist-login.html';
             } catch (err) {
                 alert('Could not connect to server.');

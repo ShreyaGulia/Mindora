@@ -8,13 +8,29 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="icon" href="data:,">
+  <!-- SEO -->
+  <meta name="description"
+    content="MindCare — Find verified, licensed therapists online. Book therapy sessions for anxiety, depression, stress and more. Affordable mental health support." />
+  <meta name="keywords" content="online therapy, therapist, mental health, anxiety, depression, counseling, India" />
+  <meta name="author" content="MindCare" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph (for WhatsApp / social sharing previews) -->
+  <meta property="og:title" content="MindCare — Online Therapy Platform" />
+  <meta property="og:description"
+    content="Book sessions with verified therapists. Affordable mental wellness support." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://yourdomain.com" />
+  <meta property="og:image" content="https://yourdomain.com/og-image.jpg" />
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://yourdomain.com" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 </head>
 
 <body>
-
-  <div id="sessionBanner" class="session-banner">
-    Session expires in <span id="sessionTimer">--:--</span>
-  </div>
 
   <!-- ================= HEADER / NAVBAR ================= -->
   <header id="mainHeader">
@@ -66,18 +82,14 @@
             </div>
             <div class="pd-item" onclick="openProfilePanel('sessions')">
               <span class="pd-icon">📅</span>
-              <div>
+              <div style="flex: 1;">
                 <div class="pd-item-title">My Sessions</div>
-                <div class="pd-item-sub">Booked & past sessions</div>
+                <div class="pd-item-sub">Upcoming & booked sessions</div>
               </div>
+              <a href="my-sessions.html" class="pd-history-link" title="Full History"
+                onclick="event.stopPropagation();">🕒</a>
             </div>
-            <div class="pd-item" onclick="openProfilePanel('mood')">
-              <span class="pd-icon">😊</span>
-              <div>
-                <div class="pd-item-title">Mood History</div>
-                <div class="pd-item-sub">Your last 30 mood logs</div>
-              </div>
-            </div>
+
             <div class="pd-item" onclick="openProfilePanel('billing')">
               <span class="pd-icon">🧾</span>
               <div>
@@ -146,13 +158,13 @@
       <!-- Trust strip -->
       <div class="hero-trust">
         <div class="trust-item">
-          <span class="trust-num">10k+</span>
-          <span class="trust-label">Users Supported</span>
+          <span class="trust-num">100%</span>
+          <span class="trust-label">Safe & Private</span>
         </div>
         <div class="trust-divider"></div>
         <div class="trust-item">
-          <span class="trust-num">3</span>
-          <span class="trust-label">Expert Therapists</span>
+          <span class="trust-num">Top</span>
+          <span class="trust-label">Expert Guidance</span>
         </div>
         <div class="trust-divider"></div>
         <div class="trust-item">
@@ -358,12 +370,7 @@
       Connect with real, verified mental health professionals
       who are registered on our platform.
     </p>
-
-    <button class="sessions-toggle-btn" onclick="toggleSessionHistory()">
-      📋 My Sessions
-      <span class="sessions-count-badge" id="sessionsCount">0</span>
-    </button>
-
+    <a href="browse-therapists.html" class="btn-find-therapist">Find a Therapist →</a>
     <!-- Session History Panel -->
     <div class="session-history" id="sessionHistory">
       <div class="session-history-header">
@@ -850,6 +857,9 @@
       <p>© 2026 Mindora. All rights reserved. Made with 💚 for mental wellness.</p>
       <p class="footer-bottom-note">If you need immediate help, please reach out to a local helpline.</p>
     </div>
+    <a href="privacy-policy.html">Privacy Policy</a>
+    <a href="terms.html">Terms of Service</a>
+    <a href="therapist-conduct.html">Therapist Conduct</a>
 
   </footer>
   <script src="http://localhost:5000/socket.io/socket.io.js"></script>

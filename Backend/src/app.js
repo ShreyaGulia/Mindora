@@ -14,8 +14,20 @@ const therapistAuthRoutes = require('./routes/therapistAuthRoutes');
 const therapistDashRoutes = require('./routes/therapistDashRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const availabilityRoutes = require('./routes/availabilityRoutes');
+const aiChatRoutes = require('./routes/aiChatRoutes');
 
 const app = express();
+const helmet = require('helmet');
+
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: false, // disable if it breaks your frontend
+  crossOriginEmbedderPolicy: false,
+}));
+
+// Hide that we're using Express
+app.disable('x-powered-by');
 
 app.use(cors({
   origin: ['http://127.0.0.1:5500', 'http://localhost:5500'],
@@ -54,9 +66,15 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Mindora API is running' });
 });
 
+const { authLimiter, apiLimiter } = require('./middleware/rateLimiter');
+
+app.use('/api/auth', authLimiter);  // strict — 10 req/15min on auth
+app.use('/api/', apiLimiter);   // general — 100 req/15min
+
 // ── All routes ──
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/therapist', therapistRoutes);
 app.use('/api/therapists', therapistRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/mood', moodRoutes);
@@ -64,9 +82,11 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/wellness', wellnessRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/therapist-auth', therapistAuthRoutes);
-app.use('/api/therapist', therapistDashRoutes);
+app.use('/api/therapist-dash', therapistDashRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api/availability', availabilityRoutes);
+app.use('/api/ai', aiChatRoutes);
 
 // ── 404 handler ──
 app.use((req, res) => {

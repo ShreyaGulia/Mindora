@@ -1,12 +1,32 @@
 const TherapistUser = require('../models/TherapistUser');
+const Therapist = require('../models/Therapist');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const createToken = (t) => jwt.sign(
-    { id: t._id, email: t.email, role: 'therapist' },
+    { id: t._id, email: t.email, name: t.name, role: 'therapist', isVerified: t.isVerified },
     process.env.JWT_SECRET,
     { expiresIn: '8h' }
 );
+
+// Helper: ensure a Therapist profile exists for the TherapistUser
+async function ensureTherapistProfile(therapistUser) {
+    await Therapist.findOneAndUpdate(
+        { userId: therapistUser._id },
+        {
+            $setOnInsert: {
+                userId: therapistUser._id,
+                fullName: therapistUser.name,
+                email: therapistUser.email,
+                sessionFee: therapistUser.sessionFee || 500,
+                sessionTypes: ['Video', 'Chat', 'Audio'],
+                isApproved: therapistUser.isVerified || false,
+                isActive: true,
+            }
+        },
+        { upsert: true, new: true }
+    );
+}
 
 // POST /api/therapist-auth/register
 const register = async (req, res) => {
@@ -28,6 +48,9 @@ const register = async (req, res) => {
             specialization, experience, institution,
             languages: languages ? languages.split(',').map(l => l.trim()) : []
         });
+
+        // Auto-create profile record so dashboard works immediately
+        await ensureTherapistProfile(therapist);
 
         res.status(201).json({
             message: 'Registered successfully. Await admin verification.',
@@ -53,6 +76,23 @@ const login = async (req, res) => {
             return res.status(403).json({ message: 'Your account is pending admin verification.' });
         }
 
+        // Ensure profile exists and approval is synced
+        await Therapist.findOneAndUpdate(
+            { userId: therapist._id },
+            {
+                $set: { isApproved: true },
+                $setOnInsert: {
+                    userId: therapist._id,
+                    fullName: therapist.name,
+                    email: therapist.email,
+                    sessionFee: therapist.sessionFee || 500,
+                    sessionTypes: ['Video', 'Chat', 'Audio'],
+                    isActive: true,
+                }
+            },
+            { upsert: true, new: true }
+        );
+
         const token = createToken(therapist);
 
         res.json({
@@ -70,4 +110,4 @@ const login = async (req, res) => {
     }
 };
 
-module.exports = { register, login };
+module.exports = { register, login };

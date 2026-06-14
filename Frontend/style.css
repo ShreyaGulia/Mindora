@@ -201,6 +201,25 @@ button {
   background: #fff5f5;
 }
 
+.pd-history-link {
+  font-size: 16px;
+  color: #9ca3af;
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid black;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pd-history-link:hover {
+  background: #eef2f0;
+  color: #52796f;
+  transform: scale(1.1);
+}
+
 /* ── Profile Panel (slide-in drawer) ── */
 .profile-panel-overlay {
   display: none;
@@ -2112,6 +2131,28 @@ button {
   font-size: 15px;
 }
 
+.btn-find-therapist {
+  display: inline-block;
+  padding: 12px 28px;
+  border-radius: 30px;
+  background: #52796f;
+  color: white;
+  text-decoration: none;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(82, 121, 111, 0.2);
+  margin-bottom: 30px;
+}
+
+.btn-find-therapist:hover {
+  background: #3d6b60;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(82, 121, 111, 0.35);
+  color: white;
+}
+
 /* ================= LIVE SESSION CHAT ================= */
 .live-session-section {
   padding: 60px 20px;
@@ -2161,41 +2202,6 @@ button {
   }
 }
 
-.session-timer-wrap {
-  margin-left: auto;
-  text-align: right;
-}
-
-.session-timer-label {
-  display: block;
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.session-timer {
-  font-size: 20px;
-  font-weight: 700;
-  color: white;
-  font-family: 'Poppins', monospace;
-}
-
-.end-session-btn {
-  padding: 8px 18px;
-  border-radius: 20px;
-  background: #e74c3c;
-  color: white;
-  border: none;
-  font-family: 'Poppins', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.end-session-btn:hover {
-  background: #c0392b;
-}
-
 .session-chat-box {
   height: 360px;
   overflow-y: auto;
@@ -2242,46 +2248,6 @@ button {
 
 .session-input-row button:hover {
   background: #3d6155;
-}
-
-/* My Sessions button */
-.sessions-toggle-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 auto 28px;
-  padding: 10px 22px;
-  border-radius: 25px;
-  border: 1.5px solid grey;
-  background: white;
-  color: #4a9978;
-  font-size: 13.5px;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-.sessions-toggle-btn:hover {
-  background: #4a9978;
-  color: white;
-}
-
-.sessions-count-badge {
-  background: #6c63ff;
-  color: white;
-  font-size: 11px;
-  font-weight: 600;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-}
-
-.sessions-toggle-btn:hover .sessions-count-badge {
-  background: white;
-  color: #6c63ff;
 }
 
 /* Session History Panel */

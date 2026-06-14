@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Session Room — MindCare</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0f0f1a;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── Top bar ──────────────────────────────────────────── */
+        .topbar {
+            background: #1a1a2e;
+            border-bottom: 1px solid #2a2a4a;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 800;
+            color: #6c63ff;
+        }
+
+        .session-info {
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        .session-info strong {
+            color: #fff;
+        }
+
+        /* ── Timer ────────────────────────────────────────────── */
+        .timer {
+            background: #2a2a4a;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #6c63ff;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 1px;
+        }
+
+        .timer.warning {
+            color: #f39c12;
+        }
+
+        .timer.urgent {
+            color: #e74c3c;
+            animation: pulse .8s ease infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .6
+            }
+        }
+
+        /* ── Main layout ──────────────────────────────────────── */
+        .main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            overflow: hidden;
+        }
+
+        @media(max-width:780px) {
+            .main {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-panel {
+                display: none;
+            }
+
+            .chat-panel.open {
+                display: flex;
+                position: fixed;
+                inset: 0;
+                z-index: 50;
+            }
+        }
+
+        /* ── Video area ───────────────────────────────────────── */
+        .video-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+            gap: 24px;
+            background: #0f0f1a;
+        }
+
+        /* ── Meet link card ───────────────────────────────────── */
+        .meet-card {
+            background: #1a1a2e;
+            border-radius: 20px;
+            padding: 36px 40px;
+            text-align: center;
+            max-width: 520px;
+            width: 100%;
+            border: 1px solid #2a2a4a;
+        }
+
+        .meet-icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+        }
+
+        .meet-card h2 {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .meet-card p {
+            font-size: 14px;
+            color: #aaa;
+            margin-bottom: 28px;
+            line-height: 1.6;
+        }
+
+        .meet-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 32px;
+            background: #1aa260;
+            color: #fff;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: background .2s;
+            margin-bottom: 16px;
+        }
+
+        .meet-btn:hover {
+            background: #158a52;
+        }
+
+        .meet-btn-zoom {
+            background: #2d8cff;
+        }
+
+        .meet-btn-zoom:hover {
+            background: #1a75e8;
+        }
+
+
+
+        /* ── No link state ────────────────────────────────────── */
+        .no-link-card {
+            background: #1a1a2e;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 480px;
+            width: 100%;
+            border: 1px dashed #2a2a4a;
+        }
+
+        .no-link-card .icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .no-link-card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .no-link-card p {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        /* ── Therapist link input ─────────────────────────────── */
+        .link-input-area {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .link-input-area label {
+            font-size: 13px;
+            color: #888;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .link-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .link-input {
+            flex: 1;
+            padding: 11px 14px;
+            background: #0f0f1a;
+            border: 1.5px solid #2a2a4a;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .link-input:focus {
+            border-color: #6c63ff;
+        }
+
+        .link-input::placeholder {
+            color: #555;
+        }
+
+        .link-save-btn {
+            padding: 11px 20px;
+            background: #6c63ff;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background .2s;
+        }
+
+        .link-save-btn:hover {
+            background: #574fd6;
+        }
+
+        /* ── Session status badge ─────────────────────────────── */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-badge.waiting {
+            background: #2a2a4a;
+            color: #aaa;
+        }
+
+        .status-badge.live {
+            background: #1a3a2a;
+            color: #27ae60;
+        }
+
+        .status-badge.ended {
+            background: #3a1a1a;
+            color: #e74c3c;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .status-badge.live .status-dot {
+            animation: pulse .8s ease infinite;
+        }
+
+        /* ── Chat panel ───────────────────────────────────────── */
+        .chat-panel {
+            background: #1a1a2e;
+            border-left: 1px solid #2a2a4a;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #2a2a4a;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-header-title {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .chat-close {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 20px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #2a2a4a;
+            border-radius: 2px;
+        }
+
+        .msg {
+            display: flex;
+            flex-direction: column;
+            max-width: 85%;
+        }
+
+        .msg.me {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .msg.other {
+            align-self: flex-start;
+        }
+
+        .msg-bubble {
+            padding: 9px 13px;
+            border-radius: 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .msg.me .msg-bubble {
+            background: #6c63ff;
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+
+        .msg.other .msg-bubble {
+            background: #2a2a4a;
+            color: #ddd;
+            border-bottom-left-radius: 4px;
+        }
+
+        .msg-meta {
+            font-size: 10px;
+            color: #555;
+            margin-top: 3px;
+            padding: 0 4px;
+        }
+
+        .chat-input-area {
+            padding: 14px 16px;
+            border-top: 1px solid #2a2a4a;
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px 14px;
+            background: #0f0f1a;
+            border: 1.5px solid #2a2a4a;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            resize: none;
+            min-height: 42px;
+            max-height: 100px;
+            font-family: inherit;
+            transition: border-color .2s;
+        }
+
+        .chat-input:focus {
+            border-color: #6c63ff;
+        }
+
+        .chat-input::placeholder {
+            color: #555;
+        }
+
+        .send-btn {
+            padding: 10px 16px;
+            background: #6c63ff;
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background .2s;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            background: #574fd6;
+        }
+
+        /* ── System message ───────────────────────────────────── */
+        .sys-msg {
+            text-align: center;
+            font-size: 11px;
+            color: #555;
+            padding: 4px 12px;
+            background: #0f0f1a;
+            border-radius: 20px;
+            align-self: center;
+        }
+
+        /* ── Bottom bar ───────────────────────────────────────── */
+        .bottombar {
+            background: #1a1a2e;
+            border-top: 1px solid #2a2a4a;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .bottom-info {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .bottom-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all .2s;
+        }
+
+        .btn-chat-toggle {
+            background: #2a2a4a;
+            color: #aaa;
+            display: none;
+        }
+
+        .btn-end {
+            background: #3a1a1a;
+            color: #e74c3c;
+            border: 1px solid #5a2a2a;
+        }
+
+        .btn-end:hover {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .btn-complete {
+            background: #1a3a2a;
+            color: #27ae60;
+            border: 1px solid #2a5a3a;
+        }
+
+        .btn-complete:hover {
+            background: #27ae60;
+            color: #fff;
+        }
+
+        @media(max-width:780px) {
+            .btn-chat-toggle {
+                display: block;
+            }
+        }
+
+        /* ── Alert ────────────────────────────────────────────── */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a2e;
+            border: 1px solid #2a2a4a;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            z-index: 200;
+            display: none;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        .toast.success {
+            border-color: #27ae60;
+            color: #27ae60;
+        }
+
+        .toast.error {
+            border-color: #e74c3c;
+            color: #e74c3c;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Top bar -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo">🌿 MindCare</div>
+            <div class="session-info">
+                Session with <strong id="otherName">Loading...</strong>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px">
+            <div class="status-badge waiting" id="statusBadge">
+                <div class="status-dot"></div>
+                <span id="statusText">Waiting</span>
+            </div>
+            <div class="timer" id="timer">00:00</div>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+
+        <!-- Video / Meet area -->
+        <div class="video-area" id="videoArea">
+            <div id="meetContent">
+                <!-- Filled by JS based on role & roomUrl -->
+            </div>
+        </div>
+
+        <!-- Chat panel -->
+        <div class="chat-panel" id="chatPanel">
+            <div class="chat-header">
+                <span class="chat-header-title">💬 Session Chat</span>
+                <button class="chat-close" id="chatClose" onclick="toggleChat()">✕</button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="sys-msg">Chat is end-to-end private. Messages are not stored.</div>
+            </div>
+            <div class="chat-input-area">
+                <textarea class="chat-input" id="chatInput" placeholder="Type a message..." rows="1"
+                    onkeydown="handleKey(event)" style="border-radius:18px; padding:12px 16px;"></textarea>
+                <button class="send-btn" onclick="sendMsg()" style="border-radius:50%; width:42px; height:42px; padding:0; display:flex; align-items:center; justify-content:center;">➤</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="bottombar">
+        <div class="bottom-info" id="bottomInfo">Connecting...</div>
+        <div class="bottom-actions">
+            <button class="action-btn btn-chat-toggle" onclick="toggleChat()">💬 Chat</button>
+            <button class="action-btn btn-end" id="endBtn" onclick="endSession()">End Session</button>
+            <button class="action-btn btn-complete" id="completeBtn" onclick="completeSession()" style="display:none">
+                ✓ Mark Complete
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ── State ──────────────────────────────────────────────
+        const params = new URLSearchParams(window.location.search);
+        const sessionId = params.get('sessionId');
+        const role = params.get('role') || 'user';   // 'user' or 'therapist'
+        const token = role === 'therapist'
+            ? localStorage.getItem('therapistToken')
+            : localStorage.getItem('mindoraToken');
+
+        let sessionData = null;
+        let timerInterval = null;
+        let timerSeconds = 0;
+        let sessionStarted = false;
+
+        const socket = io('http://localhost:5000', {
+            transports: ['websocket'],
+        });
+
+        // ── Init ───────────────────────────────────────────────
+        window.addEventListener('DOMContentLoaded', async () => {
+            if (!sessionId || !token) {
+                showToast('Session not found. Please go back.', 'error');
+                return;
+            }
+            await loadSession();
+            setupSocket();
+        });
+
+        async function loadSession() {
+            try {
+                // Different endpoints for therapist vs client
+                const url = role === 'therapist'
+                    ? `http://localhost:5000/api/therapist-dash/overview`
+                    : `http://localhost:5000/api/sessions/${sessionId}/room`;
+
+                if (role === 'user') {
+                    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+                    const data = await res.json();
+                    if (!data.success) throw new Error(data.message);
+                    sessionData = data.data;
+                    renderMeetArea();
+                } else {
+                    // Therapist: load from their dashboard sessions
+                    const res = await fetch(`http://localhost:5000/api/sessions/my-therapist-session/${sessionId}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const resData = await res.json();
+                    
+                    if (resData.success && resData.data && resData.data.roomUrl) {
+                        const url = resData.data.roomUrl;
+                        if (url.includes('jit.si')) {
+                            document.getElementById('meetContent').innerHTML = `
+                              <div style="width:100%;height:100%;min-height:75vh;background:#000;border-radius:24px;overflow:hidden;border:1px solid #2a2a4a;position:relative;">
+                                <iframe 
+                                  src="${url}#config.prejoinPageEnabled=false" 
+                                  allow="camera; microphone; display-capture; autoplay; clipboard-write" 
+                                  style="width:100%;height:100%;border:none;">
+                                </iframe>
+                              </div>`;
+                        } else {
+                            document.getElementById('meetContent').innerHTML = `
+                              <div class="meet-card">
+                                <div class="meet-icon">✅</div>
+                                <h2>Session link ready</h2>
+                                <p>You have set a custom meeting provider. Your client can now join.</p>
+                                <a href="${url}" target="_blank" class="meet-btn">📞 Join Now</a>
+                              </div>`;
+                        }
+                        document.getElementById('otherName').textContent = 'client';
+                        document.getElementById('completeBtn').style.display = 'block';
+                        setStatus('live');
+                        startTimer(resData.data.durationMins || 60);
+                    } else {
+                        renderTherapistArea();
+                    }
+                }
+            } catch (e) {
+                renderWaitingArea();
+            }
+        }
+
+        // ── Render meet area ───────────────────────────────────
+        function renderMeetArea() {
+            const d = sessionData;
+            if (!d) { renderWaitingArea(); return; }
+
+            const isZoom = d.roomUrl && d.roomUrl.includes('zoom');
+            const isMeet = d.roomUrl && (d.roomUrl.includes('meet.google') || d.roomUrl.includes('g.co'));
+            const btnClass = isZoom ? 'meet-btn meet-btn-zoom' : 'meet-btn';
+            const btnIcon = isZoom ? '📹' : '📞';
+            const btnLabel = isZoom ? 'Join Zoom Call' : 'Join Google Meet';
+
+            if (d.hasLink && d.roomUrl) {
+                // If it's a Jitsi link (auto-generated or manually pasted Jitsi), embed it
+                if (d.roomUrl.includes('jit.si')) {
+                  document.getElementById('meetContent').innerHTML = `
+                    <div style="width:100%;height:100%;min-height:75vh;background:#000;border-radius:24px;overflow:hidden;border:1px solid #2a2a4a;">
+                      <iframe 
+                        src="${d.roomUrl}#config.prejoinPageEnabled=false&interfaceConfig.TOOLBAR_BUTTONS=['microphone','camera','closedcaptions','desktop','fullscreen','fippr','raisehand','videoquality','filmstrip','shortcuts','tileview','videobackgroundblur','help','mute-everyone','roomname']" 
+                        allow="camera; microphone; display-capture; autoplay; clipboard-write" 
+                        style="width:100%;height:100%;border:none;">
+                      </iframe>
+                    </div>`;
+                } else {
+                  // Fallback for Zoom/Google Meet if manually set by therapist
+                  document.getElementById('meetContent').innerHTML = `
+                    <div class="meet-card">
+                      <div class="meet-icon">${isZoom ? '📹' : '📞'}</div>
+                      <h2>Your session is ready</h2>
+                      <p>Click below to join your session. You will be redirected to the secure meeting provider.</p>
+                      <a href="${d.roomUrl}" target="_blank" class="${btnClass}">
+                        ${btnIcon} ${btnLabel}
+                      </a>
+                    </div>`;
+                }
+                document.getElementById('otherName').textContent = 'your therapist';
+                setStatus('live');
+                startTimer(d.durationMins);
+            } else {
+                renderWaitingArea();
+            }
+        }
+
+        function renderTherapistArea() {
+            document.getElementById('meetContent').innerHTML = `
+      <div class="no-link-card">
+        <div class="icon">🔗</div>
+        <h3>Add Meeting Link</h3>
+        <p>Create a Google Meet or Zoom link and paste it here.<br/>
+        Your client will see it instantly.</p>
+      </div>
+      <div class="link-input-area">
+        <label>Google Meet or Zoom link</label>
+        <div class="link-row">
+          <input class="link-input" id="meetLinkInput"
+            placeholder="https://meet.google.com/abc-defg-hij"/>
+          <button class="link-save-btn" onclick="saveLink()">Save Link</button>
+        </div>
+      </div>`;
+
+            document.getElementById('otherName').textContent = 'client';
+            document.getElementById('completeBtn').style.display = 'block';
+        }
+
+        function renderWaitingArea() {
+            document.getElementById('meetContent').innerHTML = `
+      <div class="no-link-card">
+        <div class="icon">⏳</div>
+        <h3>Waiting for therapist</h3>
+        <p>Your therapist will share the meeting link shortly.<br/>
+        This page will update automatically.</p>
+        <div style="margin-top:16px;font-size:13px;color:#555">
+          Refreshing every 30 seconds...
+        </div>
+      </div>`;
+            setStatus('waiting');
+            // Poll for link every 30s
+            setTimeout(loadSession, 30000);
+        }
+
+        // ── Save link (therapist) ──────────────────────────────
+        async function saveLink() {
+            const url = document.getElementById('meetLinkInput')?.value?.trim();
+            if (!url || !url.startsWith('http')) {
+                showToast('Please enter a valid URL', 'error'); return;
+            }
+
+            try {
+                const res = await fetch(`http://localhost:5000/api/sessions/${sessionId}/set-room`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ roomUrl: url }),
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    showToast('Linking room...', 'success');
+                    socket.emit('room_link_ready', { sessionRef: sessionId, roomUrl: url });
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast(data.message, 'error');
+                }
+            } catch (e) {
+                showToast('Network error. Try again.', 'error');
+            }
+        }
+
+        // ── Socket.io ──────────────────────────────────────────
+        function setupSocket() {
+            socket.on('connect', () => {
+                socket.emit('join_session', sessionId);
+                document.getElementById('bottomInfo').textContent =
+                    `Connected · Session ID: ${sessionId}`;
+            });
+
+            socket.on('receive_message', ({ sender, text, time }) => {
+                appendMsg(sender, text, time, sender === getMyName() ? 'me' : 'other');
+            });
+
+            socket.on('session_started', () => {
+                setStatus('live');
+                appendSysMsg('Session has started');
+            });
+
+            socket.on('session_ended', () => {
+                setStatus('ended');
+                stopTimer();
+                appendSysMsg('Session has ended');
+            });
+
+            // Client listens for link becoming available
+            socket.on('room_link_ready', ({ roomUrl }) => {
+                if (role === 'user') {
+                    sessionData = { ...sessionData, roomUrl, hasLink: true };
+                    renderMeetArea();
+                    appendSysMsg('Meeting link is now available!');
+                }
+            });
+
+            socket.on('disconnect', () => {
+                document.getElementById('bottomInfo').textContent = 'Disconnected — reconnecting...';
+            });
+        }
+
+        // ── Chat ───────────────────────────────────────────────
+        function sendMsg() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const time = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+            const sender = getMyName();
+
+            socket.emit('send_message', { sessionRef: sessionId, sender, text, time });
+            appendMsg(sender, text, time, 'me');
+            input.value = '';
+            input.style.height = 'auto';
+        }
+
+        function handleKey(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMsg();
+            }
+        }
+
+        function appendMsg(sender, text, time, side) {
+            const wrap = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.className = `msg ${side}`;
+            div.innerHTML = `
+      <div class="msg-bubble">${escHtml(text)}</div>
+      <div class="msg-meta">${side === 'me' ? 'You' : sender} · ${time}</div>`;
+            wrap.appendChild(div);
+            wrap.scrollTop = wrap.scrollHeight;
+        }
+
+        function appendSysMsg(text) {
+            const wrap = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.className = 'sys-msg';
+            div.textContent = text;
+            wrap.appendChild(div);
+            wrap.scrollTop = wrap.scrollHeight;
+        }
+
+        function escHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function getMyName() {
+            return role === 'therapist' ? 'Therapist' : 'Client';
+        }
+
+        // ── Timer ──────────────────────────────────────────────
+        function startTimer(durationMins) {
+            if (timerInterval) return;
+            sessionStarted = true;
+            timerInterval = setInterval(() => {
+                timerSeconds++;
+                const h = Math.floor(timerSeconds / 3600);
+                const m = Math.floor((timerSeconds % 3600) / 60);
+                const s = timerSeconds % 60;
+                const display = h > 0
+                    ? `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+                    : `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+
+                const timerEl = document.getElementById('timer');
+                timerEl.textContent = display;
+
+                const remaining = durationMins * 60 - timerSeconds;
+                timerEl.className = 'timer' +
+                    (remaining < 300 && remaining > 60 ? ' warning' : '') +
+                    (remaining <= 60 ? ' urgent' : '');
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        // ── Status ─────────────────────────────────────────────
+        function setStatus(s) {
+            const badge = document.getElementById('statusBadge');
+            const text = document.getElementById('statusText');
+            badge.className = `status-badge ${s}`;
+            text.textContent = s === 'live' ? 'Live' : s === 'ended' ? 'Ended' : 'Waiting';
+        }
+
+        // ── End / complete session ─────────────────────────────
+        function endSession() {
+            if (!confirm('End this session?')) return;
+            socket.emit('session_ended', sessionId);
+            stopTimer();
+            setStatus('ended');
+            appendSysMsg('You ended the session.');
+            document.getElementById('bottomInfo').textContent = 'Session ended';
+        }
+
+        let isCompleting = false;
+        async function completeSession() {
+            if (role !== 'therapist') return;
+            if (isCompleting) return;
+            if (!confirm('Mark this session as completed? This will credit your wallet.')) return;
+            isCompleting = true;
+
+            try {
+                const res = await fetch(`http://localhost:5000/api/sessions/${sessionId}/complete`, {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    showToast('Session completed! Earnings credited to your wallet.', 'success');
+                    socket.emit('session_ended', sessionId);
+                    stopTimer(); setStatus('ended');
+                    setTimeout(() => { window.location.href = 'therapist-dashboard.html'; }, 2500);
+                } else {
+                    showToast(data.message, 'error');
+                    isCompleting = false;
+                }
+            } catch (e) {
+                showToast('Network error.', 'error');
+                isCompleting = false;
+            }
+        }
+
+        // ── Mobile chat toggle ─────────────────────────────────
+        function toggleChat() {
+            document.getElementById('chatPanel').classList.toggle('open');
+            document.getElementById('chatClose').style.display =
+                document.getElementById('chatPanel').classList.contains('open') ? 'block' : 'none';
+        }
+
+        // ── Toast ──────────────────────────────────────────────
+        function showToast(msg, type = '') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = `toast show ${type}`;
+            setTimeout(() => { t.className = 'toast'; }, 4000);
+        }
+    </script>
+</body>
+
+</html>

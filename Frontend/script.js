@@ -162,19 +162,7 @@ function filterTherapists(btn, tag) {
   renderTherapistCards(filtered);
 }
 
-// Auto-save every chat message to backend
-async function saveChatMessage(sender, text) {
-  if (!getToken()) return;
-  try {
-    await fetch(`${API_BASE}/chat/save`, {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ sender, text })
-    });
-  } catch (err) {
-    console.error('Chat save failed:', err);
-  }
-}
+
 
 // Auto-save mood when user picks one
 async function saveMood(mood, note = '') {
@@ -245,28 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const token = localStorage.getItem('mindoraToken');
     if (token) {
-      try {
-        const limitRes = await fetch(`${API_BASE}/chat/save`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-          body: JSON.stringify({ sender: 'user', text })
-        });
-
-        if (limitRes.status === 429) {
-          const limitData = await limitRes.json();
-          typingIndicator.style.display = 'none';
-          addMessage(
-            `⚠️ You've used all ${limitData.limit} free AI messages for today.\n` +
-            `Upgrade to Pro for unlimited messages.\n` +
-            `Resets at midnight.`,
-            'bot'
-          );
-          return;
-        }
-      } catch (err) {
-        // silently continue if save fails
-        console.error('Save message error:', err);
-      }
+      // The saving and rate-limiting is handled by the AI endpoint itself (/api/ai/chat)
     }
     setTimeout(() => {
       typingIndicator.style.display = 'none';
@@ -359,39 +326,6 @@ document.addEventListener("DOMContentLoaded", () => {
   setupNavbar();
   loadTherapists();
   loadWallet();
-  /* ─────────────────────────────────────────────
-     SESSION BANNER COUNTDOWN
-  ───────────────────────────────────────────── */
-  const banner = document.getElementById("sessionBanner");
-  const timerEl = document.getElementById("sessionTimer");
-
-  function startSessionCountdown() {
-    if (!banner || !timerEl) return;
-    banner.style.display = "block";
-
-    const interval = setInterval(() => {
-      const exp = Number(localStorage.getItem("sessionExpiry"));
-      const remaining = exp - Date.now();
-
-      if (!exp || remaining <= 0) {
-        banner.style.display = "none";
-        clearInterval(interval);
-        return;
-      }
-
-      const minutes = Math.floor(remaining / 60000);
-      const seconds = Math.floor((remaining % 60000) / 1000);
-      timerEl.textContent =
-        `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-
-      banner.classList.remove("warning", "danger");
-      if (minutes < 5) banner.classList.add("danger");
-      else if (minutes < 10) banner.classList.add("warning");
-
-    }, 1000);
-  }
-
-  startSessionCountdown();
 
 
   /* ─────────────────────────────────────────────
@@ -426,7 +360,7 @@ document.addEventListener("DOMContentLoaded", () => {
     msg.innerHTML = `${text.replace(/\n/g, "<br>")}<span class="message-time">${getTime()}</span>`;
     chatBox.insertBefore(msg, typingIndicator);
     chatBox.scrollTop = chatBox.scrollHeight;
-    saveChatMessage(sender, text);
+    // saveChatMessage(sender, text); - Removed as it's redundant/broken
   }
 
   if (userInput) {
@@ -464,41 +398,61 @@ document.addEventListener("DOMContentLoaded", () => {
   function getSessions() { return JSON.parse(localStorage.getItem("mindoraSessions") || "[]"); }
   function saveSessions(arr) { localStorage.setItem("mindoraSessions", JSON.stringify(arr)); }
 
-  function renderSessionHistory() {
-    const sessions = getSessions();
-    const countEl = document.getElementById("sessionsCount");
-    const metaEl = document.getElementById("sessionHistoryMeta");
-    if (countEl) countEl.textContent = sessions.length;
-    if (metaEl) metaEl.textContent =
-      sessions.length === 0 ? "No sessions yet" : `${sessions.length} session${sessions.length > 1 ? "s" : ""} booked`;
-
+  async function renderSessionHistory() {
     const container = document.getElementById("sessionListContainer");
+    const metaEl = document.getElementById("sessionHistoryMeta");
     if (!container) return;
 
-    if (sessions.length === 0) {
-      container.innerHTML = `<div class="session-history-empty"><span>🗓️</span>You haven't booked any sessions yet. Request one below!</div>`;
-      return;
-    }
+    container.innerHTML = `<div class="session-history-empty"><span>⏳</span> Loading sessions...</div>`;
 
-    const sorted = [...sessions].reverse();
-    container.innerHTML = `<div class="session-list">${sorted.map(s => {
-      const color = avatarColors[s.color] || "#52796f";
-      const initials = avatarInitials[s.docName] || "?";
-      return `
-      <div class="session-item">
-        <div class="session-avatar" style="background:${color};">${initials}</div>
-        <div class="session-info">
-          <h5>${s.docName}</h5>
-          <p>${s.role} · ${s.mode}</p>
-          <p style="margin-top:2px;color:#9ca3af;font-size:11.5px;">${s.concerns}</p>
-        </div>
-        <div class="session-meta">
-          <div class="session-status confirmed">Confirmed</div>
-          <div class="session-date">${s.date} · ${s.time}</div>
-          <div class="session-date" style="margin-top:2px;font-size:11px;">${s.ref}</div>
-        </div>
-      </div>`;
-    }).join("")}</div>`;
+    try {
+      const token = localStorage.getItem('mindoraToken');
+      if (!token) {
+        container.innerHTML = `<div class="session-history-empty"><span>🔒</span> Please log in to see sessions.</div>`;
+        return;
+      }
+
+      const res = await fetch(`${API_BASE}/sessions/my`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      let sessions = data?.data?.sessions || [];
+      sessions = sessions.filter(s => s.status !== 'pending' && s.paymentStatus === 'paid');
+
+      if (metaEl) metaEl.textContent = sessions.length === 0
+        ? "No sessions yet"
+        : `${sessions.length} session${sessions.length > 1 ? 's' : ''} booked`;
+
+      if (sessions.length === 0) {
+        container.innerHTML = `<div class="session-history-empty"><span>🗓️</span> You haven't booked any sessions yet.</div>`;
+        return;
+      }
+
+      container.innerHTML = `<div class="session-list">${sessions.map(s => {
+        const therapist = s.therapistId;
+        const name = therapist?.fullName || 'Therapist';
+        const initials = name.split(' ').filter(w => !w.includes('.')).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+        const date = new Date(s.scheduledAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        const time = new Date(s.scheduledAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+        const statusClass = s.status === 'confirmed' ? 'confirmed' : s.status === 'cancelled' ? 'cancelled' : 'pending';
+        return `
+        <div class="session-item">
+          <div class="session-avatar" style="background:#52796f;">${initials}</div>
+          <div class="session-info">
+            <h5>${name}</h5>
+            <p>${s.sessionType} Session • ₹${s.sessionFee}</p>
+          </div>
+          <div class="session-meta">
+            <div class="session-status ${statusClass}">${s.status}</div>
+            <div class="session-date">${date} · ${time}</div>
+          </div>
+        </div>`;
+      }).join('')}</div>`;
+
+    } catch (err) {
+      console.error('Failed to load sessions:', err);
+      container.innerHTML = `<div class="session-history-empty"><span>⚠️</span> Could not load sessions.</div>`;
+    }
   }
 
   function toggleSessionHistory() {
@@ -517,46 +471,12 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentDoc = { name: "", role: "", color: "green" };
 
   function openBookingModal(name, role, therapistId) {
-    currentDoc = { name, role, therapistId };
-    currentStep = 1;
-    selectedSlot = '';
-
-    ["fieldName", "fieldAge", "fieldEmail", "fieldPhone", "fieldNote"].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.value = "";
-    });
-    document.getElementById('fieldPrior') && (document.getElementById('fieldPrior').value = '');
-    document.getElementById('fieldMode') && (document.getElementById('fieldMode').value = '');
-    document.getElementById('fieldDate') && (document.getElementById('fieldDate').value = '');
-    document.querySelectorAll('.concern-chip').forEach(c => c.classList.remove('selected'));
-    document.querySelectorAll('.time-slot:not(.unavailable)').forEach(s => s.classList.remove('selected'));
-
-    // Pre-fill from saved user
-    const saved = JSON.parse(localStorage.getItem('mindoraUser') || 'null');
-    if (saved) {
-      if (saved.name && document.getElementById('fieldName')) document.getElementById('fieldName').value = saved.name;
-      if (saved.email && document.getElementById('fieldEmail')) document.getElementById('fieldEmail').value = saved.email;
+    // Redirect to the full book-session page (calendar + Stripe payment)
+    if (therapistId) {
+      window.location.href = `book-session.html?therapistId=${therapistId}`;
+    } else {
+      alert('Could not find therapist details. Please try from Browse Therapists.');
     }
-
-    // Min date = today
-    const dateEl = document.getElementById('fieldDate');
-    if (dateEl) dateEl.min = new Date().toISOString().split('T')[0];
-
-    // Update modal header
-    const nameEl = document.getElementById('modalDocName');
-    const roleEl = document.getElementById('modalDocRole');
-    const avEl = document.getElementById('modalDocAvatar');
-
-    if (nameEl) nameEl.textContent = name;
-    if (roleEl) roleEl.textContent = role;
-    if (avEl) {
-      avEl.textContent = getInitials(name);
-      avEl.style.background = '#52796f';
-    }
-
-    updateModalUI();
-    const modal = document.getElementById('bookingModal');
-    if (modal) { modal.classList.add('open'); document.body.style.overflow = 'hidden'; }
   }
 
   function closeModal() {
@@ -651,11 +571,25 @@ document.addEventListener("DOMContentLoaded", () => {
       const concerns = [...document.querySelectorAll('.concern-chip.selected')]
         .map(c => c.textContent).join(', ') || 'General';
 
+      const typeMap = {
+        'Video call (Zoom / Google Meet)': 'Video',
+        'Phone call': 'Audio',
+        'Chat / Text session': 'Chat'
+      };
+
+      const convertTo24Hour = (timeStr) => {
+        const [time, modifier] = timeStr.split(' ');
+        let [hours, minutes] = time.split(':');
+        if (hours === '12') hours = '00';
+        if (modifier === 'PM') hours = parseInt(hours, 10) + 12;
+        return `${String(hours).padStart(2, '0')}:${minutes}`;
+      };
+
       const bookingData = {
         therapistId: currentDoc.therapistId,
         date: document.getElementById('fieldDate').value,
-        time: selectedSlot,
-        mode: document.getElementById('fieldMode').value,
+        time: convertTo24Hour(selectedSlot),
+        sessionType: typeMap[document.getElementById('fieldMode').value] || document.getElementById('fieldMode').value,
         concerns,
         note: document.getElementById('fieldNote')?.value || ''
       };
@@ -693,7 +627,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const successName = document.getElementById('successDocName');
         const bookingRef = document.getElementById('bookingRef');
         if (successName) successName.textContent = currentDoc.name;
-        if (bookingRef) bookingRef.textContent = data.session.ref;
+        if (bookingRef) bookingRef.textContent = data.data?.sessionId || 'Confirmed';
 
         currentStep = 4;
         updateModalUI();
@@ -719,8 +653,8 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => {
       const name = btn.dataset.name || btn.closest(".therapist-card")?.querySelector("h3")?.textContent.trim() || "";
       const role = btn.dataset.role || "Mental Health Professional";
-      const color = btn.dataset.color || "green";
-      openBookingModal(name, role, color);
+      const tid = btn.dataset.id || btn.closest(".therapist-card")?.dataset.id || "";
+      openBookingModal(name, role, tid);
     });
   });
 
@@ -959,7 +893,7 @@ async function runWellnessAssessment() {
         </div>
         <div class="card-footer-row">
           <div class="card-rating-small">★ ${t.rating} <span>· ${t.reviewCount} reviews</span></div>
-          <button class="request-btn" onclick="openBookingModal('${t.name}', '${t.role}', '${t.color}')">
+          <button class="request-btn" onclick="openBookingModal('${t.name}', '${t.specialization || t.role || 'Therapist'}', '${t._id}')">
             Book ₹${t.sessionFee}
           </button>
         </div>
@@ -1092,8 +1026,11 @@ async function loadWallet() {
     const res = await fetch(`${API_BASE}/wallet`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
-    const wallet = await res.json();
-    document.getElementById('walletBadge').textContent = `💰 ₹${wallet.balance}`;
+    if (!res.ok) return; // No wallet for this user yet — silently skip
+    const data = await res.json();
+    const bal = data?.data?.balance ?? data?.balance ?? 0;
+    const walletBadge = document.getElementById('walletBadge');
+    if (walletBadge) walletBadge.innerHTML = `💰 <span id="walletAmount">₹${bal}</span>`;
   } catch (err) {
     console.error('Could not load wallet:', err);
   }
@@ -1156,7 +1093,7 @@ function openProfilePanel(tab) {
 
   if (tab === 'wallet') loadWalletPanel();
   if (tab === 'sessions') loadSessionsPanel();
-  if (tab === 'mood') loadMoodPanel();
+
   if (tab === 'billing') loadBillingPanel();
 }
 
@@ -1175,12 +1112,14 @@ async function loadWalletPanel() {
 
   try {
     const res = await fetch(`${API_BASE}/wallet`, { headers: { 'Authorization': `Bearer ${token}` } });
-    const wallet = await res.json();
+    const data = await res.json();
+    const balance = data?.data?.balance ?? data?.balance ?? 0;
+    const txns = data?.data?.transactions || data?.transactions || [];
 
     document.getElementById('ppBody').innerHTML = `
       <div class="wallet-balance-card">
         <div class="wallet-balance-label">Available Balance</div>
-        <div class="wallet-balance-amount">₹${wallet.balance}</div>
+        <div class="wallet-balance-amount">₹${balance}</div>
       </div>
 
       <div class="topup-row">
@@ -1190,9 +1129,9 @@ async function loadWalletPanel() {
       <p id="topupMsg" style="font-size:13px;color:#52796f;margin-bottom:16px;"></p>
 
       <div class="txn-title">Transaction History</div>
-      ${wallet.transactions.length === 0
+      ${txns.length === 0
         ? '<p style="color:#9ca3af;font-size:13px;">No transactions yet.</p>'
-        : wallet.transactions.slice().reverse().map(t => `
+        : txns.slice().reverse().map(t => `
           <div class="txn-item">
             <div>
               <div class="txn-desc">${t.description}</div>
@@ -1209,93 +1148,78 @@ async function loadWalletPanel() {
   }
 }
 
-async function addWalletFunds() {
+function addWalletFunds() {
   // ── Wallet top-up using Stripe ──
   // Opens the pricing page's payment modal adapted for wallet top-up
-  function addWalletFunds() {
-    const amountInput = document.getElementById('topupAmount');
-    const amount = amountInput ? Number(amountInput.value) : 0;
+  const amountInput = document.getElementById('topupAmount');
+  const amount = amountInput ? Number(amountInput.value) : 0;
 
-    if (!amount || amount < 10) {
-      alert('Please enter a minimum top-up of ₹10');
-      return;
-    }
-
-    // Redirect to pricing page with top-up amount as a URL param
-    // The pricing page handles the Stripe payment flow
-    window.location.href = `pricing.html?topup=${amount}`;
+  if (!amount || amount < 10) {
+    alert('Please enter a minimum top-up of ₹10');
+    return;
   }
+
+  // Redirect to pricing page with top-up amount as a URL param
+  // The pricing page handles the Stripe payment flow
+  window.location.href = `pricing.html?topup=${amount}`;
 }
 
 // ── Sessions Panel ──
 async function loadSessionsPanel() {
   document.getElementById('ppTitle').textContent = '📅 My Sessions';
-  document.getElementById('ppBody').innerHTML = '<p style="color:#9ca3af;font-size:13px;">Loading...</p>';
+  const ppBody = document.getElementById('ppBody');
+  ppBody.innerHTML = '<p style="color:#9ca3af;font-size:13px;">Loading...</p>';
 
   const token = localStorage.getItem('mindoraToken');
   if (!token) return;
 
   try {
     const res = await fetch(`${API_BASE}/sessions/my`, { headers: { 'Authorization': `Bearer ${token}` } });
-    const sessions = await res.json();
+    const data = await res.json();
+    let sessions = data?.data?.sessions || [];
+    // Show only upcoming confirmed and paid sessions
+    const now = new Date();
+    sessions = sessions.filter(s => 
+      s.status === 'confirmed' && 
+      s.paymentStatus === 'paid' && 
+      new Date(s.scheduledAt) >= now
+    );
 
-    if (!sessions.length) {
-      document.getElementById('ppBody').innerHTML = `
+    if (sessions.length === 0) {
+      ppBody.innerHTML = `
         <p style="color:#9ca3af;font-size:13px;text-align:center;margin-top:40px;">
           No sessions booked yet.<br>Browse therapists to book your first session.
         </p>`;
       return;
     }
 
-    document.getElementById('ppBody').innerHTML = sessions.map(s => `
+    ppBody.innerHTML = sessions.map(s => {
+      const therapist = s.therapistId;
+      const name = therapist?.fullName || 'Therapist';
+      const date = new Date(s.scheduledAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+      const time = new Date(s.scheduledAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+      return `
       <div class="session-item-card">
         <div class="si-top">
-          <div class="si-name">${s.therapist?.name || 'Therapist'}</div>
+          <div class="si-name">${name}</div>
           <span class="si-status si-${s.status}">${s.status}</span>
         </div>
-        <div class="si-detail">📅 ${s.date} · ${s.time}</div>
-        <div class="si-detail">🖥️ ${s.mode}</div>
-        ${s.concerns ? `<div class="si-detail">💬 ${s.concerns}</div>` : ''}
-        <div class="si-ref">${s.ref}</div>
-      </div>`).join('');
+        <div class="si-detail">📅 ${date} · ${time}</div>
+        <div class="si-detail">🖥️ ${s.sessionType} Session · ₹${s.sessionFee}</div>
+        ${s.status === 'confirmed' ? `<button onclick="window.location.href='video-session.html?sessionId=${s._id}&role=user'" style="margin-top:10px;padding:6px 12px;background:#6c63ff;color:#fff;border-radius:6px;border:none;cursor:pointer;font-size:12px;width:100%;">Enter Session</button>` : ''}
+      </div>`;
+    }).join('') + `
+      <div style="margin-top:20px; text-align:center; padding:10px 0;">
+        <a href="my-sessions.html" style="color:#6c63ff; font-weight:600; font-size:13px; text-decoration:none; border-bottom:1px solid #6c63ff; padding-bottom:2px;">
+          View Session History →
+        </a>
+      </div>`;
   } catch (err) {
-    document.getElementById('ppBody').innerHTML = '<p style="color:#e74c3c;">Could not load sessions.</p>';
+    ppBody.innerHTML = '<p style="color:#e74c3c;">Could not load sessions.</p>';
   }
 }
 
-// ── Mood History Panel ──
-async function loadMoodPanel() {
-  document.getElementById('ppTitle').textContent = '😊 Mood History';
-  document.getElementById('ppBody').innerHTML = '<p style="color:#9ca3af;font-size:13px;">Loading...</p>';
 
-  const token = localStorage.getItem('mindoraToken');
-  if (!token) return;
-
-  try {
-    const res = await fetch(`${API_BASE}/mood/history`, { headers: { 'Authorization': `Bearer ${token}` } });
-    const logs = await res.json();
-
-    if (!logs.length) {
-      document.getElementById('ppBody').innerHTML = `
-        <p style="color:#9ca3af;font-size:13px;text-align:center;margin-top:40px;">
-          No mood logs yet.<br>Use the mood tracker in the chat section.
-        </p>`;
-      return;
-    }
-
-    document.getElementById('ppBody').innerHTML = logs.map(l => `
-      <div class="mood-item">
-        <div class="mood-emoji">${moodEmojis[l.mood] || '😐'}</div>
-        <div>
-          <div class="mood-label">${l.mood}</div>
-          ${l.note ? `<div class="mood-note">"${l.note}"</div>` : ''}
-        </div>
-        <div class="mood-date">${new Date(l.loggedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</div>
-      </div>`).join('');
-  } catch (err) {
-    document.getElementById('ppBody').innerHTML = '<p style="color:#e74c3c;">Could not load mood history.</p>';
-  }
-}
 
 // ── Logout ──
 function logoutUser() {

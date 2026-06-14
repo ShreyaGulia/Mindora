@@ -19,7 +19,7 @@ const billingSchema = new mongoose.Schema({
     // What was paid for
     purpose: {
         type: String,
-        enum: ['wallet_topup', 'pro_monthly', 'pro_yearly'],
+        enum: ['wallet_topup', 'pro_monthly', 'pro_yearly', 'session_booking'],
         required: true
     },
 

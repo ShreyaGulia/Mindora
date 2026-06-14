@@ -1,6 +1,7 @@
-const User       = require('../models/User');
-const bcrypt     = require('bcryptjs');
-const jwt        = require('jsonwebtoken');
+const User = require('../models/User');
+const Admin = require('../models/Admin');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 // helper — creates a signed JWT token for a user
 const createToken = (user) => {
@@ -30,7 +31,7 @@ const signup = async (req, res) => {
     }
 
     // 3. hash the password — never store plain text
-    const salt           = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // 4. save new user to MongoDB
@@ -47,10 +48,10 @@ const signup = async (req, res) => {
     res.status(201).json({
       token,
       user: {
-        id:    user._id,
-        name:  user.name,
+        id: user._id,
+        name: user.name,
         email: user.email,
-        plan:  user.plan
+        plan: user.plan
       }
     });
 
@@ -90,10 +91,10 @@ const login = async (req, res) => {
     res.json({
       token,
       user: {
-        id:    user._id,
-        name:  user.name,
+        id: user._id,
+        name: user.name,
         email: user.email,
-        plan:  user.plan
+        plan: user.plan
       }
     });
 
@@ -113,5 +114,19 @@ const getMe = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
+const adminLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const admin = await Admin.findOne({ email });
+    if (!admin) return res.status(401).json({ success: false, message: 'Invalid credentials.' });
 
-module.exports = { signup, login, getMe };
+    const match = await bcrypt.compare(password, admin.password);
+    if (!match) return res.status(401).json({ success: false, message: 'Invalid credentials.' });
+
+    const token = jwt.sign({ adminId: admin._id, role: 'admin' }, process.env.JWT_SECRET, { expiresIn: '8h' });
+    res.json({ success: true, token });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+module.exports = { signup, login, getMe, adminLogin };

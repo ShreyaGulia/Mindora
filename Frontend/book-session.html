@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book a Session — Mindora</title>
+    <script src="https://js.stripe.com/v3/"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --green-50: #f0faf4;
+            --green-100: #d6f0e0;
+            --green-200: #aadfc0;
+            --green-300: #74c99a;
+            --green-400: #3eb373;
+            --green-500: #2a9d5c;
+            --green-600: #1e7a44;
+            --green-700: #165c33;
+            --green-800: #0f3d22;
+            --cream: #fafff9;
+            --white: #ffffff;
+            --text-dark: #162921;
+            --text-mid: #3d5245;
+            --text-soft: #6b7f73;
+            --text-faint: #9eb5a4;
+            --border: #ddeee3;
+            --shadow-sm: 0 1px 4px rgba(22, 41, 33, .06);
+            --shadow-md: 0 4px 20px rgba(22, 41, 33, .10);
+            --shadow-lg: 0 10px 40px rgba(22, 41, 33, .14);
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', system-ui, sans-serif;
+            background: var(--cream);
+            color: var(--text-dark);
+            line-height: 1.55;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--green-50);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--green-300);
+            border-radius: 6px;
+        }
+
+        /* ── Nav ─────────────────────────────────────────────── */
+        .nav {
+            background: rgba(255, 255, 255, .92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 36px;
+            height: 66px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+        }
+
+        .nav-logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--green-600);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--green-400), var(--green-600));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 3px 12px rgba(42, 157, 92, .3);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: var(--green-600);
+            font-weight: 600;
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1.5px solid var(--green-200);
+            border-radius: var(--radius-sm);
+            background: var(--green-50);
+            transition: all .2s;
+        }
+
+        .back-link:hover {
+            background: var(--green-100);
+            border-color: var(--green-300);
+        }
+
+        /* ── Page ────────────────────────────────────────────── */
+        .page {
+            max-width: 940px;
+            margin: 0 auto;
+            padding: 36px 20px 72px;
+        }
+
+        /* ── Step indicator ──────────────────────────────────── */
+        .steps {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-bottom: 36px;
+            justify-content: center;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .step-circle {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            border: 2px solid var(--border);
+            background: var(--white);
+            color: var(--text-faint);
+            transition: all .35s cubic-bezier(.22, .61, .36, 1);
+        }
+
+        .step-circle.active {
+            border-color: var(--green-500);
+            background: var(--green-500);
+            color: #fff;
+            box-shadow: 0 0 0 4px rgba(42, 157, 92, .15);
+        }
+
+        .step-circle.done {
+            border-color: var(--green-400);
+            background: var(--green-50);
+            color: var(--green-600);
+        }
+
+        .step-label {
+            font-size: 11px;
+            color: var(--text-faint);
+            margin-top: 5px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            display: none;
+        }
+
+        .step-circle.active+.step-label,
+        .step-label {
+            color: var(--text-soft);
+        }
+
+        .step-line {
+            width: 72px;
+            height: 2px;
+            background: var(--border);
+            margin: 0 4px;
+            transition: background .35s;
+        }
+
+        .step-line.done {
+            background: var(--green-400);
+        }
+
+        @media(min-width:480px) {
+            .step-label {
+                display: block;
+            }
+        }
+
+        /* ── Layout ──────────────────────────────────────────── */
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 24px;
+        }
+
+        @media(max-width:720px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Card ────────────────────────────────────────────── */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 22px;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--green-50);
+        }
+
+        .card-title-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--green-50);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        /* ── Therapist summary ────────────────────────────────── */
+        .therapist-header {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .t-avatar {
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--green-100), var(--green-200));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--green-700);
+            flex-shrink: 0;
+            overflow: hidden;
+            border: 2px solid var(--green-100);
+        }
+
+        .t-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .t-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 3px;
+            color: var(--text-dark);
+            letter-spacing: -.2px;
+        }
+
+        .t-exp {
+            font-size: 13px;
+            color: var(--text-soft);
+            margin-bottom: 6px;
+        }
+
+        .t-rating {
+            font-size: 13px;
+            color: #e9a320;
+            font-weight: 600;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .tag {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--green-50);
+            color: var(--green-700);
+            font-weight: 600;
+            border: 1px solid var(--green-100);
+        }
+
+        /* ── Date picker ─────────────────────────────────────── */
+        .cal-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            background: var(--green-50);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+        }
+
+        .cal-nav button {
+            background: var(--white);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 6px 14px;
+            font-size: 16px;
+            cursor: pointer;
+            color: var(--text-mid);
+            transition: all .2s;
+        }
+
+        .cal-nav button:hover {
+            border-color: var(--green-400);
+            color: var(--green-600);
+        }
+
+        .cal-month {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .cal-day-name {
+            text-align: center;
+            font-size: 10.5px;
+            font-weight: 700;
+            color: var(--text-faint);
+            padding: 6px 0;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .cal-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            transition: all .18s;
+            color: var(--text-mid);
+        }
+
+        .cal-cell:hover:not(.disabled):not(.empty) {
+            border-color: var(--green-300);
+            background: var(--green-50);
+            color: var(--green-700);
+        }
+
+        .cal-cell.disabled {
+            color: #d0d0d0;
+            cursor: not-allowed;
+        }
+
+        .cal-cell.empty {
+            cursor: default;
+        }
+
+        .cal-cell.today {
+            background: var(--green-50);
+            font-weight: 700;
+            color: var(--green-600);
+            border-color: var(--green-200);
+        }
+
+        .cal-cell.selected {
+            background: var(--green-500);
+            color: #fff;
+            border-color: var(--green-500);
+            box-shadow: 0 2px 8px rgba(42, 157, 92, .3);
+            font-weight: 700;
+        }
+
+        /* ── Slots ────────────────────────────────────────────── */
+        .slots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+            gap: 9px;
+            margin-top: 6px;
+        }
+
+        .slot-btn {
+            padding: 10px 6px;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1.5px solid var(--border);
+            background: var(--white);
+            color: var(--text-mid);
+            transition: all .18s;
+        }
+
+        .slot-btn:hover {
+            border-color: var(--green-300);
+            color: var(--green-700);
+            background: var(--green-50);
+        }
+
+        .slot-btn.active {
+            border-color: var(--green-500);
+            background: var(--green-500);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(42, 157, 92, .25);
+        }
+
+        /* ── Session type ────────────────────────────────────── */
+        .type-grid {
+            display: flex;
+            gap: 10px;
+        }
+
+        .type-btn {
+            flex: 1;
+            padding: 14px 8px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1.5px solid var(--border);
+            background: var(--white);
+            color: var(--text-mid);
+            transition: all .2s;
+        }
+
+        .type-btn:hover {
+            border-color: var(--green-300);
+            color: var(--green-700);
+            background: var(--green-50);
+        }
+
+        .type-btn.active {
+            border-color: var(--green-500);
+            background: linear-gradient(135deg, var(--green-500), var(--green-600));
+            color: #fff;
+            box-shadow: 0 3px 12px rgba(42, 157, 92, .25);
+        }
+
+        .type-btn .type-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        /* ── Summary card ────────────────────────────────────── */
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 11px 0;
+            border-bottom: 1px solid var(--green-50);
+            font-size: 14px;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            color: var(--text-soft);
+            font-weight: 500;
+        }
+
+        .summary-val {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 2px solid var(--green-100);
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        .summary-total .price {
+            color: var(--green-600);
+            font-size: 24px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* ── Sticky summary ───────────────────────────────────── */
+        .summary-sticky {
+            position: sticky;
+            top: 86px;
+            align-self: start;
+        }
+
+        .summary-card-header {
+            background: linear-gradient(135deg, var(--green-600), var(--green-500));
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            padding: 16px 24px;
+            color: #fff;
+        }
+
+        .summary-card-header h3 {
+            font-size: 14px;
+            font-weight: 700;
+            opacity: .9;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        .summary-card-body {
+            background: var(--white);
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            padding: 20px 24px;
+            border: 1px solid var(--border);
+            border-top: none;
+        }
+
+        /* ── Payment section ─────────────────────────────────── */
+        #card-element {
+            padding: 13px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--green-50);
+            margin-bottom: 18px;
+            transition: border-color .2s, background .2s;
+        }
+
+        #card-element.StripeElement--focus {
+            border-color: var(--green-400);
+            background: var(--white);
+        }
+
+        .payment-secure {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            color: var(--text-soft);
+            margin-bottom: 20px;
+            background: var(--green-50);
+            border: 1px solid var(--green-100);
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+        }
+
+        /* ── Buttons ─────────────────────────────────────────── */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: var(--radius-md);
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: all .2s;
+            margin-top: 10px;
+            font-family: 'DM Sans', sans-serif;
+            letter-spacing: -.1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--green-500), var(--green-600));
+            color: #fff;
+            box-shadow: 0 3px 14px rgba(42, 157, 92, .3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--green-600), var(--green-700));
+            transform: translateY(-1px);
+            box-shadow: 0 5px 20px rgba(42, 157, 92, .4);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            background: var(--green-200);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .btn-outline {
+            background: var(--white);
+            color: var(--green-600);
+            border: 1.5px solid var(--green-300);
+        }
+
+        .btn-outline:hover {
+            background: var(--green-50);
+            border-color: var(--green-400);
+        }
+
+        /* ── Alert ───────────────────────────────────────────── */
+        .alert {
+            padding: 13px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 13.5px;
+            margin-bottom: 14px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .alert.error {
+            background: #fff5f5;
+            color: #c0392b;
+            border: 1px solid #fbc8c8;
+            display: block;
+        }
+
+        .alert.success {
+            background: var(--green-50);
+            color: var(--green-700);
+            border: 1px solid var(--green-200);
+            display: block;
+        }
+
+        /* ── Success screen ──────────────────────────────────── */
+        .success-screen {
+            text-align: center;
+            padding: 64px 24px;
+            display: none;
+        }
+
+        .success-checkmark {
+            width: 88px;
+            height: 88px;
+            background: linear-gradient(135deg, var(--green-400), var(--green-600));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            margin: 0 auto 24px;
+            box-shadow: 0 8px 28px rgba(42, 157, 92, .3);
+            animation: pop-in .5s cubic-bezier(.22, .61, .36, 1);
+        }
+
+        @keyframes pop-in {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            70% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .success-screen h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+        }
+
+        .success-screen p {
+            font-size: 15px;
+            color: var(--text-soft);
+            max-width: 400px;
+            margin: 0 auto 28px;
+        }
+
+        .success-screen .detail {
+            background: var(--white);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 22px 28px;
+            max-width: 400px;
+            margin: 0 auto 28px;
+            text-align: left;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ── Loading / empty states ───────────────────────────── */
+        .loading-slots {
+            text-align: center;
+            padding: 28px;
+            color: var(--text-faint);
+            font-size: 14px;
+        }
+
+        .empty-slots {
+            text-align: center;
+            padding: 28px;
+            color: var(--text-faint);
+            font-size: 14px;
+            background: var(--green-50);
+            border-radius: var(--radius-sm);
+            border: 1px dashed var(--green-200);
+        }
+
+        /* ── Section label ───────────────────────────────────── */
+        .section-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--green-600);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 12px;
+            margin-top: 22px;
+        }
+
+        .section-label:first-child {
+            margin-top: 0;
+        }
+
+        /* ── Mobile ──────────────────────────────────────────── */
+        @media(max-width:720px) {
+            .summary-sticky {
+                order: -1;
+            }
+
+            .nav {
+                padding: 0 20px;
+            }
+        }
+
+        @media(max-width:480px) {
+            .type-grid {
+                flex-wrap: wrap;
+            }
+
+            .type-btn {
+                flex: 1 1 calc(33% - 8px);
+                min-width: 80px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Nav -->
+    <nav class="nav">
+        <div class="nav-logo">
+            <div class="logo-icon">🌿</div> Mindora
+        </div>
+        <a href="browse-therapists.html" class="back-link">← Back to Browse</a>
+    </nav>
+
+    <div class="page">
+
+        <!-- Steps -->
+        <div class="steps" id="stepsBar">
+            <div class="step-item">
+                <div style="text-align:center">
+                    <div class="step-circle active" id="sc1">1</div>
+                    <div class="step-label">Schedule</div>
+                </div>
+            </div>
+            <div class="step-line" id="sl1"></div>
+            <div class="step-item">
+                <div style="text-align:center">
+                    <div class="step-circle" id="sc2">2</div>
+                    <div class="step-label">Review</div>
+                </div>
+            </div>
+            <div class="step-line" id="sl2"></div>
+            <div class="step-item">
+                <div style="text-align:center">
+                    <div class="step-circle" id="sc3">3</div>
+                    <div class="step-label">Payment</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success screen (hidden until payment done) -->
+        <div class="success-screen" id="successScreen">
+            <div class="success-checkmark">✓</div>
+            <h2>Session Booked!</h2>
+            <p>Your session is confirmed. You'll receive a reminder 24 hours before your appointment.</p>
+            <div class="detail" id="successDetail"></div>
+        </div>
+
+        <!-- Main content (hidden after success) -->
+        <div id="bookingContent">
+            <div class="layout">
+
+                <!-- LEFT: Scheduling + Payment -->
+                <div>
+
+                    <!-- Step 1: Schedule -->
+                    <div id="step1">
+
+                        <!-- Therapist info card -->
+                        <div class="card" id="therapistCard" style="margin-bottom:20px">
+                            <div class="card-title">
+                                <span class="card-title-icon">👤</span> Your Therapist
+                            </div>
+                            <div class="therapist-header" id="therapistHeader">
+                                <div class="t-avatar" id="tAvatar">?</div>
+                                <div>
+                                    <div class="t-name" id="tName">Loading…</div>
+                                    <div class="t-exp" id="tExp"></div>
+                                    <div class="t-rating" id="tRating"></div>
+                                    <div class="tags" id="tTags"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Date picker -->
+                        <div class="card" style="margin-bottom:20px">
+                            <div class="card-title">
+                                <span class="card-title-icon">📅</span> Pick a Date
+                            </div>
+                            <div class="cal-nav">
+                                <button onclick="changeMonth(-1)">‹</button>
+                                <span class="cal-month" id="calMonth"></span>
+                                <button onclick="changeMonth(1)">›</button>
+                            </div>
+                            <div class="cal-grid" id="dayNames"></div>
+                            <div class="cal-grid" id="calGrid" style="margin-top:6px"></div>
+                        </div>
+
+                        <!-- Time slots -->
+                        <div class="card" style="margin-bottom:20px">
+                            <div class="card-title">
+                                <span class="card-title-icon">🕐</span> Pick a Time Slot
+                            </div>
+                            <div id="slotsArea">
+                                <div class="empty-slots">Select a date to see available slots</div>
+                            </div>
+                        </div>
+
+                        <!-- Session type -->
+                        <div class="card" style="margin-bottom:20px">
+                            <div class="card-title">
+                                <span class="card-title-icon">💬</span> Session Type
+                            </div>
+                            <div class="type-grid" id="typeGrid"></div>
+                        </div>
+
+                        <div class="alert" id="step1Alert"></div>
+                        <button class="btn btn-primary" onclick="goToStep2()">Continue to Review →</button>
+                    </div>
+
+                    <!-- Step 2: Review -->
+                    <div id="step2" style="display:none">
+                        <div class="card" style="margin-bottom:20px">
+                            <div class="card-title">
+                                <span class="card-title-icon">📋</span> Review Your Booking
+                            </div>
+                            <div id="reviewContent"></div>
+                        </div>
+                        <div class="alert" id="step2Alert"></div>
+                        <button class="btn btn-outline" onclick="goToStep(1)" style="margin-bottom:10px">← Back</button>
+                        <button class="btn btn-primary" onclick="goToStep3()">Proceed to Payment →</button>
+                    </div>
+
+                    <!-- Step 3: Payment -->
+                    <div id="step3" style="display:none">
+                        <div class="card">
+                            <div class="card-title">
+                                <span class="card-title-icon">💳</span> Payment
+                            </div>
+
+                            <!-- Payment method selection -->
+                            <div class="type-grid" style="margin-bottom: 20px;">
+                                <div class="type-btn active" id="btnPayCard" onclick="selectPaymentMethod('card')">
+                                    <span class="type-icon">💳</span>Credit / Debit Card
+                                </div>
+                                <div class="type-btn" id="btnPayWallet" onclick="selectPaymentMethod('wallet')">
+                                    <span class="type-icon">💰</span>Mindora Wallet<br>
+                                    <span style="font-size: 11px; font-weight: normal; color: inherit;">Balance: ₹<span
+                                            id="walletBalDisplay">0</span></span>
+                                </div>
+                            </div>
+
+                            <div id="cardPaymentArea">
+                                <div class="payment-secure">
+                                    🔒 Secure payment powered by Stripe. Your card details are never stored on our
+                                    servers.
+                                </div>
+                                <div id="card-element"></div>
+                            </div>
+
+                            <div id="walletPaymentArea"
+                                style="display:none; text-align:center; padding: 20px; background: var(--green-50); border-radius: var(--radius-sm); margin-bottom: 18px; border: 1px solid var(--green-100);">
+                                <div
+                                    style="font-size: 15px; font-weight: 600; color: var(--green-700); margin-bottom: 5px;">
+                                    Pay using your Wallet Balance</div>
+                                <div style="font-size: 13px; color: var(--text-mid);" id="walletStatusText">Checking
+                                    balance...</div>
+                            </div>
+
+                            <div class="alert" id="paymentAlert"></div>
+                            <button class="btn btn-primary" id="payBtn" onclick="processPayment()">
+                                Pay ₹<span id="payAmount">0</span> &amp; Confirm Booking
+                            </button>
+                        </div>
+                        <button class="btn btn-outline" onclick="goToStep(2)" style="margin-top:10px">← Back</button>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT: Summary -->
+                <div class="summary-sticky">
+                    <div style="border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-md);">
+                        <div class="summary-card-header">
+                            <h3>📄 Booking Summary</h3>
+                        </div>
+                        <div class="summary-card-body" id="summaryCard">
+                            <div class="summary-row">
+                                <span class="summary-label">Therapist</span>
+                                <span class="summary-val" id="sumTherapist">—</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Date</span>
+                                <span class="summary-val" id="sumDate">—</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Time</span>
+                                <span class="summary-val" id="sumTime">—</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Duration</span>
+                                <span class="summary-val" id="sumDuration">—</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Type</span>
+                                <span class="summary-val" id="sumType">—</span>
+                            </div>
+                            <div class="summary-total">
+                                <span>Total</span>
+                                <span class="price">₹<span id="sumFee">0</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div><!-- /bookingContent -->
+    </div>
+
+    <script>
+        // ── State ──────────────────────────────────────────────
+        const API = 'http://127.0.0.1:5000';
+        const params = new URLSearchParams(window.location.search);
+        const therapistId = params.get('therapistId');
+        const token = localStorage.getItem('mindoraToken');
+
+        let therapist = null;
+        let selectedDate = '';
+        let selectedTime = '';
+        let selectedType = '';
+        let sessionId = null;
+        let stripe = null;
+        let cardElement = null;
+        let userWalletBalance = 0;
+        let selectedPaymentMethod = 'card';
+
+        let calYear, calMonth;
+
+        const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'];
+
+        // ── Init ───────────────────────────────────────────────
+        window.addEventListener('DOMContentLoaded', async () => {
+            if (!therapistId) {
+                alert('No therapist selected.');
+                window.location.href = 'browse-therapists.html';
+                return;
+            }
+
+            const now = new Date();
+            calYear = now.getFullYear();
+            calMonth = now.getMonth();
+
+            buildDayNames();
+            renderCalendar();
+            await loadTherapist();
+        });
+
+        async function loadTherapist() {
+            try {
+                const res = await fetch(`${API}/api/therapists/${therapistId}`);
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message);
+
+                therapist = data.data;
+                renderTherapistCard();
+                renderTypeGrid();
+                updateSummary();
+            } catch (e) {
+                document.getElementById('tName').textContent = 'Failed to load therapist.';
+            }
+        }
+
+        function renderTherapistCard() {
+            const t = therapist;
+            const initials = t.fullName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+            const avatarEl = document.getElementById('tAvatar');
+            avatarEl.innerHTML = t.profilePhoto ? `<img src="${t.profilePhoto}"/>` : initials;
+
+            document.getElementById('tName').textContent = t.fullName;
+            document.getElementById('tExp').textContent = `${t.yearsOfExperience || 0} years experience`;
+            document.getElementById('tRating').textContent =
+                t.averageRating > 0 ? `${'★'.repeat(Math.round(t.averageRating))} ${t.averageRating.toFixed(1)} (${t.totalReviews} reviews)` : 'No reviews yet';
+            document.getElementById('tTags').innerHTML =
+                (t.specialties || []).slice(0, 3).map(s => `<span class="tag">${s}</span>`).join('');
+            document.getElementById('sumTherapist').textContent = t.fullName;
+            document.getElementById('sumFee').textContent = (t.sessionFee || 0).toLocaleString('en-IN');
+            document.getElementById('sumDuration').textContent = `${t.sessionDuration || 60} min`;
+            document.getElementById('payAmount').textContent = (t.sessionFee || 0).toLocaleString('en-IN');
+        }
+
+        function renderTypeGrid() {
+            const icons = { Video: '📹', Chat: '💬', Audio: '🎙️' };
+            document.getElementById('typeGrid').innerHTML =
+                (therapist.sessionTypes || []).map(t => `
+        <div class="type-btn" onclick="selectType('${t}')" id="type-${t}">
+          <span class="type-icon">${icons[t] || '💬'}</span>${t}
+        </div>`).join('');
+            if (therapist.sessionTypes && therapist.sessionTypes.length) {
+                selectType(therapist.sessionTypes[0]);
+            }
+        }
+
+        function selectType(type) {
+            selectedType = type;
+            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById(`type-${type}`);
+            if (btn) btn.classList.add('active');
+            document.getElementById('sumType').textContent = type;
+        }
+
+        // ── Calendar ───────────────────────────────────────────
+        function buildDayNames() {
+            document.getElementById('dayNames').innerHTML =
+                DAY_NAMES.map(d => `<div class="cal-day-name">${d}</div>`).join('');
+        }
+
+        function renderCalendar() {
+            document.getElementById('calMonth').textContent =
+                `${MONTH_NAMES[calMonth]} ${calYear}`;
+
+            const today = new Date();
+            const todayStr = toDateStr(today);
+            const firstDay = new Date(calYear, calMonth, 1).getDay();
+            const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+            let html = '';
+            for (let i = 0; i < firstDay; i++) html += `<div class="cal-cell empty"></div>`;
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const isPast = dateStr < todayStr;
+                const isToday = dateStr === todayStr;
+                const isSel = dateStr === selectedDate;
+
+                let cls = 'cal-cell';
+                if (isPast) cls += ' disabled';
+                if (isToday) cls += ' today';
+                if (isSel) cls += ' selected';
+
+                html += `<div class="${cls}" ${!isPast ? `onclick="selectDate('${dateStr}')"` : ''}>
+        ${d}</div>`;
+            }
+            document.getElementById('calGrid').innerHTML = html;
+        }
+
+        function changeMonth(dir) {
+            calMonth += dir;
+            if (calMonth > 11) { calMonth = 0; calYear++; }
+            if (calMonth < 0) { calMonth = 11; calYear--; }
+            renderCalendar();
+        }
+
+        async function selectDate(dateStr) {
+            selectedDate = dateStr;
+            selectedTime = '';
+            renderCalendar();
+
+            const fmt = new Date(dateStr + 'T12:00:00').toLocaleDateString('en-IN',
+                { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            document.getElementById('sumDate').textContent = fmt;
+            document.getElementById('sumTime').textContent = '—';
+
+            document.getElementById('slotsArea').innerHTML =
+                '<div class="loading-slots">⏳ Loading available slots…</div>';
+
+            try {
+                const res = await fetch(`${API}/api/sessions/slots/${therapistId}?date=${dateStr}`);
+                const data = await res.json();
+
+                if (!data.success || !data.availableSlots || data.availableSlots.length === 0) {
+                    document.getElementById('slotsArea').innerHTML =
+                        `<div class="empty-slots">😔 No slots available on this date.<br><small>${data.message || ''}</small></div>`;
+                    return;
+                }
+
+                const slotsHtml = data.availableSlots.map(slot => {
+                    const [h, m] = slot.split(':').map(Number);
+                    const ampm = h >= 12 ? 'PM' : 'AM';
+                    const h12 = h % 12 || 12;
+                    const label = `${h12}:${m.toString().padStart(2, '0')} ${ampm}`;
+                    return `<div class="slot-btn" onclick="selectSlot('${slot}','${label}')" id="slot-${slot.replace(':', '-')}">${label}</div>`;
+                }).join('');
+
+                document.getElementById('slotsArea').innerHTML =
+                    `<div class="slots-grid">${slotsHtml}</div>`;
+            } catch (e) {
+                document.getElementById('slotsArea').innerHTML =
+                    '<div class="empty-slots">Failed to load slots. Try again.</div>';
+            }
+        }
+
+        function selectSlot(slot, label) {
+            selectedTime = slot;
+            document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById(`slot-${slot.replace(':', '-')}`);
+            if (btn) btn.classList.add('active');
+            document.getElementById('sumTime').textContent = label;
+        }
+
+        function toDateStr(d) {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        function updateSummary() {
+            if (therapist) {
+                document.getElementById('sumFee').textContent = (therapist.sessionFee || 0).toLocaleString('en-IN');
+                document.getElementById('payAmount').textContent = (therapist.sessionFee || 0).toLocaleString('en-IN');
+            }
+        }
+
+        async function loadWalletBalance() {
+            try {
+                const res = await fetch(`${API}/api/wallet`, { headers: { Authorization: `Bearer ${token}` } });
+                const data = await res.json();
+                userWalletBalance = data?.data?.balance ?? data?.balance ?? 0;
+                document.getElementById('walletBalDisplay').textContent = userWalletBalance.toLocaleString('en-IN');
+            } catch (err) {
+                console.error("Wallet error", err);
+            }
+        }
+
+        function selectPaymentMethod(method) {
+            selectedPaymentMethod = method;
+            document.getElementById('btnPayCard').classList.toggle('active', method === 'card');
+            document.getElementById('btnPayWallet').classList.toggle('active', method === 'wallet');
+
+            document.getElementById('cardPaymentArea').style.display = method === 'card' ? 'block' : 'none';
+            document.getElementById('walletPaymentArea').style.display = method === 'wallet' ? 'block' : 'none';
+
+            if (method === 'wallet') {
+                const fee = therapist?.sessionFee || 0;
+                const statusTxt = document.getElementById('walletStatusText');
+                if (userWalletBalance >= fee) {
+                    statusTxt.innerHTML = `You have enough balance. ₹${fee.toLocaleString('en-IN')} will be deducted.`;
+                    statusTxt.style.color = "var(--green-700)";
+                    document.getElementById('payBtn').disabled = false;
+                } else {
+                    statusTxt.innerHTML = `Insufficient balance. You need ₹${(fee - userWalletBalance).toLocaleString('en-IN')} more. Please top up your wallet or use a card.`;
+                    statusTxt.style.color = "#c0392b";
+                    document.getElementById('payBtn').disabled = true;
+                }
+            } else {
+                document.getElementById('payBtn').disabled = false;
+            }
+        }
+
+        // ── Step navigation ────────────────────────────────────
+        function goToStep(n) {
+            [1, 2, 3].forEach(i => {
+                document.getElementById(`step${i}`).style.display = i === n ? 'block' : 'none';
+                const circle = document.getElementById(`sc${i}`);
+                circle.classList.remove('active', 'done');
+                if (i < n) circle.classList.add('done');
+                if (i === n) circle.classList.add('active');
+            });
+            [1, 2].forEach(i => {
+                document.getElementById(`sl${i}`).classList.toggle('done', i < n);
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goToStep2() {
+            if (!selectedDate) return showAlert('step1Alert', 'Please select a date.', 'error');
+            if (!selectedTime) return showAlert('step1Alert', 'Please select a time slot.', 'error');
+            if (!selectedType) return showAlert('step1Alert', 'Please select a session type.', 'error');
+
+            const fmt = new Date(selectedDate + 'T12:00:00').toLocaleDateString('en-IN',
+                { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            const [h, m] = selectedTime.split(':').map(Number);
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const timeLabel = `${h % 12 || 12}:${m.toString().padStart(2, '0')} ${ampm}`;
+
+            document.getElementById('reviewContent').innerHTML = `
+      <div class="summary-row"><span class="summary-label">Therapist</span>
+        <span class="summary-val">${therapist.fullName}</span></div>
+      <div class="summary-row"><span class="summary-label">Date</span>
+        <span class="summary-val">${fmt}</span></div>
+      <div class="summary-row"><span class="summary-label">Time</span>
+        <span class="summary-val">${timeLabel}</span></div>
+      <div class="summary-row"><span class="summary-label">Duration</span>
+        <span class="summary-val">${therapist.sessionDuration || 60} minutes</span></div>
+      <div class="summary-row"><span class="summary-label">Session type</span>
+        <span class="summary-val">${selectedType}</span></div>
+      <div class="summary-row"><span class="summary-label">Session fee</span>
+        <span class="summary-val">₹${(therapist.sessionFee || 0).toLocaleString('en-IN')}</span></div>
+      <div class="summary-row">
+        <span class="summary-label" style="font-size:12px;color:var(--text-faint)">Platform fee included</span>
+        <span class="summary-val" style="font-size:12px;color:var(--text-faint)">20% of fee</span>
+      </div>`;
+
+            goToStep(2);
+        }
+
+        async function goToStep3() {
+            if (!token) {
+                showAlert('step2Alert', 'Please log in to book a session.', 'error');
+                setTimeout(() => { window.location.href = `login.html?redirect=${encodeURIComponent(window.location.href)}`; }, 1500);
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API}/api/sessions/book`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({
+                        therapistId,
+                        date: selectedDate,
+                        time: selectedTime,
+                        sessionType: selectedType,
+                    }),
+                });
+                const data = await res.json();
+
+                if (!data.success) {
+                    return showAlert('step2Alert', data.message, 'error');
+                }
+
+                sessionId = data.data.sessionId;
+                goToStep(3);
+                initStripe();
+                await loadWalletBalance();
+                selectPaymentMethod('card');
+            } catch (e) {
+                showAlert('step2Alert', 'Network error. Please try again.', 'error');
+            }
+        }
+
+        // ── Stripe ─────────────────────────────────────────────
+        function initStripe() {
+            stripe = Stripe('pk_test_51TH708JUMPsLSw2jHFVKUEIczR8Fm7QXfo2EwXXD0t4w5ynTUdLyF0XPsTRcud5655ozguot5obc5jV7kKUaByEa006UnH5LhI');
+            const elements = stripe.elements();
+            cardElement = elements.create('card', {
+                style: {
+                    base: {
+                        fontSize: '15px', color: '#162921', fontFamily: 'DM Sans, sans-serif',
+                        '::placeholder': { color: '#9eb5a4' }
+                    },
+                },
+            });
+            cardElement.mount('#card-element');
+        }
+
+        async function processPayment() {
+            const btn = document.getElementById('payBtn');
+            btn.disabled = true;
+            btn.textContent = 'Processing…';
+
+            try {
+                if (selectedPaymentMethod === 'wallet') {
+                    const confirmRes = await fetch(`${API}/api/sessions/confirm-payment`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                        body: JSON.stringify({ sessionId, method: 'wallet' }),
+                    });
+                    const confirmData = await confirmRes.json();
+
+                    if (confirmData.success) {
+                        showSuccess();
+                    } else {
+                        showAlert('paymentAlert', confirmData.message, 'error');
+                        btn.disabled = false;
+                        btn.textContent = `Pay ₹${(therapist.sessionFee || 0).toLocaleString('en-IN')} & Confirm Booking`;
+                    }
+                    return;
+                }
+
+                const intentRes = await fetch(`${API}/api/payment/create-intent`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ sessionId }),
+                });
+                const intentData = await intentRes.json();
+
+                if (!intentData.success) {
+                    showAlert('paymentAlert', intentData.message, 'error');
+                    btn.disabled = false; btn.textContent = `Pay ₹${(therapist.sessionFee || 0).toLocaleString('en-IN')} & Confirm Booking`;
+                    return;
+                }
+
+                const { error, paymentIntent } = await stripe.confirmCardPayment(
+                    intentData.clientSecret,
+                    { payment_method: { card: cardElement } }
+                );
+
+                if (error) {
+                    showAlert('paymentAlert', error.message, 'error');
+                    btn.disabled = false; btn.textContent = `Pay ₹${(therapist.sessionFee || 0).toLocaleString('en-IN')} & Confirm Booking`;
+                    return;
+                }
+
+                const confirmRes = await fetch(`${API}/api/sessions/confirm-payment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ sessionId, paymentIntentId: paymentIntent.id }),
+                });
+                const confirmData = await confirmRes.json();
+
+                if (confirmData.success) {
+                    showSuccess();
+                } else {
+                    showAlert('paymentAlert', confirmData.message, 'error');
+                    btn.disabled = false;
+                    btn.textContent = `Pay ₹${(therapist.sessionFee || 0).toLocaleString('en-IN')} & Confirm Booking`;
+                }
+            } catch (e) {
+                showAlert('paymentAlert', 'Payment failed. Please try again.', 'error');
+                btn.disabled = false;
+                btn.textContent = `Pay ₹${(therapist.sessionFee || 0).toLocaleString('en-IN')} & Confirm Booking`;
+            }
+        }
+
+        function showSuccess() {
+            document.getElementById('bookingContent').style.display = 'none';
+            document.getElementById('stepsBar').style.display = 'none';
+
+            const fmt = new Date(selectedDate + 'T12:00:00').toLocaleDateString('en-IN',
+                { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            const [h, m] = selectedTime.split(':').map(Number);
+            const timeLabel = `${h % 12 || 12}:${m.toString().padStart(2, '0')} ${h >= 12 ? 'PM' : 'AM'}`;
+
+            document.getElementById('successDetail').innerHTML = `
+      <div class="summary-row"><span class="summary-label">Therapist</span>
+        <span class="summary-val">${therapist.fullName}</span></div>
+      <div class="summary-row"><span class="summary-label">Date</span>
+        <span class="summary-val">${fmt}</span></div>
+      <div class="summary-row"><span class="summary-label">Time</span>
+        <span class="summary-val">${timeLabel}</span></div>
+      <div class="summary-row"><span class="summary-label">Type</span>
+        <span class="summary-val">${selectedType}</span></div>`;
+
+            document.getElementById('successScreen').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showAlert(id, msg, type) {
+            const el = document.getElementById(id);
+            el.textContent = msg;
+            el.className = `alert ${type}`;
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            setTimeout(() => { el.className = 'alert'; }, 5000);
+        }
+    </script>
+</body>
+
+</html>

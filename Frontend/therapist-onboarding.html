@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Therapist Onboarding — MindCare</title>
+    <link rel="stylesheet" href="auth.css" />
+    <style>
+        /* ── Layout ─────────────────────────────────────────── */
+        body {
+            background: #f4f6fb;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+        }
+
+        .onboard-wrapper {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 0 16px 60px;
+        }
+
+        .onboard-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .onboard-header h1 {
+            font-size: 26px;
+            color: #1a1a2e;
+            margin: 0 0 6px;
+        }
+
+        .onboard-header p {
+            color: #666;
+            font-size: 15px;
+            margin: 0;
+        }
+
+        /* ── Progress bar ───────────────────────────────────── */
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 18px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #ddd;
+            z-index: 0;
+        }
+
+        .progress-fill {
+            position: absolute;
+            top: 18px;
+            left: 0;
+            height: 2px;
+            background: #6c63ff;
+            z-index: 1;
+            transition: width 0.4s ease;
+        }
+
+        .step-dot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .step-dot .dot {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #aaa;
+            transition: all 0.3s;
+        }
+
+        .step-dot.active .dot {
+            border-color: #6c63ff;
+            color: #6c63ff;
+        }
+
+        .step-dot.done .dot {
+            background: #6c63ff;
+            border-color: #6c63ff;
+            color: #fff;
+        }
+
+        .step-dot .label {
+            font-size: 11px;
+            color: #999;
+            margin-top: 6px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .step-dot.active .label {
+            color: #6c63ff;
+            font-weight: 600;
+        }
+
+        .step-dot.done .label {
+            color: #6c63ff;
+        }
+
+        /* ── Card ───────────────────────────────────────────── */
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
+        }
+
+        .card h2 {
+            font-size: 20px;
+            color: #1a1a2e;
+            margin: 0 0 4px;
+        }
+
+        .card .subtitle {
+            color: #888;
+            font-size: 14px;
+            margin: 0 0 28px;
+        }
+
+        /* ── Form elements ───────────────────────────────────── */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        @media (max-width: 560px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 14px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #333;
+            background: #fafafa;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #6c63ff;
+            background: #fff;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* ── Checkbox grid ───────────────────────────────────── */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border: 1.5px solid #eee;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .checkbox-item:hover {
+            border-color: #6c63ff;
+            background: #f8f7ff;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            accent-color: #6c63ff;
+            width: 16px;
+            height: 16px;
+        }
+
+        .checkbox-item span {
+            font-size: 13px;
+            color: #444;
+        }
+
+        .checkbox-item.checked {
+            border-color: #6c63ff;
+            background: #f0effe;
+        }
+
+        .checkbox-item.checked span {
+            color: #6c63ff;
+            font-weight: 600;
+        }
+
+        /* ── Buttons ─────────────────────────────────────────── */
+        .btn-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 32px;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #6c63ff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #574fd6;
+        }
+
+        .btn-primary:disabled {
+            background: #b8b3ff;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f0f0f5;
+            color: #555;
+        }
+
+        .btn-secondary:hover {
+            background: #e4e4ee;
+        }
+
+        /* ── Alert ───────────────────────────────────────────── */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.error {
+            background: #fff0f0;
+            color: #c0392b;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .alert.success {
+            background: #f0fff4;
+            color: #1e7e34;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        /* ── Fee display ─────────────────────────────────────── */
+        .fee-preview {
+            background: #f8f7ff;
+            border: 1px dashed #b3adff;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #6c63ff;
+        }
+
+        .fee-preview strong {
+            font-size: 18px;
+        }
+
+        /* ── Success screen ──────────────────────────────────── */
+        .success-screen {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+
+        .success-screen .icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .success-screen h2 {
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+
+        .success-screen p {
+            color: #666;
+            font-size: 15px;
+            max-width: 400px;
+            margin: 0 auto 24px;
+        }
+
+        /* ── Step visibility ─────────────────────────────────── */
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="onboard-wrapper">
+
+        <!-- Header -->
+        <div class="onboard-header">
+            <h1>🌿 MindCare Therapist Setup</h1>
+            <p>Complete your profile to start accepting clients</p>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-bar" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+            <div class="step-dot active" data-step="1">
+                <div class="dot">1</div>
+                <div class="label">Personal</div>
+            </div>
+            <div class="step-dot" data-step="2">
+                <div class="dot">2</div>
+                <div class="label">Professional</div>
+            </div>
+            <div class="step-dot" data-step="3">
+                <div class="dot">3</div>
+                <div class="label">Specialties</div>
+            </div>
+            <div class="step-dot" data-step="4">
+                <div class="dot">4</div>
+                <div class="label">Sessions</div>
+            </div>
+            <div class="step-dot" data-step="5">
+                <div class="dot">5</div>
+                <div class="label">Payout</div>
+            </div>
+        </div>
+
+        <!-- Card -->
+        <div class="card">
+            <div class="alert" id="alertBox"></div>
+
+            <!-- ── Step 1: Personal Info ─────────────────────────── -->
+            <div class="step active" id="step1">
+                <h2>Personal Information</h2>
+                <p class="subtitle">This appears on your public profile</p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" id="fullName" placeholder="Dr. Priya Sharma" />
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="phone" placeholder="+91 9876543210" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select id="gender">
+                            <option value="">Select gender</option>
+                            <option>Male</option>
+                            <option>Female</option>
+                            <option>Non-binary</option>
+                            <option>Prefer not to say</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Years of Experience *</label>
+                        <input type="number" id="yearsOfExperience" placeholder="5" min="0" max="60" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Short Bio *</label>
+                    <textarea id="bio"
+                        placeholder="Tell clients about your approach, background, and what you specialise in... (max 1000 chars)"></textarea>
+                </div>
+
+                <div class="btn-row">
+                    <span></span>
+                    <button class="btn btn-primary" onclick="goToStep(2)">Next →</button>
+                </div>
+            </div>
+
+            <!-- ── Step 2: Professional ───────────────────────────── -->
+            <div class="step" id="step2">
+                <h2>Professional Credentials</h2>
+                <p class="subtitle">Used for verification — not shown publicly</p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>License / Registration Number</label>
+                        <input type="text" id="licenseNumber" placeholder="RCI/2019/1234" />
+                    </div>
+                    <div class="form-group">
+                        <label>Highest Degree</label>
+                        <input type="text" id="educationDegree" placeholder="M.Phil Clinical Psychology" />
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Institution</label>
+                        <input type="text" id="educationInstitution" placeholder="NIMHANS, Bangalore" />
+                    </div>
+                    <div class="form-group">
+                        <label>Graduation Year</label>
+                        <input type="number" id="educationYear" placeholder="2018" min="1970" max="2030" />
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-secondary" onclick="goToStep(1)">← Back</button>
+                    <button class="btn btn-primary" onclick="goToStep(3)">Next →</button>
+                </div>
+            </div>
+
+            <!-- ── Step 3: Specialties & Languages ───────────────── -->
+            <div class="step" id="step3">
+                <h2>Specialties &amp; Languages</h2>
+                <p class="subtitle">Select all that apply — clients filter by these</p>
+
+                <div class="form-group">
+                    <label>Specialties * <span style="font-weight:400;color:#999">(select at least 1)</span></label>
+                    <div class="checkbox-grid" id="specialtiesGrid">
+                        <!-- filled by JS -->
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top:24px">
+                    <label>Languages *</label>
+                    <div class="checkbox-grid" id="languagesGrid">
+                        <!-- filled by JS -->
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-secondary" onclick="goToStep(2)">← Back</button>
+                    <button class="btn btn-primary" onclick="goToStep(4)">Next →</button>
+                </div>
+            </div>
+
+            <!-- ── Step 4: Session Preferences ──────────────────── -->
+            <div class="step" id="step4">
+                <h2>Session Preferences</h2>
+                <p class="subtitle">How you want to work with clients</p>
+
+                <div class="form-group">
+                    <label>Session Type * <span style="font-weight:400;color:#999">(select all you offer)</span></label>
+                    <div class="checkbox-grid" id="sessionTypesGrid">
+                        <!-- filled by JS -->
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-top: 20px;">
+                    <div class="form-group">
+                        <label>Session Duration</label>
+                        <select id="sessionDuration">
+                            <option value="30">30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60" selected>60 minutes</option>
+                            <option value="90">90 minutes</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Session Fee (₹) *</label>
+                        <input type="number" id="sessionFee" placeholder="800" min="100" step="50"
+                            oninput="updateFeePreview()" />
+                        <div class="fee-preview" id="feePreview" style="display:none">
+                            You earn: <strong id="therapistEarning">₹0</strong>
+                            &nbsp;|&nbsp; Platform fee (20%): <strong id="platformFee">₹0</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-secondary" onclick="goToStep(3)">← Back</button>
+                    <button class="btn btn-primary" onclick="goToStep(5)">Next →</button>
+                </div>
+            </div>
+
+            <!-- ── Step 5: Payout Info ────────────────────────────── -->
+            <div class="step" id="step5">
+                <h2>Payout Details</h2>
+                <p class="subtitle">Where you receive your earnings — can be updated later</p>
+
+                <div class="form-group">
+                    <label>UPI ID <span style="font-weight:400;color:#999">(fastest payout)</span></label>
+                    <input type="text" id="upiId" placeholder="yourname@upi" />
+                </div>
+
+                <div style="text-align:center; color:#bbb; margin: 8px 0 16px; font-size:13px;">— OR Bank Transfer —
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Account Holder Name</label>
+                        <input type="text" id="bankAccountName" placeholder="Priya Sharma" />
+                    </div>
+                    <div class="form-group">
+                        <label>Account Number</label>
+                        <input type="text" id="bankAccountNumber" placeholder="1234567890" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>IFSC Code</label>
+                    <input type="text" id="bankIFSC" placeholder="HDFC0001234" style="text-transform:uppercase" />
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn btn-secondary" onclick="goToStep(4)">← Back</button>
+                    <button class="btn btn-primary" id="submitBtn" onclick="submitOnboarding()">
+                        Submit Profile ✓
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── Success screen ────────────────────────────────── -->
+            <div class="success-screen" id="successScreen">
+                <div class="icon">🎉</div>
+                <h2>Profile Submitted!</h2>
+                <p>Your profile is under review. We'll notify you by email once approved — usually within 24 hours.</p>
+                <a href="therapist-dashboard.html" class="btn btn-primary">Go to Dashboard</a>
+            </div>
+
+        </div><!-- /card -->
+    </div>
+
+    <script>
+        const SPECIALTIES = [
+            'Anxiety', 'Depression', 'Trauma & PTSD', 'Relationship Issues',
+            'Stress Management', 'Grief & Loss', 'OCD', 'Addiction',
+            'Family Therapy', 'Child & Adolescent', 'LGBTQ+', 'Career Counseling',
+            'Sleep Issues', 'Self-esteem', 'Other'
+        ];
+        const LANGUAGES = ['English', 'Hindi', 'Punjabi', 'Bengali', 'Tamil', 'Telugu', 'Marathi', 'Other'];
+        const SESSION_TYPES = ['Video', 'Chat', 'Audio'];
+
+        const TOTAL_STEPS = 5;
+        let currentStep = 1;
+
+        // ── Build checkbox grids ────────────────────────────────
+        function buildCheckboxGrid(containerId, items) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = items.map(item => `
+      <label class="checkbox-item" onclick="toggleCheckbox(this)">
+        <input type="checkbox" value="${item}" />
+        <span>${item}</span>
+      </label>
+    `).join('');
+        }
+
+        function toggleCheckbox(label) {
+            const cb = label.querySelector('input');
+            label.classList.toggle('checked', cb.checked);
+        }
+
+        function getChecked(containerId) {
+            return [...document.querySelectorAll(`#${containerId} input:checked`)].map(el => el.value);
+        }
+
+        buildCheckboxGrid('specialtiesGrid', SPECIALTIES);
+        buildCheckboxGrid('languagesGrid', LANGUAGES);
+        buildCheckboxGrid('sessionTypesGrid', SESSION_TYPES);
+
+        // ── Progress bar ────────────────────────────────────────
+        function updateProgress(step) {
+            const dots = document.querySelectorAll('.step-dot');
+            const fill = document.getElementById('progressFill');
+            fill.style.width = `${((step - 1) / (TOTAL_STEPS - 1)) * 100}%`;
+            dots.forEach((dot, i) => {
+                const s = i + 1;
+                dot.classList.remove('active', 'done');
+                if (s < step) dot.classList.add('done');
+                if (s === step) dot.classList.add('active');
+                if (s < step) dot.querySelector('.dot').textContent = '✓';
+                else dot.querySelector('.dot').textContent = s;
+            });
+        }
+
+        // ── Step navigation ─────────────────────────────────────
+        function showAlert(msg, type = 'error') {
+            const box = document.getElementById('alertBox');
+            box.textContent = msg;
+            box.className = `alert ${type}`;
+            box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            setTimeout(() => { box.className = 'alert'; }, 4000);
+        }
+
+        function validateStep(step) {
+            if (step === 1) {
+                if (!document.getElementById('fullName').value.trim())
+                    return 'Please enter your full name.';
+                if (!document.getElementById('bio').value.trim())
+                    return 'Please write a short bio.';
+                if (!document.getElementById('yearsOfExperience').value)
+                    return 'Please enter your years of experience.';
+            }
+            if (step === 3) {
+                if (getChecked('specialtiesGrid').length === 0)
+                    return 'Please select at least one specialty.';
+                if (getChecked('languagesGrid').length === 0)
+                    return 'Please select at least one language.';
+            }
+            if (step === 4) {
+                if (getChecked('sessionTypesGrid').length === 0)
+                    return 'Please select at least one session type.';
+                const fee = Number(document.getElementById('sessionFee').value);
+                if (!fee || fee < 100) return 'Session fee must be at least ₹100.';
+            }
+            return null;
+        }
+
+        function goToStep(next) {
+            if (next > currentStep) {
+                const err = validateStep(currentStep);
+                if (err) { showAlert(err); return; }
+            }
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`step${next}`).classList.add('active');
+            currentStep = next;
+            updateProgress(next);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ── Fee preview ─────────────────────────────────────────
+        function updateFeePreview() {
+            const fee = Number(document.getElementById('sessionFee').value);
+            const preview = document.getElementById('feePreview');
+            if (!fee || fee < 1) { preview.style.display = 'none'; return; }
+            const platform = Math.round(fee * 0.20);
+            const earning = fee - platform;
+            document.getElementById('therapistEarning').textContent = `₹${earning}`;
+            document.getElementById('platformFee').textContent = `₹${platform}`;
+            preview.style.display = 'block';
+        }
+
+        // ── Submit ───────────────────────────────────────────────
+        async function submitOnboarding() {
+            const err = validateStep(5);
+            if (err) { showAlert(err); return; }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            const body = {
+                fullName: document.getElementById('fullName').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                gender: document.getElementById('gender').value,
+                bio: document.getElementById('bio').value.trim(),
+                licenseNumber: document.getElementById('licenseNumber').value.trim(),
+                yearsOfExperience: Number(document.getElementById('yearsOfExperience').value) || 0,
+                education: [{
+                    degree: document.getElementById('educationDegree').value.trim(),
+                    institution: document.getElementById('educationInstitution').value.trim(),
+                    year: Number(document.getElementById('educationYear').value) || null,
+                }],
+                specialties: getChecked('specialtiesGrid'),
+                languages: getChecked('languagesGrid'),
+                sessionTypes: getChecked('sessionTypesGrid'),
+                sessionFee: Number(document.getElementById('sessionFee').value),
+                sessionDuration: Number(document.getElementById('sessionDuration').value),
+                upiId: document.getElementById('upiId').value.trim(),
+                bankAccountName: document.getElementById('bankAccountName').value.trim(),
+                bankAccountNumber: document.getElementById('bankAccountNumber').value.trim(),
+                bankIFSC: document.getElementById('bankIFSC').value.trim().toUpperCase(),
+            };
+
+            try {
+                const token = localStorage.getItem('therapistToken');
+                console.log('Attempting onboarding submission to:', 'http://localhost:5000/api/therapist/onboarding');
+                
+                const res = await fetch('http://localhost:5000/api/therapist/onboarding', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(body),
+                });
+
+                const data = await res.json();
+                console.log('Onboarding response state:', res.status, data);
+
+                if (res.ok && data.success) {
+                    // Hide all steps, show success
+                    document.getElementById(`step${currentStep}`).classList.remove('active');
+                    document.getElementById('progressBar').style.display = 'none';
+                    document.getElementById('successScreen').style.display = 'block';
+                } else {
+                    showAlert(data.message || 'Something went wrong. Please try again.');
+                    btn.disabled = false;
+                    btn.textContent = 'Submit Profile ✓';
+                }
+            } catch (err) {
+                console.error('Fatal fetch error during onboarding:', err);
+                showAlert(`Network error: ${err.message || 'Check your connection'}. Please ensure the backend is running on port 5000.`);
+                btn.disabled = false;
+                btn.textContent = 'Submit Profile ✓';
+            }
+        }
+
+        // ── Auth guard & Edit Mode ─────────────────────────────────
+        window.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('therapistToken');
+            if (!token) {
+                window.location.href = 'therapist-login.html';
+                return;
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const isEdit = urlParams.get('edit') === 'true';
+
+            try {
+                // Fetch current profile data
+                const res = await fetch('http://localhost:5000/api/therapist/onboarding-status', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                // If onboarding done and NOT in edit mode, go to dash
+                if (data.onboardingComplete && !isEdit) {
+                    window.location.href = 'therapist-dashboard.html';
+                    return;
+                }
+
+                if (isEdit) {
+                    console.log('Edit mode: Loading existing profile data...');
+                    // Change UI text for edit mode
+                    document.querySelector('.auth-header h1').textContent = '👤 Update Your Profile';
+                    document.querySelector('.auth-header p').textContent = 'Keep your clinical details and preferences up to date';
+                    document.getElementById('submitBtn').textContent = 'Update Profile ✓';
+
+                    // Fetch full profile for pre-filling
+                    const profileRes = await fetch('http://localhost:5000/api/therapist/profile', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const pJson = await profileRes.json();
+                    if (pJson.success && pJson.data) {
+                        const p = pJson.data;
+                        document.getElementById('fullName').value = p.fullName || '';
+                        document.getElementById('phone').value = p.phone || '';
+                        document.getElementById('gender').value = p.gender || '';
+                        document.getElementById('bio').value = p.bio || '';
+                        document.getElementById('licenseNumber').value = p.licenseNumber || '';
+                        document.getElementById('yearsOfExperience').value = p.yearsOfExperience || '';
+                        
+                        if (p.education && p.education[0]) {
+                            document.getElementById('educationDegree').value = p.education[0].degree || '';
+                            document.getElementById('educationInstitution').value = p.education[0].institution || '';
+                            document.getElementById('educationYear').value = p.education[0].year || '';
+                        }
+
+                        // Checkboxes
+                        const setChecked = (containerId, values) => {
+                            if (!values) return;
+                            document.querySelectorAll(`#${containerId} input`).forEach(cb => {
+                                if (values.includes(cb.value)) {
+                                    cb.checked = true;
+                                    cb.closest('.checkbox-item').classList.add('checked');
+                                }
+                            });
+                        };
+                        setChecked('specialtiesGrid', p.specialties);
+                        setChecked('languagesGrid', p.languages);
+                        setChecked('sessionTypesGrid', p.sessionTypes);
+
+                        document.getElementById('sessionFee').value = p.sessionFee || '';
+                        document.getElementById('sessionDuration').value = p.sessionDuration || 60;
+                        document.getElementById('upiId').value = p.upiId || '';
+                        document.getElementById('bankAccountName').value = p.bankAccountName || '';
+                        document.getElementById('bankAccountNumber').value = p.bankAccountNumber || '';
+                        document.getElementById('bankIFSC').value = p.bankIFSC || '';
+                        
+                        updateFeePreview();
+                    }
+                }
+            } catch (e) {
+                console.error('Error pre-filling profile:', e);
+            }
+
+            updateProgress(1);
+        });
+    </script>
+</body>
+
+</html>

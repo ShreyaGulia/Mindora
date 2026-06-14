@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Availability — MindCare</title>
+    <link rel="stylesheet" href="auth.css" />
+    <style>
+        body {
+            background: #f4f6fb;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+        }
+
+        .page {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 32px 16px 60px;
+        }
+
+        /* ── Page header ─────────────────────────────────────── */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+
+        .page-header h1 {
+            font-size: 22px;
+            color: #1a1a2e;
+            margin: 0;
+        }
+
+        .back-link {
+            font-size: 14px;
+            color: #6c63ff;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* ── Card ────────────────────────────────────────────── */
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, .07);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin: 0 0 6px;
+        }
+
+        .card-sub {
+            font-size: 13px;
+            color: #888;
+            margin: 0 0 22px;
+        }
+
+        /* ── Working hours row ───────────────────────────────── */
+        .hours-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .hours-row label {
+            font-size: 13px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .hours-row input[type="time"] {
+            padding: 9px 12px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #333;
+            background: #fafafa;
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .hours-row input[type="time"]:focus {
+            border-color: #6c63ff;
+            background: #fff;
+        }
+
+        .hours-sep {
+            color: #bbb;
+            font-size: 18px;
+        }
+
+        /* ── Day pills ───────────────────────────────────────── */
+        .day-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 20px 0 0;
+        }
+
+        .day-pill {
+            padding: 7px 16px;
+            border-radius: 20px;
+            border: 1.5px solid #ddd;
+            background: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            color: #999;
+            cursor: pointer;
+            user-select: none;
+            transition: all .2s;
+        }
+
+        .day-pill.active {
+            border-color: #6c63ff;
+            background: #6c63ff;
+            color: #fff;
+        }
+
+        /* ── Slots preview ───────────────────────────────────── */
+        .slots-preview {
+            background: #f8f7ff;
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #6c63ff;
+            border: 1px dashed #b3adff;
+        }
+
+        .slots-preview .preview-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .slot-chip {
+            padding: 4px 12px;
+            background: #ede9ff;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #6c63ff;
+            font-weight: 600;
+        }
+
+        /* ── Save button ─────────────────────────────────────── */
+        .btn {
+            padding: 11px 26px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all .2s;
+        }
+
+        .btn-primary {
+            background: #6c63ff;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #574fd6;
+        }
+
+        .btn-primary:disabled {
+            background: #b8b3ff;
+            cursor: not-allowed;
+        }
+
+        .btn-sm {
+            padding: 7px 16px;
+            font-size: 13px;
+        }
+
+        /* ── Alert ───────────────────────────────────────────── */
+        .alert {
+            padding: 11px 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .alert.error {
+            background: #fff0f0;
+            color: #c0392b;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .alert.success {
+            background: #f0fff4;
+            color: #1e7e34;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        /* ── Calendar ────────────────────────────────────────── */
+        .cal-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .cal-nav button {
+            background: none;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 18px;
+            cursor: pointer;
+            color: #555;
+            transition: all .2s;
+        }
+
+        .cal-nav button:hover {
+            border-color: #6c63ff;
+            color: #6c63ff;
+        }
+
+        .cal-nav .month-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+        }
+
+        .cal-day-name {
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #aaa;
+            padding: 4px 0;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .cal-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            transition: all .2s;
+            position: relative;
+            color: #333;
+        }
+
+        .cal-cell:hover:not(.empty):not(.past) {
+            border-color: #6c63ff;
+            background: #f8f7ff;
+        }
+
+        .cal-cell.empty {
+            cursor: default;
+        }
+
+        .cal-cell.past {
+            color: #ccc;
+            cursor: default;
+        }
+
+        .cal-cell.today {
+            background: #f0effe;
+            border-color: #b3adff;
+            color: #6c63ff;
+            font-weight: 700;
+        }
+
+        .cal-cell.inactive {
+            color: #ddd;
+            cursor: default;
+        }
+
+        /* day not in activeDays */
+        .cal-cell.blocked {
+            background: #fff0f0;
+            border-color: #f5c6cb;
+            color: #e74c3c;
+            text-decoration: line-through;
+        }
+
+        .cal-cell.blocked:hover {
+            background: #ffe0e0;
+        }
+
+        .cal-cell .dot {
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #6c63ff;
+        }
+
+        /* ── Legend ──────────────────────────────────────────── */
+        .legend {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            border: 1.5px solid transparent;
+        }
+
+        .l-active {
+            background: #f8f7ff;
+            border-color: #6c63ff;
+        }
+
+        .l-blocked {
+            background: #fff0f0;
+            border-color: #f5c6cb;
+        }
+
+        .l-inactive {
+            background: #f5f5f5;
+            border-color: #e0e0e0;
+        }
+
+        .l-today {
+            background: #f0effe;
+            border-color: #b3adff;
+        }
+
+        /* ── Month slots summary ─────────────────────────────── */
+        .month-summary {
+            margin-top: 20px;
+            padding: 14px 18px;
+            background: #f8f7ff;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .month-summary strong {
+            color: #6c63ff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="page">
+
+        <div class="page-header">
+            <h1>📅 Availability Settings</h1>
+            <a href="therapist-dashboard.html" class="back-link">← Dashboard</a>
+        </div>
+
+        <!-- ── Card 1: Working Hours ───────────────────────────── -->
+        <div class="card">
+            <p class="card-title">Working Hours</p>
+            <p class="card-sub">Set the time window when clients can book sessions with you</p>
+
+            <div class="alert" id="hoursAlert"></div>
+
+            <div class="hours-row">
+                <label>From</label>
+                <input type="time" id="workStart" value="10:00" />
+                <span class="hours-sep">→</span>
+                <label>To</label>
+                <input type="time" id="workEnd" value="18:00" />
+            </div>
+
+            <p style="margin:20px 0 8px;font-size:13px;font-weight:600;color:#444;">Active Days</p>
+            <div class="day-pills" id="dayPills">
+                <div class="day-pill" data-day="0">Sun</div>
+                <div class="day-pill active" data-day="1">Mon</div>
+                <div class="day-pill active" data-day="2">Tue</div>
+                <div class="day-pill active" data-day="3">Wed</div>
+                <div class="day-pill active" data-day="4">Thu</div>
+                <div class="day-pill active" data-day="5">Fri</div>
+                <div class="day-pill" data-day="6">Sat</div>
+            </div>
+
+            <!-- Slots preview -->
+            <div class="slots-preview" id="slotsPreview">
+                <div id="previewLabel">Loading preview...</div>
+                <div class="preview-chips" id="previewChips"></div>
+            </div>
+
+            <div style="margin-top:20px">
+                <button class="btn btn-primary" id="saveHoursBtn" onclick="saveHours()">
+                    Save Working Hours
+                </button>
+            </div>
+        </div>
+
+        <!-- ── Card 2: Block Dates ─────────────────────────────── -->
+        <div class="card">
+            <p class="card-title">Block / Unblock Dates</p>
+            <p class="card-sub">Click any future date to mark it as unavailable (holiday, leave, etc.)</p>
+
+            <div class="alert" id="calAlert"></div>
+
+            <div class="cal-nav">
+                <button onclick="changeMonth(-1)">‹</button>
+                <span class="month-label" id="monthLabel"></span>
+                <button onclick="changeMonth(1)">›</button>
+            </div>
+
+            <div class="cal-grid" id="dayNames"></div>
+            <div class="cal-grid" id="calGrid" style="margin-top:6px"></div>
+
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-dot l-today"></div>Today
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot l-active"></div>Available
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot l-inactive"></div>Day off (not in schedule)
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot l-blocked"></div>Blocked
+                </div>
+            </div>
+
+            <div class="month-summary" id="monthSummary"></div>
+        </div>
+
+    </div><!-- /page -->
+
+    <script>
+        // ── State ──────────────────────────────────────────────
+        let availability = {
+            workStart: '10:00',
+            workEnd: '18:00',
+            activeDays: [1, 2, 3, 4, 5],
+            blockedDates: [],
+        };
+        let sessionDuration = 60; // loaded from therapist profile
+        let calYear, calMonth;
+
+        const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'];
+
+        const token = localStorage.getItem('therapistToken');
+
+        // ── Init ───────────────────────────────────────────────
+        window.addEventListener('DOMContentLoaded', async () => {
+            if (!token) { window.location.href = 'therapist-login.html'; return; }
+
+            const now = new Date();
+            calYear = now.getFullYear();
+            calMonth = now.getMonth();
+
+            buildDayNames();
+            await loadData();
+        });
+
+        async function loadData() {
+            try {
+                // Load availability settings
+                const r1 = await fetch('http://localhost:5000/api/availability/settings', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const d1 = await r1.json();
+                if (d1.success && d1.data) {
+                    availability = d1.data;
+                }
+
+                // Load session duration from profile
+                const r2 = await fetch('http://localhost:5000/api/therapist/profile', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const d2 = await r2.json();
+                if (d2.success && d2.data) {
+                    sessionDuration = d2.data.sessionDuration || 60;
+                }
+
+                applySettingsToUI();
+                updatePreview();
+                renderCalendar();
+            } catch (e) {
+                showAlert('hoursAlert', 'Failed to load settings.', 'error');
+            }
+        }
+
+        function applySettingsToUI() {
+            document.getElementById('workStart').value = availability.workStart;
+            document.getElementById('workEnd').value = availability.workEnd;
+
+            document.querySelectorAll('.day-pill').forEach(pill => {
+                const d = Number(pill.dataset.day);
+                pill.classList.toggle('active', availability.activeDays.includes(d));
+            });
+        }
+
+        // ── Day pills toggle ───────────────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.day-pill').forEach(pill => {
+                pill.addEventListener('click', () => {
+                    pill.classList.toggle('active');
+                    updatePreview();
+                });
+            });
+
+            document.getElementById('workStart').addEventListener('change', updatePreview);
+            document.getElementById('workEnd').addEventListener('change', updatePreview);
+        });
+
+        // ── Slot preview generator ────────────────────────────
+        function generateSlots(start, end, dur) {
+            const slots = [];
+            const [sh, sm] = start.split(':').map(Number);
+            const [eh, em] = end.split(':').map(Number);
+            let cur = sh * 60 + sm;
+            const endM = eh * 60 + em;
+            while (cur + dur <= endM) {
+                slots.push(`${String(Math.floor(cur / 60)).padStart(2, '0')}:${String(cur % 60).padStart(2, '0')}`);
+                cur += dur;
+            }
+            return slots;
+        }
+
+        function updatePreview() {
+            const start = document.getElementById('workStart').value;
+            const end = document.getElementById('workEnd').value;
+            const chips = document.getElementById('previewChips');
+            const label = document.getElementById('previewLabel');
+
+            if (!start || !end || start >= end) {
+                label.textContent = 'Set valid working hours to preview slots.';
+                chips.innerHTML = '';
+                return;
+            }
+
+            const slots = generateSlots(start, end, sessionDuration);
+            label.textContent = `${slots.length} slots per day · ${sessionDuration} min each`;
+            chips.innerHTML = slots.map(s => {
+                const [h, m] = s.split(':').map(Number);
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                const h12 = h % 12 || 12;
+                return `<span class="slot-chip">${h12}:${m.toString().padStart(2, '0')} ${ampm}</span>`;
+            }).join('');
+        }
+
+        // ── Save working hours ─────────────────────────────────
+        async function saveHours() {
+            const workStart = document.getElementById('workStart').value;
+            const workEnd = document.getElementById('workEnd').value;
+            const activeDays = [...document.querySelectorAll('.day-pill.active')]
+                .map(p => Number(p.dataset.day));
+
+            if (!workStart || !workEnd) {
+                return showAlert('hoursAlert', 'Please set both start and end time.', 'error');
+            }
+            if (workStart >= workEnd) {
+                return showAlert('hoursAlert', 'End time must be after start time.', 'error');
+            }
+            if (activeDays.length === 0) {
+                return showAlert('hoursAlert', 'Select at least one active day.', 'error');
+            }
+
+            const btn = document.getElementById('saveHoursBtn');
+            btn.disabled = true; btn.textContent = 'Saving...';
+
+            try {
+                const res = await fetch('http://localhost:5000/api/availability/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ workStart, workEnd, activeDays }),
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    availability.workStart = workStart;
+                    availability.workEnd = workEnd;
+                    availability.activeDays = activeDays;
+                    showAlert('hoursAlert', '✓ Working hours saved successfully!', 'success');
+                    renderCalendar();
+                } else {
+                    showAlert('hoursAlert', data.message || 'Failed to save.', 'error');
+                }
+            } catch (e) {
+                showAlert('hoursAlert', 'Network error. Please try again.', 'error');
+            }
+
+            btn.disabled = false; btn.textContent = 'Save Working Hours';
+        }
+
+        // ── Calendar rendering ─────────────────────────────────
+        function buildDayNames() {
+            const container = document.getElementById('dayNames');
+            container.innerHTML = DAY_NAMES.map(d =>
+                `<div class="cal-day-name">${d}</div>`
+            ).join('');
+        }
+
+        function renderCalendar() {
+            document.getElementById('monthLabel').textContent =
+                `${MONTH_NAMES[calMonth]} ${calYear}`;
+
+            const grid = document.getElementById('calGrid');
+            const today = new Date();
+            const todayStr = toDateStr(today);
+
+            const firstDay = new Date(calYear, calMonth, 1).getDay(); // 0=Sun
+            const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+            let html = '';
+
+            // Empty cells before first day
+            for (let i = 0; i < firstDay; i++) {
+                html += `<div class="cal-cell empty"></div>`;
+            }
+
+            let availCount = 0;
+            let blockedCount = 0;
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const dow = new Date(calYear, calMonth, d).getDay();
+                const isPast = dateStr < todayStr;
+                const isToday = dateStr === todayStr;
+                const isBlocked = availability.blockedDates.includes(dateStr);
+                const isInactive = !availability.activeDays.includes(dow);
+
+                let cls = 'cal-cell';
+                if (isPast) cls += ' past';
+                else if (isToday) cls += ' today';
+                else if (isBlocked) { cls += ' blocked'; blockedCount++; }
+                else if (isInactive) cls += ' inactive';
+                else availCount++;
+
+                const dot = (!isPast && !isBlocked && !isInactive)
+                    ? '<span class="dot"></span>' : '';
+
+                const clickable = !isPast && !isInactive;
+                html += `<div class="${cls}" ${clickable ? `onclick="toggleBlock('${dateStr}')"` : ''}>
+        ${d}${dot}
+      </div>`;
+            }
+
+            grid.innerHTML = html;
+
+            document.getElementById('monthSummary').innerHTML =
+                `<strong>${availCount}</strong> available days &nbsp;·&nbsp; <strong>${blockedCount}</strong> blocked days this month`;
+        }
+
+        async function toggleBlock(dateStr) {
+            try {
+                const res = await fetch('http://localhost:5000/api/availability/block', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ date: dateStr }),
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    availability.blockedDates = data.blockedDates;
+                    renderCalendar();
+
+                    const msg = data.blocked
+                        ? `🔒 ${dateStr} blocked — clients cannot book this day.`
+                        : `✓ ${dateStr} unblocked.`;
+                    showAlert('calAlert', msg, data.blocked ? 'error' : 'success');
+                } else {
+                    showAlert('calAlert', data.message, 'error');
+                }
+            } catch (e) {
+                showAlert('calAlert', 'Network error.', 'error');
+            }
+        }
+
+        function changeMonth(dir) {
+            calMonth += dir;
+            if (calMonth > 11) { calMonth = 0; calYear++; }
+            if (calMonth < 0) { calMonth = 11; calYear--; }
+            renderCalendar();
+        }
+
+        // ── Helpers ────────────────────────────────────────────
+        function toDateStr(d) {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        function showAlert(id, msg, type) {
+            const el = document.getElementById(id);
+            el.textContent = msg;
+            el.className = `alert ${type}`;
+            setTimeout(() => { el.className = 'alert'; }, 4000);
+        }
+    </script>
+</body>
+
+</html>

@@ -67,7 +67,10 @@
             const email = document.getElementById('tEmail').value.trim();
             const password = document.getElementById('tPassword').value;
 
-            if (!email || !password) { alert('Please fill all fields'); return; }
+            if (!email || !password) {
+                alert('Please fill all fields');
+                return;
+            }
 
             try {
                 const res = await fetch('http://localhost:5000/api/therapist-auth/login', {
@@ -75,13 +78,35 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
+
                 const data = await res.json();
 
-                if (!res.ok) { alert(data.message || 'Login failed'); return; }
+                if (!res.ok) {
+                    alert(data.message || 'Login failed');
+                    return;
+                }
 
+                // Save token & user
                 localStorage.setItem('therapistToken', data.token);
                 localStorage.setItem('therapistUser', JSON.stringify(data.therapist));
-                window.location.href = 'therapist-dashboard.html';
+
+                // Check onboarding status and redirect accordingly
+                try {
+                    const statusRes = await fetch('http://localhost:5000/api/therapist/onboarding-status', {
+                        headers: { 'Authorization': `Bearer ${data.token}` }
+                    });
+                    const status = await statusRes.json();
+
+                    if (status?.data?.onboardingComplete === false || status?.onboardingComplete === false) {
+                        window.location.href = 'therapist-onboarding.html';
+                    } else {
+                        window.location.href = 'therapist-dashboard.html';
+                    }
+                } catch (e) {
+                    // If status check fails, just go to dashboard
+                    window.location.href = 'therapist-dashboard.html';
+                }
+
             } catch (err) {
                 alert('Could not connect to server.');
             }

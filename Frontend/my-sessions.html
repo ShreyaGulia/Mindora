@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Sessions — MindCare</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --sage: #5a7c65;
+            --sage-lt: #eef4f0;
+            --sage-md: #d4e6da;
+            --teal: #3d7a8a;
+            --teal-lt: #ebf5f7;
+            --amber: #c8852a;
+            --amber-lt: #fdf3e7;
+            --rose: #c05555;
+            --rose-lt: #fdf0f0;
+            --violet: #6557d4;
+            --violet-lt: #f0eeff;
+            --ink: #1c1f2e;
+            --ink-md: #3d4260;
+            --ink-lt: #717699;
+            --ghost: #f7f8fc;
+            --white: #ffffff;
+            --border: #e8eaef;
+            --border-md: #d0d3de;
+            --shadow-sm: 0 1px 3px rgba(28, 31, 46, .06), 0 4px 12px rgba(28, 31, 46, .04);
+            --shadow-md: 0 4px 16px rgba(28, 31, 46, .08), 0 1px 4px rgba(28, 31, 46, .06);
+            --shadow-lg: 0 12px 40px rgba(28, 31, 46, .12), 0 4px 16px rgba(28, 31, 46, .06);
+            --r-sm: 10px;
+            --r-md: 16px;
+            --r-lg: 22px;
+            --r-xl: 32px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--ghost);
+            color: var(--ink);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Scrollbar ────────────────────────────────────────── */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-md);
+            border-radius: 3px;
+        }
+
+        /* ── Nav ─────────────────────────────────────────────── */
+        .nav {
+            background: rgba(255, 255, 255, .88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 40px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-logo {
+            font-family: 'DM Serif Display', serif;
+            font-size: 22px;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -.3px;
+        }
+
+        .nav-logo span {
+            color: var(--sage);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            font-size: 14px;
+            color: var(--ink-md);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all .2s;
+        }
+
+        .nav-links a.active,
+        .nav-links a:hover {
+            color: var(--sage);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: var(--sage);
+            font-weight: 600;
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1.5px solid var(--sage-md);
+            border-radius: var(--r-sm);
+            background: var(--sage-lt);
+            transition: all .2s;
+        }
+
+        .back-link:hover {
+            background: var(--sage-md);
+            border-color: var(--sage);
+        }
+
+        /* ── Page header ─────────────────────────────────────── */
+        .page-hero {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 40px 40px 0;
+        }
+
+        .hero-inner {
+            max-width: 820px;
+            margin: 0 auto;
+        }
+
+        .hero-eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--sage);
+            margin-bottom: 8px;
+        }
+
+        .hero-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 34px;
+            color: var(--ink);
+            letter-spacing: -.5px;
+            line-height: 1.15;
+            margin-bottom: 6px;
+        }
+
+        .hero-sub {
+            font-size: 15px;
+            color: var(--ink-lt);
+            font-weight: 400;
+            margin-bottom: 28px;
+        }
+
+        /* ── Tabs ────────────────────────────────────────────── */
+        .tabs-wrap {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid var(--border);
+            margin-top: 4px;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ink-lt);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all .2s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: -.1px;
+        }
+
+        .tab:hover {
+            color: var(--ink);
+        }
+
+        .tab.active {
+            color: var(--sage);
+            font-weight: 600;
+            border-bottom-color: var(--sage);
+        }
+
+        .tab-count {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 1px 7px;
+            border-radius: 20px;
+            background: var(--ghost);
+            color: var(--ink-lt);
+        }
+
+        .tab.active .tab-count {
+            background: var(--sage-md);
+            color: var(--sage);
+        }
+
+        /* ── Main content ────────────────────────────────────── */
+        .page {
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 32px 40px 80px;
+        }
+
+        /* ── Alert ───────────────────────────────────────────── */
+        .alert {
+            padding: 14px 18px;
+            border-radius: var(--r-md);
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: none;
+            font-weight: 500;
+            animation: slideDown .25s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert.error {
+            background: var(--rose-lt);
+            color: var(--rose);
+            border: 1px solid #f2cbcb;
+            display: block;
+        }
+
+        .alert.success {
+            background: var(--sage-lt);
+            color: var(--sage);
+            border: 1px solid var(--sage-md);
+            display: block;
+        }
+
+        /* ── Session card ────────────────────────────────────── */
+        .session-card {
+            background: var(--white);
+            border-radius: var(--r-lg);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: box-shadow .25s ease, transform .2s ease;
+            animation: fadeUp .35s ease backwards;
+        }
+
+        .session-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .session-card:nth-child(1) {
+            animation-delay: .04s;
+        }
+
+        .session-card:nth-child(2) {
+            animation-delay: .08s;
+        }
+
+        .session-card:nth-child(3) {
+            animation-delay: .12s;
+        }
+
+        .session-card:nth-child(4) {
+            animation-delay: .16s;
+        }
+
+        .session-card:nth-child(5) {
+            animation-delay: .20s;
+        }
+
+        /* Status accent stripe */
+        .card-accent {
+            height: 4px;
+            width: 100%;
+        }
+
+        .card-accent.confirmed {
+            background: linear-gradient(90deg, var(--sage), #7fb992);
+        }
+
+        .card-accent.pending {
+            background: linear-gradient(90deg, var(--amber), #e5aa5c);
+        }
+
+        .card-accent.completed {
+            background: linear-gradient(90deg, var(--violet), #8f83e8);
+        }
+
+        .card-accent.cancelled {
+            background: linear-gradient(90deg, #bbb, #ccc);
+        }
+
+        .card-body {
+            padding: 22px 24px 20px;
+        }
+
+        /* Card header */
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .therapist-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .t-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--sage-lt);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--sage);
+            flex-shrink: 0;
+            overflow: hidden;
+            border: 2px solid var(--sage-md);
+        }
+
+        .t-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .t-info {
+            min-width: 0;
+        }
+
+        .t-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ink);
+            letter-spacing: -.2px;
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .t-specs {
+            font-size: 12px;
+            color: var(--ink-lt);
+            font-weight: 400;
+        }
+
+        /* Status pill */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 20px;
+            white-space: nowrap;
+            flex-shrink: 0;
+            letter-spacing: .01em;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .status-pill.confirmed {
+            background: var(--sage-lt);
+            color: var(--sage);
+        }
+
+        .status-pill.pending {
+            background: var(--amber-lt);
+            color: var(--amber);
+        }
+
+        .status-pill.completed {
+            background: var(--violet-lt);
+            color: var(--violet);
+        }
+
+        .status-pill.cancelled {
+            background: #f2f2f4;
+            color: #999;
+        }
+
+        .status-pill.confirmed .status-dot {
+            animation: pulse 2s ease infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .4
+            }
+        }
+
+        /* Details grid */
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0;
+            background: var(--ghost);
+            border-radius: var(--r-md);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            margin-bottom: 18px;
+        }
+
+        .detail-item {
+            padding: 14px 16px;
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detail-item:nth-child(3n) {
+            border-right: none;
+        }
+
+        .detail-item:nth-last-child(-n+3) {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--ink-lt);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+
+        .detail-val {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ink);
+            letter-spacing: -.1px;
+        }
+
+        /* Card footer / actions */
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .card-footer-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Review shown */
+        .review-shown {
+            background: var(--violet-lt);
+            border-radius: var(--r-md);
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            border: 1px solid #ddd9f8;
+        }
+
+        .review-stars {
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .review-text {
+            font-size: 13px;
+            color: var(--ink-md);
+            font-style: italic;
+            line-height: 1.5;
+        }
+
+        /* ── Buttons ─────────────────────────────────────────── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 9px 18px;
+            border-radius: var(--r-sm);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all .2s ease;
+            letter-spacing: -.1px;
+            font-family: 'DM Sans', sans-serif;
+            white-space: nowrap;
+        }
+
+        .btn:active {
+            transform: scale(.97);
+        }
+
+        .btn-join {
+            background: var(--sage);
+            color: var(--white);
+            box-shadow: 0 2px 8px rgba(90, 124, 101, .3);
+        }
+
+        .btn-join:hover {
+            background: #4a6b55;
+            box-shadow: 0 4px 12px rgba(90, 124, 101, .4);
+        }
+
+        .btn-cancel {
+            background: var(--white);
+            color: var(--rose);
+            border: 1.5px solid #f2cbcb;
+        }
+
+        .btn-cancel:hover {
+            background: var(--rose-lt);
+            border-color: #e8aaaa;
+        }
+
+        .btn-review {
+            background: var(--violet-lt);
+            color: var(--violet);
+            border: 1.5px solid #ddd9f8;
+        }
+
+        .btn-review:hover {
+            background: var(--violet);
+            color: var(--white);
+            border-color: var(--violet);
+        }
+
+        /* ── Empty state ─────────────────────────────────────── */
+        .empty {
+            text-align: center;
+            padding: 72px 32px;
+            animation: fadeUp .4s ease;
+        }
+
+        .empty-visual {
+            width: 96px;
+            height: 96px;
+            background: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            border: 2px dashed var(--border-md);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .empty h3 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 22px;
+            color: var(--ink);
+            margin-bottom: 8px;
+            letter-spacing: -.3px;
+        }
+
+        .empty p {
+            font-size: 14px;
+            color: var(--ink-lt);
+            margin-bottom: 24px;
+        }
+
+        .empty-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 11px 24px;
+            background: var(--sage);
+            color: var(--white);
+            border-radius: var(--r-md);
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all .2s ease;
+            box-shadow: 0 2px 10px rgba(90, 124, 101, .25);
+        }
+
+        .empty-cta:hover {
+            background: #4a6b55;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(90, 124, 101, .35);
+        }
+
+        /* ── Review modal ────────────────────────────────────── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(28, 31, 46, .5);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 20px;
+            animation: fadeBg .2s ease;
+        }
+
+        @keyframes fadeBg {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal {
+            background: var(--white);
+            border-radius: var(--r-xl);
+            padding: 0;
+            width: 100%;
+            max-width: 460px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            animation: scaleIn .25s ease;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(.94) translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: var(--sage-lt);
+            padding: 28px 32px 24px;
+            border-bottom: 1px solid var(--sage-md);
+        }
+
+        .modal-header h3 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 22px;
+            color: var(--ink);
+            margin-bottom: 4px;
+            letter-spacing: -.3px;
+        }
+
+        .modal-header p {
+            font-size: 14px;
+            color: var(--ink-lt);
+        }
+
+        .modal-body {
+            padding: 28px 32px;
+        }
+
+        /* Stars */
+        .star-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--ink-lt);
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            margin-bottom: 12px;
+        }
+
+        .star-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .star {
+            font-size: 36px;
+            cursor: pointer;
+            color: #e0dff0;
+            transition: color .15s ease, transform .15s ease;
+            user-select: none;
+            line-height: 1;
+        }
+
+        .star:hover {
+            transform: scale(1.15);
+        }
+
+        .star.on {
+            color: #f5c842;
+        }
+
+        /* Textarea */
+        .textarea-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--ink-lt);
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .review-textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--r-md);
+            font-size: 14px;
+            resize: vertical;
+            min-height: 96px;
+            outline: none;
+            font-family: 'DM Sans', sans-serif;
+            transition: border-color .2s ease, box-shadow .2s ease;
+            color: var(--ink);
+            background: var(--ghost);
+            line-height: 1.6;
+        }
+
+        .review-textarea:focus {
+            border-color: var(--sage);
+            box-shadow: 0 0 0 3px rgba(90, 124, 101, .12);
+            background: var(--white);
+        }
+
+        .review-textarea::placeholder {
+            color: #b0b3c4;
+        }
+
+        .modal-alert {
+            padding: 11px 14px;
+            border-radius: var(--r-sm);
+            font-size: 13px;
+            margin-top: 14px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .modal-alert.error {
+            background: var(--rose-lt);
+            color: var(--rose);
+            border: 1px solid #f2cbcb;
+            display: block;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-modal-submit {
+            flex: 1;
+            padding: 13px 20px;
+            border-radius: var(--r-md);
+            border: none;
+            background: var(--sage);
+            color: var(--white);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            letter-spacing: -.1px;
+            transition: all .2s ease;
+            box-shadow: 0 2px 8px rgba(90, 124, 101, .25);
+        }
+
+        .btn-modal-submit:hover {
+            background: #4a6b55;
+            box-shadow: 0 4px 12px rgba(90, 124, 101, .35);
+        }
+
+        .btn-modal-submit:active {
+            transform: scale(.98);
+        }
+
+        .btn-modal-cancel {
+            padding: 13px 20px;
+            border-radius: var(--r-md);
+            border: 1.5px solid var(--border-md);
+            background: var(--white);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--ink-md);
+            font-family: 'DM Sans', sans-serif;
+            letter-spacing: -.1px;
+            transition: all .2s ease;
+        }
+
+        .btn-modal-cancel:hover {
+            background: var(--ghost);
+            border-color: var(--border-md);
+        }
+
+        /* ── Pagination ──────────────────────────────────────── */
+        .pagination {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin-top: 32px;
+        }
+
+        .pg-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--r-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1.5px solid var(--border);
+            background: var(--white);
+            color: var(--ink-lt);
+            transition: all .2s ease;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .pg-btn:hover {
+            border-color: var(--sage);
+            color: var(--sage);
+            background: var(--sage-lt);
+        }
+
+        .pg-btn.active {
+            background: var(--sage);
+            border-color: var(--sage);
+            color: var(--white);
+        }
+
+        /* ── Responsive ──────────────────────────────────────── */
+        @media (max-width: 680px) {
+            .nav {
+                padding: 0 20px;
+            }
+
+            .nav-links a {
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+
+            .page-hero {
+                padding: 28px 20px 0;
+            }
+
+            .page {
+                padding: 24px 20px 60px;
+            }
+
+            .hero-title {
+                font-size: 26px;
+            }
+
+            .tabs-wrap {
+                overflow-x: auto;
+                padding-bottom: 0;
+                gap: 0;
+            }
+
+            .tab {
+                padding: 12px 14px;
+                font-size: 12px;
+            }
+
+            .card-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .status-pill {
+                align-self: flex-start;
+            }
+
+            .details-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .detail-item:nth-child(2n) {
+                border-right: none;
+            }
+
+            .detail-item:nth-child(3n) {
+                border-right: 1px solid var(--border);
+            }
+
+            .detail-item:nth-child(3n):nth-last-child(1) {
+                border-right: none;
+            }
+
+            .detail-item:nth-last-child(-n+2) {
+                border-bottom: none;
+            }
+
+            .detail-item:nth-last-child(-n+3) {
+                border-bottom: 1px solid var(--border);
+            }
+
+            .card-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .card-footer-left {
+                justify-content: stretch;
+            }
+
+            .btn {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .modal-header {
+                padding: 24px 24px 20px;
+            }
+
+            .modal-body {
+                padding: 24px;
+            }
+
+            .modal-header h3 {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-item {
+                border-right: none !important;
+            }
+
+            .detail-item:not(:last-child) {
+                border-bottom: 1px solid var(--border) !important;
+            }
+
+            .detail-item:last-child {
+                border-bottom: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Nav -->
+    <nav class="nav">
+        <div class="nav-logo">🌿 Mindora</div>
+        <div class="nav-links">
+            <a href="browse-therapists.html" class="back-link">Find Therapist</a>
+            <a href="index.html" class="back-link">← Back to Home</a>
+        </div>
+    </nav>
+
+    <!-- Page hero -->
+    <div class="page-hero">
+        <div class="hero-inner">
+            <div class="hero-eyebrow">Your journey</div>
+            <h1 class="hero-title">My Sessions</h1>
+            <p class="hero-sub">Track, manage and review all your therapy appointments</p>
+
+            <div class="tabs-wrap" id="tabsWrap">
+                <div class="tab active" data-filter="" onclick="setFilter(this,'')">
+                    All <span class="tab-count" id="count-all">—</span>
+                </div>
+                <div class="tab" data-filter="confirmed" onclick="setFilter(this,'confirmed')">
+                    Upcoming <span class="tab-count" id="count-confirmed">—</span>
+                </div>
+                <div class="tab" data-filter="pending" onclick="setFilter(this,'pending')">
+                    Pending <span class="tab-count" id="count-pending">—</span>
+                </div>
+                <div class="tab" data-filter="completed" onclick="setFilter(this,'completed')">
+                    Completed <span class="tab-count" id="count-completed">—</span>
+                </div>
+                <div class="tab" data-filter="cancelled" onclick="setFilter(this,'cancelled')">
+                    Cancelled <span class="tab-count" id="count-cancelled">—</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="page">
+        <div class="alert" id="pageAlert"></div>
+        <div id="sessionsList"></div>
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- Review Modal -->
+    <div class="modal-overlay" id="reviewModal" style="display:none" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Leave a Review</h3>
+                <p>How was your session with <strong id="modalTherapistName"></strong>?</p>
+            </div>
+            <div class="modal-body">
+                <div class="star-label">Your rating</div>
+                <div class="star-row">
+                    <span class="star" data-val="1" onclick="setRating(1)">★</span>
+                    <span class="star" data-val="2" onclick="setRating(2)">★</span>
+                    <span class="star" data-val="3" onclick="setRating(3)">★</span>
+                    <span class="star" data-val="4" onclick="setRating(4)">★</span>
+                    <span class="star" data-val="5" onclick="setRating(5)">★</span>
+                </div>
+                <label class="textarea-label" for="reviewComment">Share your experience</label>
+                <textarea class="review-textarea" id="reviewComment"
+                    placeholder="What did you find most helpful? (optional)"></textarea>
+                <div class="modal-alert" id="modalAlert"></div>
+                <div class="modal-actions">
+                    <button class="btn-modal-cancel" onclick="closeReviewModal()">Cancel</button>
+                    <button class="btn-modal-submit" onclick="submitReview()">Submit Review ✓</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        const token = localStorage.getItem('mindoraToken') || localStorage.getItem('token');
+        if (!token) window.location.href = 'login.html';
+
+        let currentFilter = '';
+        let currentPage = 1;
+        let totalPages = 1;
+        let reviewSessionId = null;
+        let selectedRating = 0;
+        let allCounts = {};
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadCounts();
+            fetchSessions(1);
+        });
+
+        // ── Load tab counts ────────────────────────────────────
+        async function loadCounts() {
+            const statuses = ['', 'confirmed', 'pending', 'completed', 'cancelled'];
+            const ids = ['all', 'confirmed', 'pending', 'completed', 'cancelled'];
+            try {
+                await Promise.all(statuses.map(async (s, i) => {
+                    const url = `${API_BASE}/sessions/my?page=1&limit=1${s ? '&status=' + s : ''}`;
+                    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+                    const d = await res.json();
+                    const count = d.data?.total || 0;
+                    const el = document.getElementById(`count-${ids[i]}`);
+                    if (el) el.textContent = count;
+                }));
+            } catch (e) { }
+        }
+
+        // ── Fetch sessions ─────────────────────────────────────
+        async function fetchSessions(page) {
+            currentPage = page;
+            const url = `${API_BASE}/sessions/my?page=${page}&limit=6${currentFilter ? '&status=' + currentFilter : ''}`;
+            document.getElementById('sessionsList').innerHTML = renderSkeleton();
+
+            try {
+                const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message);
+                totalPages = data.data.pages;
+                renderSessions(data.data.sessions);
+                renderPagination(data.data.total, page, data.data.pages);
+            } catch (e) {
+                document.getElementById('sessionsList').innerHTML = `
+        <div class="empty">
+          <div class="empty-visual">😕</div>
+          <h3>Something went wrong</h3>
+          <p>${e.message}</p>
+        </div>`;
+            }
+        }
+
+        function renderSkeleton() {
+            return Array(3).fill(0).map(() => `
+      <div style="background:#fff;border-radius:22px;overflow:hidden;margin-bottom:16px;border:1px solid #e8eaef;animation:fadeUp .3s ease">
+        <div style="height:4px;background:linear-gradient(90deg,#f0f0f5 0%,#e8eaef 50%,#f0f0f5 100%);background-size:200% 100%;animation:shimmer 1.5s infinite"></div>
+        <div style="padding:22px 24px">
+          <div style="display:flex;gap:14px;margin-bottom:20px">
+            <div style="width:50px;height:50px;border-radius:50%;background:#f0f2f8;flex-shrink:0"></div>
+            <div style="flex:1">
+              <div style="height:14px;background:#f0f2f8;border-radius:6px;width:55%;margin-bottom:8px"></div>
+              <div style="height:11px;background:#f5f6fa;border-radius:6px;width:35%"></div>
+            </div>
+          </div>
+          <div style="height:72px;background:#f7f8fc;border-radius:14px"></div>
+        </div>
+      </div>`).join('');
+        }
+
+        function setFilter(el, f) {
+            currentFilter = f;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            fetchSessions(1);
+        }
+
+        // ── Render sessions ────────────────────────────────────
+        function renderSessions(sessions) {
+            const el = document.getElementById('sessionsList');
+
+            if (!sessions.length) {
+                const labels = {
+                    '': 'sessions', confirmed: 'upcoming sessions', pending: 'pending sessions',
+                    completed: 'completed sessions', cancelled: 'cancelled sessions'
+                };
+                el.innerHTML = `
+        <div class="empty">
+          <div class="empty-visual">📅</div>
+          <h3>No ${labels[currentFilter] || 'sessions'} yet</h3>
+          <p>Your therapy journey starts with a single session.</p>
+          <a href="browse-therapists.html" class="empty-cta">Find a therapist →</a>
+        </div>`;
+                return;
+            }
+
+            el.innerHTML = sessions.map((s, idx) => {
+                const t = s.therapistId || {};
+                const initials = (t.fullName || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+                const avatar = t.profilePhoto ? `<img src="${t.profilePhoto}"/>` : initials;
+
+                const dt = new Date(s.scheduledAt);
+                const dateStr = dt.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' });
+                const timeStr = dt.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' });
+
+                const canCancel = ['pending', 'confirmed'].includes(s.status);
+                const canReview = s.status === 'completed' && !s.review?.rating;
+                const canJoin = s.status === 'confirmed';
+                const hasReview = s.status === 'completed' && s.review?.rating;
+
+                const statusLabels = { confirmed: 'Confirmed', pending: 'Pending', completed: 'Completed', cancelled: 'Cancelled' };
+
+                const reviewHtml = hasReview ? `
+        <div class="review-shown">
+          <div class="review-stars">${'★'.repeat(s.review.rating)}<span style="color:#ddd">${'★'.repeat(5 - s.review.rating)}</span></div>
+          <div class="review-text">"${s.review.comment || 'Session reviewed.'}"</div>
+        </div>` : '';
+
+                const hasActions = canCancel || canReview || canJoin;
+
+                return `
+        <div class="session-card" style="animation-delay:${idx * .06}s">
+          <div class="card-accent ${s.status}"></div>
+          <div class="card-body">
+            <div class="card-header">
+              <div class="therapist-row">
+                <div class="t-avatar">${avatar}</div>
+                <div class="t-info">
+                  <div class="t-name">${t.fullName || 'Therapist'}</div>
+                  <div class="t-specs">${(t.specialties || []).slice(0, 2).join(' · ') || 'Mental Health Professional'}</div>
+                </div>
+              </div>
+              <div class="status-pill ${s.status}">
+                <div class="status-dot"></div>
+                ${statusLabels[s.status] || s.status}
+              </div>
+            </div>
+
+            <div class="details-grid">
+              <div class="detail-item">
+                <div class="detail-label">Date</div>
+                <div class="detail-val">${dateStr}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Time</div>
+                <div class="detail-val">${timeStr}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Duration</div>
+                <div class="detail-val">${s.durationMins} min</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Type</div>
+                <div class="detail-val">${s.sessionType}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Fee</div>
+                <div class="detail-val">₹${(s.sessionFee || 0).toLocaleString('en-IN')}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Payment</div>
+                <div class="detail-val" style="text-transform:capitalize">${s.paymentStatus}</div>
+              </div>
+            </div>
+
+            ${reviewHtml}
+
+            ${hasActions ? `
+            <div class="card-footer">
+              <div class="card-footer-left">
+                ${canJoin ? `<button class="btn btn-join" onclick="window.location.href='video-session.html?sessionId=${s._id}&role=user'">▶ Enter Session</button>` : ''}
+                ${canReview ? `<button class="btn btn-review" onclick="openReview('${s._id}','${(t.fullName || '').replace(/'/g, "\\'")}')">★ Leave Review</button>` : ''}
+              </div>
+              ${canCancel ? `<button class="btn btn-cancel" onclick="cancelSession('${s._id}')">✕ Cancel</button>` : ''}
+            </div>` : ''}
+          </div>
+        </div>`;
+            }).join('');
+        }
+
+        // ── Pagination ─────────────────────────────────────────
+        function renderPagination(total, page, pages) {
+            const pg = document.getElementById('pagination');
+            if (pages <= 1) { pg.innerHTML = ''; return; }
+            let html = `<div class="pg-btn${page === 1 ? ' style="opacity:.35;cursor:not-allowed"' : ''}"
+      onclick="${page > 1 ? `fetchSessions(${page - 1})` : ''}" >‹</div>`;
+            for (let i = 1; i <= pages; i++) {
+                html += `<div class="pg-btn ${i === page ? 'active' : ''}" onclick="fetchSessions(${i})">${i}</div>`;
+            }
+            html += `<div class="pg-btn${page === pages ? ' style="opacity:.35;cursor:not-allowed"' : ''}"
+      onclick="${page < pages ? `fetchSessions(${page + 1})` : ''}" >›</div>`;
+            pg.innerHTML = html;
+        }
+
+        // ── Cancel ─────────────────────────────────────────────
+        async function cancelSession(id) {
+            if (!confirm('Are you sure you want to cancel this session?')) return;
+            const reason = prompt('Reason for cancellation (optional):') || '';
+            try {
+                const res = await fetch(`${API_BASE}/sessions/${id}/cancel`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ reason }),
+                });
+                const data = await res.json();
+                showAlert('pageAlert', data.message, data.success ? 'success' : 'error');
+                if (data.success) { fetchSessions(currentPage); loadCounts(); }
+            } catch (e) { showAlert('pageAlert', 'Network error. Try again.', 'error'); }
+        }
+
+        // ── Review ─────────────────────────────────────────────
+        function openReview(sessionId, therapistName) {
+            reviewSessionId = sessionId;
+            selectedRating = 0;
+            document.getElementById('modalTherapistName').textContent = therapistName;
+            document.getElementById('reviewComment').value = '';
+            document.querySelectorAll('.star').forEach(s => s.classList.remove('on'));
+            document.getElementById('modalAlert').className = 'modal-alert';
+            document.getElementById('reviewModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeReviewModal() {
+            document.getElementById('reviewModal').style.display = 'none';
+            document.body.style.overflow = '';
+            reviewSessionId = null;
+        }
+
+        function closeModal(e) {
+            if (e.target === document.getElementById('reviewModal')) closeReviewModal();
+        }
+
+        function setRating(val) {
+            selectedRating = val;
+            document.querySelectorAll('.star').forEach(s => {
+                s.classList.toggle('on', Number(s.dataset.val) <= val);
+            });
+        }
+
+        async function submitReview() {
+            if (!selectedRating) {
+                const el = document.getElementById('modalAlert');
+                el.textContent = 'Please select a star rating first.';
+                el.className = 'modal-alert error';
+                return;
+            }
+            const comment = document.getElementById('reviewComment').value.trim();
+            try {
+                const res = await fetch(`${API_BASE}/sessions/${reviewSessionId}/review`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ rating: selectedRating, comment }),
+                });
+                const data = await res.json();
+                if (data.success) {
+                    closeReviewModal();
+                    showAlert('pageAlert', '⭐ Review submitted — thank you!', 'success');
+                    fetchSessions(currentPage);
+                } else {
+                    const el = document.getElementById('modalAlert');
+                    el.textContent = data.message;
+                    el.className = 'modal-alert error';
+                }
+            } catch (e) {
+                const el = document.getElementById('modalAlert');
+                el.textContent = 'Network error. Try again.';
+                el.className = 'modal-alert error';
+            }
+        }
+
+        function showAlert(id, msg, type) {
+            const el = document.getElementById(id);
+            el.textContent = msg;
+            el.className = `alert ${type}`;
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            setTimeout(() => { el.className = 'alert'; }, 5000);
+        }
+    </script>
+</body>
+
+</html>

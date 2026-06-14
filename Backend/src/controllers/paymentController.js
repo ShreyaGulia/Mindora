@@ -2,6 +2,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const User = require('../models/User');
 const Wallet = require('../models/Wallet');
 const Billing = require('../models/Billing');
+const BookedSession = require('../models/BookedSession');
 
 // ─────────────────────────────────────────────────
 // Helper — get or create a Stripe customer for this user
@@ -30,20 +31,29 @@ const getOrCreateStripeCustomer = async (user) => {
 // ─────────────────────────────────────────────────
 const createPaymentIntent = async (req, res) => {
     try {
-        const { amount, purpose } = req.body;
+        const { amount, purpose, sessionId } = req.body;
+        
+        let finalAmountNum = Number(amount);
+        let finalPurpose = purpose;
 
-        const validPurposes = ['wallet_topup', 'pro_monthly', 'pro_yearly'];
-        if (!validPurposes.includes(purpose)) {
-            return res.status(400).json({ message: 'Invalid payment purpose' });
+        if (sessionId) {
+            finalPurpose = 'session_booking';
+            const session = await BookedSession.findById(sessionId);
+            if (!session) return res.status(404).json({ message: 'Session not found' });
+            finalAmountNum = Number(session.sessionFee);
+        } else {
+            const validPurposes = ['wallet_topup', 'pro_monthly', 'pro_yearly'];
+            if (!validPurposes.includes(finalPurpose)) {
+                return res.status(400).json({ message: 'Invalid payment purpose' });
+            }
         }
 
-        const amountNum = Number(amount);
-        if (!amountNum || amountNum < 10) {
+        if (!finalAmountNum || finalAmountNum < 10) {
             return res.status(400).json({ message: 'Minimum amount is ₹10' });
         }
 
         // Stripe uses smallest currency unit — paise for INR (₹1 = 100 paise)
-        const amountInPaise = Math.round(amountNum * 100);
+        const amountInPaise = Math.round(finalAmountNum * 100);
 
         const user = await User.findById(req.user.id);
         const customerId = await getOrCreateStripeCustomer(user);
@@ -55,9 +65,10 @@ const createPaymentIntent = async (req, res) => {
             customer: customerId,
             metadata: {
                 userId: req.user.id,
-                purpose: purpose
+                purpose: finalPurpose,
+                sessionId: sessionId || ''
             },
-            description: `Mindora — ${purpose.replace('_', ' ')}`
+            description: `Mindora — ${finalPurpose.replace('_', ' ')}`
         });
 
         // Save a pending billing record in our DB
@@ -66,14 +77,16 @@ const createPaymentIntent = async (req, res) => {
             stripePaymentIntentId: paymentIntent.id,
             stripeCustomerId: customerId,
             amount: amountInPaise,
-            amountDisplay: amountNum,
-            purpose,
-            status: 'pending'
+            amountDisplay: finalAmountNum,
+            purpose: finalPurpose,
+            status: 'pending',
+            referenceId: sessionId || undefined
         });
 
         // Return the client_secret to the frontend
         // Frontend uses this with Stripe.js to show the payment form
         res.json({
+            success: true,
             clientSecret: paymentIntent.client_secret,
             billingId: billing._id,
             publishableKey: process.env.STRIPE_PUBLISHABLE_KEY
@@ -115,8 +128,8 @@ const confirmPayment = async (req, res) => {
         // ── Fulfill based on purpose ──
 
         if (purpose === 'wallet_topup') {
-            let wallet = await Wallet.findOne({ user: req.user.id });
-            if (!wallet) wallet = await Wallet.create({ user: req.user.id, balance: 0 });
+            let wallet = await Wallet.findOne({ userId: req.user.id });
+            if (!wallet) wallet = await Wallet.create({ userId: req.user.id, balance: 0 });
 
             wallet.balance += amountDisplay;
             wallet.transactions.push({
@@ -166,6 +179,33 @@ const confirmPayment = async (req, res) => {
         res.status(500).json({ message: 'Payment confirmation failed', error: err.message });
     }
 };
+// POST /api/payment/refund  — USER AUTH
+// Called automatically when a session is cancelled with refundStatus='pending'
+const processRefund = async (req, res) => {
+    try {
+        const { sessionId } = req.body;
+
+        const session = await BookedSession.findOne({
+            _id: sessionId, userId: req.userId,
+            paymentStatus: 'paid', refundStatus: 'pending',
+        });
+        if (!session) return res.status(404).json({ success: false, message: 'No refund eligible session found.' });
+
+        const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+        const refund = await stripe.refunds.create({
+            payment_intent: session.paymentIntentId,
+        });
+
+        session.refundStatus = 'processed';
+        session.paymentStatus = 'refunded';
+        await session.save();
+
+        res.json({ success: true, message: 'Refund processed successfully.', refundId: refund.id });
+    } catch (err) {
+        console.error('processRefund error:', err);
+        res.status(500).json({ success: false, message: 'Refund failed: ' + err.message });
+    }
+};
 
 // ─────────────────────────────────────────────────
 // POST /api/payment/webhook
@@ -208,8 +248,8 @@ const handleWebhook = async (req, res) => {
         const amountDisplay = paymentIntent.amount / 100;
 
         if (purpose === 'wallet_topup') {
-            let wallet = await Wallet.findOne({ user: userId });
-            if (!wallet) wallet = await Wallet.create({ user: userId, balance: 0 });
+            let wallet = await Wallet.findOne({ userId: userId });
+            if (!wallet) wallet = await Wallet.create({ userId: userId, balance: 0 });
 
             wallet.balance += amountDisplay;
             wallet.transactions.push({
@@ -298,5 +338,6 @@ module.exports = {
     confirmPayment,
     handleWebhook,
     getBillingHistory,
-    getPlanStatus
+    getPlanStatus,
+    processRefund
 };

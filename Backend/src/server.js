@@ -3,6 +3,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const app = require('./app');
 const connectDB = require('./config/db');
+const { startReminderJobs } = require('./config/reminderJob');
 
 const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
@@ -43,10 +44,15 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('Socket disconnected:', socket.id);
   });
+  socket.on('join_chat', (room) => { socket.join(room); });
+  socket.on('chat_message', ({ room, sender, text, createdAt }) => {
+    socket.to(room).emit('chat_message', { sender, text, createdAt });
+  });
 });
 
 connectDB().then(() => {
   server.listen(PORT, () => {
     console.log(`Mindora server running on http://localhost:${PORT}`);
   });
+  startReminderJobs();
 });

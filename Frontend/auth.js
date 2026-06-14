@@ -77,7 +77,9 @@ document.getElementById("loginForm")?.addEventListener("submit", async function(
     localStorage.setItem("mindoraUser",   JSON.stringify(data.user));
     localStorage.setItem("sessionExpiry", String(Date.now() + 30 * 60 * 1000));
 
-    window.location.href = "index.html";
+    // redirect back if we came from book-session or another page
+    const redirectTo = new URLSearchParams(window.location.search).get('redirect');
+    window.location.href = redirectTo ? decodeURIComponent(redirectTo) : 'index.html';
 
   } catch (err) {
     alert("Could not connect to server. Is the backend running?");

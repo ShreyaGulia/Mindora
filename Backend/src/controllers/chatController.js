@@ -1,149 +1,230 @@
 const ChatHistory = require('../models/ChatHistory');
-const Groq = require('groq-sdk');
+const Therapist = require('../models/Therapist');
+const User = require('../models/User');
+const BookedSession = require('../models/BookedSession');
 
-/* ─────────────────────────────────────────
-   POST /api/chat/save
-   Store user + bot messages for a session
-   Called from frontend after chat ends
-───────────────────────────────────────── */
-exports.saveChat = async (req, res) => {
+// ── Helper: find or create a chat thread ──────────────────────────────────
+async function getOrCreateThread(userId, therapistId) {
+  let thread = await ChatHistory.findOne({ userId, therapistId });
+  if (!thread) {
+    thread = await ChatHistory.create({ userId, therapistId, messages: [] });
+  }
+  return thread;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/chat/threads
+// USER AUTH — returns all chat threads for the logged-in user (inbox)
+// ─────────────────────────────────────────────────────────────────────────────
+exports.getUserThreads = async (req, res) => {
   try {
-    const { messages } = req.body;
+    const threads = await ChatHistory.find({ userId: req.userId })
+      .populate('therapistId', 'fullName profilePhoto specialties isOnline')
+      .sort({ lastMessageAt: -1 })
+      .select('-messages')
+      .lean();
 
-    // Validate — messages must be a non-empty array
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Messages array is required and cannot be empty.'
-      });
-    }
-
-    // Validate each message has required fields
-    for (const msg of messages) {
-      if (!msg.sender || !['user', 'bot'].includes(msg.sender)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Each message must have a sender of "user" or "bot".'
-        });
-      }
-      if (!msg.text || typeof msg.text !== 'string') {
-        return res.status(400).json({
-          success: false,
-          message: 'Each message must have a text field.'
-        });
-      }
-    }
-
-    const chat = await ChatHistory.create({
-      user: req.user.id,
-      messages  // array of { sender, text, time }
-    });
-
-    return res.status(201).json({
-      success: true,
-      message: 'Chat saved successfully.',
-      chatId: chat._id
-    });
+    res.json({ success: true, data: threads });
   } catch (err) {
-    console.error('saveChat error:', err);
-    return res.status(500).json({ success: false, message: 'Server error.' });
+    console.error('getUserThreads error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
-/* ─────────────────────────────────────────
-   GET /api/chat/history
-   Retrieve past conversations for the user
-   Returns most recent 20 sessions
-───────────────────────────────────────── */
-exports.getChatHistory = async (req, res) => {
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/chat/therapist-threads
+// THERAPIST AUTH — returns all threads for logged-in therapist
+// ─────────────────────────────────────────────────────────────────────────────
+exports.getTherapistThreads = async (req, res) => {
   try {
-    const chats = await ChatHistory
-      .find({ user: req.user.id })
-      .sort({ createdAt: -1 })  // newest first
-      .limit(20);               // last 20 sessions
+    const therapist = await Therapist.findOne({ userId: req.therapistId });
+    if (!therapist) return res.status(404).json({ success: false, message: 'Profile not found.' });
 
-    return res.status(200).json({
-      success: true,
-      count: chats.length,
-      chats
-    });
+    const threads = await ChatHistory.find({ therapistId: therapist._id })
+      .populate('userId', 'name email')
+      .sort({ lastMessageAt: -1 })
+      .select('-messages')
+      .lean();
+
+    res.json({ success: true, data: threads });
   } catch (err) {
-    console.error('getChatHistory error:', err);
-    return res.status(500).json({ success: false, message: 'Server error.' });
+    console.error('getTherapistThreads error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
-/* ─────────────────────────────────────────
-   GET /api/chat/history/:id
-   Get a single chat session by ID
-───────────────────────────────────────── */
-exports.getChatById = async (req, res) => {
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/chat/:therapistId
+// USER AUTH — load messages between user and a therapist
+// ─────────────────────────────────────────────────────────────────────────────
+exports.getThread = async (req, res) => {
   try {
-    const chat = await ChatHistory.findOne({
-      _id: req.params.id,
-      user: req.user.id     // ensure user owns this chat
+    const { therapistId } = req.params;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(50, parseInt(req.query.limit) || 50);
+
+    const thread = await ChatHistory.findOne({
+      userId: req.userId, therapistId,
     });
 
-    if (!chat) {
-      return res.status(404).json({
-        success: false,
-        message: 'Chat session not found.'
-      });
+    if (!thread) {
+      return res.json({ success: true, data: { messages: [], total: 0 } });
     }
 
-    return res.status(200).json({ success: true, chat });
+    // Mark messages as read
+    await ChatHistory.updateOne(
+      { userId: req.userId, therapistId },
+      { $set: { unreadByUser: 0, 'messages.$[elem].readAt': new Date() } },
+      { arrayFilters: [{ 'elem.sender': 'therapist', 'elem.readAt': null }] }
+    );
+
+    const total = thread.messages.length;
+    const messages = thread.messages
+      .slice(-limit * page)
+      .slice(0, limit);
+
+    res.json({ success: true, data: { messages, total } });
   } catch (err) {
-    console.error('getChatById error:', err);
-    return res.status(500).json({ success: false, message: 'Server error.' });
+    console.error('getThread error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };
 
-/* ─────────────────────────────────────────
-   POST /api/ai/chat
-   Send message to AI and get response
-───────────────────────────────────────── */
-exports.aiChat = async (req, res) => {
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/chat/therapist-view/:userId
+// THERAPIST AUTH — load messages from therapist's perspective
+// ─────────────────────────────────────────────────────────────────────────────
+exports.getThreadAsTherapist = async (req, res) => {
   try {
-    const { message, history } = req.body;
+    const therapist = await Therapist.findOne({ userId: req.therapistId });
+    if (!therapist) return res.status(404).json({ success: false, message: 'Profile not found.' });
 
-    if (!message || typeof message !== 'string') {
-      return res.status(400).json({
+    const { userId } = req.params;
+
+    const thread = await ChatHistory.findOne({
+      userId, therapistId: therapist._id,
+    });
+
+    if (!thread) {
+      return res.json({ success: true, data: { messages: [], total: 0 } });
+    }
+
+    // Mark as read by therapist
+    await ChatHistory.updateOne(
+      { userId, therapistId: therapist._id },
+      { $set: { unreadByTherapist: 0 } }
+    );
+
+    res.json({ success: true, data: { messages: thread.messages, total: thread.messages.length } });
+  } catch (err) {
+    console.error('getThreadAsTherapist error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/chat/:therapistId
+// USER AUTH — send a message to a therapist
+// Body: { text }
+// ─────────────────────────────────────────────────────────────────────────────
+exports.sendMessage = async (req, res) => {
+  try {
+    const { therapistId } = req.params;
+    const { text } = req.body;
+
+    if (!text || !text.trim()) {
+      return res.status(400).json({ success: false, message: 'Message cannot be empty.' });
+    }
+    if (text.length > 2000) {
+      return res.status(400).json({ success: false, message: 'Message too long (max 2000 chars).' });
+    }
+
+    // Verify therapist exists
+    const therapist = await Therapist.findById(therapistId);
+    if (!therapist) return res.status(404).json({ success: false, message: 'Therapist not found.' });
+
+    // Check user has a session with this therapist (they must be connected)
+    const hasSession = await BookedSession.exists({
+      userId: req.userId,
+      therapistId,
+      status: { $in: ['confirmed', 'completed'] },
+    });
+    if (!hasSession) {
+      return res.status(403).json({
         success: false,
-        message: 'Message is required and must be a string.'
+        message: 'You can only message therapists you have booked a session with.',
       });
     }
 
-    // Initialize Groq client
-    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+    const message = {
+      sender: 'user',
+      senderId: req.userId,
+      text: text.trim(),
+    };
 
-    // Build messages array for Groq API
-    let messages = [
-      { role: 'system', content: 'You are a helpful mental health assistant. Provide supportive, empathetic responses.' }
-    ];
+    const thread = await getOrCreateThread(req.userId, therapistId);
+    thread.messages.push(message);
+    thread.lastMessage = text.trim().slice(0, 80);
+    thread.lastMessageAt = new Date();
+    thread.lastMessageBy = 'user';
+    thread.unreadByTherapist += 1;
+    await thread.save();
 
-    // Add history if provided
-    if (history && Array.isArray(history)) {
-      messages = messages.concat(history);
+    res.json({ success: true, message: 'Message sent.', data: message });
+  } catch (err) {
+    console.error('sendMessage error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/chat/therapist-reply/:userId
+// THERAPIST AUTH — therapist sends a message to a client
+// Body: { text }
+// ─────────────────────────────────────────────────────────────────────────────
+exports.therapistReply = async (req, res) => {
+  try {
+    const therapist = await Therapist.findOne({ userId: req.therapistId });
+    if (!therapist) return res.status(404).json({ success: false, message: 'Profile not found.' });
+
+    const { userId } = req.params;
+    const { text } = req.body;
+
+    if (!text || !text.trim()) {
+      return res.status(400).json({ success: false, message: 'Message cannot be empty.' });
     }
 
-    // Add current user message
-    messages.push({ role: 'user', content: message });
+    const message = {
+      sender: 'therapist',
+      senderId: therapist._id,
+      text: text.trim(),
+    };
 
-    const response = await groq.chat.completions.create({
-      model: process.env.AI_MODEL || 'llama-3.1-8b-instant',
-      messages,
-      max_tokens: parseInt(process.env.AI_MAX_TOKENS) || 500,
-      temperature: 0.7
-    });
+    const thread = await getOrCreateThread(userId, therapist._id);
+    thread.messages.push(message);
+    thread.lastMessage = text.trim().slice(0, 80);
+    thread.lastMessageAt = new Date();
+    thread.lastMessageBy = 'therapist';
+    thread.unreadByUser += 1;
+    await thread.save();
 
-    const botMessage = response.choices[0].message.content;
-
-    return res.status(200).json({
-      success: true,
-      response: botMessage
-    });
+    res.json({ success: true, message: 'Reply sent.', data: message });
   } catch (err) {
-    console.error('aiChat error:', err);
-    return res.status(500).json({ success: false, message: 'AI service error.' });
+    console.error('therapistReply error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GET /api/chat/unread-count
+// USER AUTH — returns total unread message count for badge
+// ─────────────────────────────────────────────────────────────────────────────
+exports.getUnreadCount = async (req, res) => {
+  try {
+    const threads = await ChatHistory.find({ userId: req.userId });
+    const total = threads.reduce((sum, t) => sum + (t.unreadByUser || 0), 0);
+    res.json({ success: true, unread: total });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 };

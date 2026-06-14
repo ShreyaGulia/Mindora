@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Find a Therapist — Mindora</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --green-50: #f0faf4;
+            --green-100: #d6f0e0;
+            --green-200: #aadfc0;
+            --green-300: #74c99a;
+            --green-400: #3eb373;
+            --green-500: #2a9d5c;
+            --green-600: #1e7a44;
+            --green-700: #165c33;
+            --green-800: #0f3d22;
+            --green-900: #071f11;
+            --sage: #84a98c;
+            --mint: #b7e4c7;
+            --cream: #fafff9;
+            --white: #ffffff;
+            --text-dark: #162921;
+            --text-mid: #3d5245;
+            --text-soft: #6b7f73;
+            --text-faint: #9eb5a4;
+            --border: #ddeee3;
+            --shadow-sm: 0 1px 4px rgba(22, 41, 33, .06);
+            --shadow-md: 0 4px 20px rgba(22, 41, 33, .10);
+            --shadow-lg: 0 10px 40px rgba(22, 41, 33, .14);
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', system-ui, sans-serif;
+            background: var(--cream);
+            color: var(--text-dark);
+            line-height: 1.55;
+        }
+
+        /* ── Scrollbar ──────────────────────────────────────── */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--green-50);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--green-300);
+            border-radius: 6px;
+        }
+
+        /* ── Nav ─────────────────────────────────────────────── */
+        .nav {
+            background: rgba(255, 255, 255, .92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 36px;
+            height: 66px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+        }
+
+        .nav-logo {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--green-600);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -.3px;
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--green-300), var(--green-500));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 3px 12px rgba(42, 157, 92, .3);
+            transition: transform .3s, box-shadow .3s;
+        }
+
+        .nav-logo:hover .logo-icon {
+            transform: rotate(-8deg) scale(1.08);
+            box-shadow: 0 5px 18px rgba(42, 157, 92, .4);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            font-size: 14px;
+            color: var(--text-mid);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color .2s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--green-600);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            color: var(--green-600);
+            font-weight: 600;
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1.5px solid var(--green-200);
+            border-radius: var(--radius-sm);
+            background: var(--green-50);
+            transition: all .2s;
+        }
+
+        .back-link:hover {
+            background: var(--green-100);
+            border-color: var(--green-300);
+        }
+
+        .btn-nav {
+            padding: 9px 22px;
+            background: var(--green-400);
+            color: #fff;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: background .2s, transform .15s, box-shadow .2s;
+            box-shadow: 0 2px 8px rgba(42, 157, 92, .25);
+        }
+
+        .btn-nav:hover {
+            background: var(--green-400);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(42, 157, 92, .35);
+        }
+
+        /* ── Hero ─────────────────────────────────────────────── */
+        .hero {
+            background: linear-gradient(135deg, var(--green-500) 0%, var(--green-400) 60%, var(--green-300) 100%);
+            padding: 60px 32px 68px;
+            text-align: center;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: var(--cream);
+            clip-path: ellipse(60% 100% at 50% 100%);
+        }
+
+        .hero-inner {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, .15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, .2);
+            border-radius: 30px;
+            padding: 5px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            color: rgba(255, 255, 255, .9);
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            line-height: 1.2;
+            letter-spacing: -.5px;
+        }
+
+        .hero p {
+            font-size: 16px;
+            opacity: .85;
+            margin-bottom: 32px;
+            font-weight: 400;
+        }
+
+        .search-bar {
+            display: flex;
+            max-width: 580px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, .18);
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: var(--text-dark);
+            font-family: 'DM Sans', sans-serif;
+            background: transparent;
+        }
+
+        .search-bar input::placeholder {
+            color: var(--text-faint);
+        }
+
+        .search-bar button {
+            padding: 15px 28px;
+            background: var(--green-500);
+            color: #fff;
+            border: none;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .search-bar button:hover {
+            background: var(--green-600);
+        }
+
+        /* ── Layout ──────────────────────────────────────────── */
+        .layout {
+            display: flex;
+            max-width: 1160px;
+            margin: 0 auto;
+            padding: 36px 20px 72px;
+            gap: 28px;
+        }
+
+        /* ── Filters sidebar ─────────────────────────────────── */
+        .filters {
+            width: 248px;
+            flex-shrink: 0;
+        }
+
+        .filter-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            padding: 22px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+            transition: box-shadow .2s;
+        }
+
+        .filter-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .filter-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--green-600);
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 7px 0;
+            cursor: pointer;
+            font-size: 13.5px;
+            color: var(--text-mid);
+            border-radius: 6px;
+            transition: color .15s;
+            font-weight: 500;
+        }
+
+        .filter-option:hover {
+            color: var(--green-600);
+        }
+
+        .filter-option input[type="radio"],
+        .filter-option input[type="checkbox"] {
+            accent-color: var(--green-500);
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+        }
+
+        .filter-option.active {
+            color: var(--green-600);
+            font-weight: 700;
+        }
+
+        .price-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .price-row input {
+            flex: 1;
+            min-width: 0;
+            /* prevents overflow */
+            padding: 8px 10px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-dark);
+            font-family: 'DM Sans', sans-serif;
+            outline: none;
+            transition: all 0.2s ease;
+            background: #fff;
+            box-sizing: border-box;
+        }
+
+        .price-row input:focus {
+            border-color: var(--green-400);
+            box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.15);
+        }
+
+        .price-sep {
+            color: var(--text-faint);
+            font-size: 16px;
+        }
+
+        .btn-apply {
+            width: 100%;
+            padding: 11px;
+            background: var(--green-500);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: background .2s, transform .15s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-apply:hover {
+            background: var(--green-600);
+            transform: translateY(-1px);
+        }
+
+        .btn-clear {
+            width: 100%;
+            padding: 9px;
+            background: transparent;
+            color: var(--text-soft);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all .2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-clear:hover {
+            border-color: var(--green-400);
+            color: var(--green-600);
+        }
+
+        /* ── Results area ────────────────────────────────────── */
+        .results {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .results-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .results-count {
+            font-size: 14px;
+            color: var(--text-soft);
+            font-weight: 500;
+        }
+
+        .results-count strong {
+            color: var(--green-600);
+        }
+
+        .sort-select {
+            padding: 9px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            color: var(--text-mid);
+            background: var(--white);
+            outline: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            transition: border-color .2s;
+        }
+
+        .sort-select:focus {
+            border-color: var(--green-400);
+        }
+
+        /* ── Therapist cards ─────────────────────────────────── */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(295px, 1fr));
+            gap: 20px;
+        }
+
+        .therapist-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            transition: transform .25s cubic-bezier(.22, .61, .36, 1), box-shadow .25s;
+            cursor: pointer;
+            border: 1.5px solid var(--border);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .therapist-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--green-400), var(--green-300));
+            opacity: 0;
+            transition: opacity .25s;
+        }
+
+        .therapist-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--green-200);
+        }
+
+        .therapist-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-top {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .card-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--green-100), var(--green-200));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+            font-weight: 800;
+            color: var(--green-700);
+            flex-shrink: 0;
+            overflow: hidden;
+            border: 2px solid var(--green-100);
+        }
+
+        .card-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .card-name {
+            font-size: 15.5px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 3px;
+            letter-spacing: -.2px;
+        }
+
+        .card-exp {
+            font-size: 12px;
+            color: var(--text-faint);
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .card-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #e9a320;
+        }
+
+        .card-rating span {
+            color: var(--text-faint);
+            font-weight: 400;
+            font-size: 11px;
+        }
+
+        .online-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-bottom: 6px;
+        }
+
+        .online-pill.on {
+            background: var(--green-50);
+            color: var(--green-600);
+            border: 1px solid var(--green-100);
+        }
+
+        .online-pill.off {
+            background: #f5f5f5;
+            color: #aaa;
+            border: 1px solid #eee;
+        }
+
+        .online-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .online-pill.on .online-dot {
+            animation: pulse-dot 2s ease infinite;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: .5;
+                transform: scale(1.3);
+            }
+        }
+
+        .card-bio {
+            font-size: 13px;
+            color: var(--text-soft);
+            line-height: 1.55;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 14px;
+        }
+
+        .tag {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 20px;
+            background: var(--green-50);
+            color: var(--green-700);
+            font-weight: 600;
+            border: 1px solid var(--green-100);
+        }
+
+        .tag.lang {
+            background: #f0f9f4;
+            color: var(--green-600);
+            border-color: var(--green-100);
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 14px;
+            border-top: 1px solid var(--green-50);
+        }
+
+        .card-fee {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        .card-fee span {
+            font-size: 12px;
+            color: var(--text-faint);
+            font-weight: 400;
+        }
+
+        .btn-book {
+            padding: 8px 20px;
+            background: var(--green-500);
+            color: #fff;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 700;
+            transition: background .2s, transform .15s, box-shadow .2s;
+            box-shadow: 0 2px 8px rgba(42, 157, 92, .2);
+        }
+
+        .therapist-card:hover .btn-book {
+            background: var(--green-600);
+            box-shadow: 0 3px 12px rgba(42, 157, 92, .3);
+        }
+
+        .session-icons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .sicon {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 11px;
+            color: var(--text-soft);
+            background: #f5f5f5;
+            border-radius: 5px;
+            padding: 3px 8px;
+            font-weight: 500;
+        }
+
+        /* ── Skeleton loader ─────────────────────────────────── */
+        .skeleton {
+            background: linear-gradient(90deg, #edf2ed 25%, #e2ebe2 50%, #edf2ed 75%);
+            background-size: 200% 100%;
+            border-radius: 8px;
+            animation: shimmer 1.4s ease infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .sk-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            border: 1.5px solid var(--border);
+        }
+
+        .sk-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+        }
+
+        .sk-line {
+            height: 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        /* ── Empty / error ───────────────────────────────────── */
+        .empty-state {
+            text-align: center;
+            padding: 56px 24px;
+            color: var(--text-faint);
+        }
+
+        .empty-state .icon {
+            font-size: 52px;
+            margin-bottom: 14px;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            color: var(--text-mid);
+            margin-bottom: 8px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            color: var(--text-soft);
+        }
+
+        /* ── Pagination ──────────────────────────────────────── */
+        .pagination {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 36px;
+        }
+
+        .pg-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1.5px solid var(--border);
+            background: var(--white);
+            color: var(--text-mid);
+            transition: all .15s;
+        }
+
+        .pg-btn:hover {
+            border-color: var(--green-400);
+            color: var(--green-600);
+            background: var(--green-50);
+        }
+
+        .pg-btn.active {
+            background: var(--green-500);
+            border-color: var(--green-500);
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(42, 157, 92, .25);
+        }
+
+        .pg-btn.disabled {
+            opacity: .35;
+            cursor: not-allowed;
+        }
+
+        /* ── Mobile filter toggle ───────────────────────────── */
+        .filter-toggle {
+            display: none;
+            width: 100%;
+            padding: 12px;
+            background: var(--white);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 16px;
+            color: var(--text-mid);
+            font-family: 'DM Sans', sans-serif;
+            transition: border-color .2s, color .2s;
+        }
+
+        .filter-toggle:hover {
+            border-color: var(--green-400);
+            color: var(--green-600);
+        }
+
+        @media (max-width: 700px) {
+            .layout {
+                flex-direction: column;
+            }
+
+            .filters {
+                width: 100%;
+            }
+
+            .filter-toggle {
+                display: block;
+            }
+
+            .filter-body {
+                display: none;
+            }
+
+            .filter-body.open {
+                display: block;
+            }
+
+            .hero h1 {
+                font-size: 26px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .nav {
+                padding: 0 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <meta name="description"
+        content="Browse and book sessions with verified mental health therapists. Filter by specialty, language, price and availability." />
+    <meta property="og:title" content="Find a Therapist — MindCare" />
+</head>
+
+<body>
+
+    <!-- Nav -->
+    <nav class="nav">
+        <div class="nav-logo">
+            <div class="logo-icon">🌿</div> Mindora
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="back-link">← Back to Home</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="hero">
+        <div class="hero-inner">
+            <div class="hero-eyebrow">🌱 Verified & Licensed Professionals</div>
+            <h1>Find Your Perfect Therapist</h1>
+            <p>Browse our network of verified, compassionate mental health professionals</p>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Search by name, specialty, language…" />
+                <button onclick="applyFilters()">🔍 Search</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layout -->
+    <div class="layout">
+
+        <!-- Filters -->
+        <aside class="filters">
+            <button class="filter-toggle" onclick="toggleFilters()">
+                🎛️ Filters &amp; Sort
+            </button>
+
+            <div class="filter-body" id="filterBody">
+
+                <!-- Specialty -->
+                <div class="filter-card">
+                    <div class="filter-title">Specialty</div>
+                    <label class="filter-option"><input type="radio" name="specialty" value="" checked
+                            onchange="applyFilters()" /> All specialties</label>
+                    <label class="filter-option"><input type="radio" name="specialty" value="Anxiety"
+                            onchange="applyFilters()" /> Anxiety</label>
+                    <label class="filter-option"><input type="radio" name="specialty" value="Depression"
+                            onchange="applyFilters()" /> Depression</label>
+                    <label class="filter-option"><input type="radio" name="specialty" value="Trauma & PTSD"
+                            onchange="applyFilters()" /> Trauma &amp; PTSD</label>
+                    <label class="filter-option"><input type="radio" name="specialty" value="Relationship Issues"
+                            onchange="applyFilters()" /> Relationship Issues</label>
+                    <label class="filter-option"><input type="radio" name="specialty" value="Stress Management"
+                            onchange="applyFilters()" /> Stress Management</label>
+                    <label class="filter-option"><input type="radio" name="specialty" value="Grief & Loss"
+                            onchange="applyFilters()" /> Grief &amp; Loss</label>
+                    <label class="filter-option"><input type="radio" name="specialty" value="OCD"
+                            onchange="applyFilters()" /> OCD</label>
+                    <label class="filter-option"><input type="radio" name="specialty" value="Addiction"
+                            onchange="applyFilters()" /> Addiction</label>
+                    <label class="filter-option"><input type="radio" name="specialty" value="LGBTQ+"
+                            onchange="applyFilters()" /> LGBTQ+</label>
+                    <label class="filter-option"><input type="radio" name="specialty" value="Child & Adolescent"
+                            onchange="applyFilters()" /> Child &amp; Adolescent</label>
+                </div>
+
+                <!-- Session type -->
+                <div class="filter-card">
+                    <div class="filter-title">Session Type</div>
+                    <label class="filter-option"><input type="radio" name="sessionType" value="" checked
+                            onchange="applyFilters()" /> Any type</label>
+                    <label class="filter-option"><input type="radio" name="sessionType" value="Video"
+                            onchange="applyFilters()" /> 📹 Video</label>
+                    <label class="filter-option"><input type="radio" name="sessionType" value="Chat"
+                            onchange="applyFilters()" /> 💬 Chat</label>
+                    <label class="filter-option"><input type="radio" name="sessionType" value="Audio"
+                            onchange="applyFilters()" /> 🎙️ Audio</label>
+                </div>
+
+                <!-- Language -->
+                <div class="filter-card">
+                    <div class="filter-title">Language</div>
+                    <label class="filter-option"><input type="radio" name="language" value="" checked
+                            onchange="applyFilters()" /> Any language</label>
+                    <label class="filter-option"><input type="radio" name="language" value="English"
+                            onchange="applyFilters()" /> English</label>
+                    <label class="filter-option"><input type="radio" name="language" value="Hindi"
+                            onchange="applyFilters()" /> Hindi</label>
+                    <label class="filter-option"><input type="radio" name="language" value="Punjabi"
+                            onchange="applyFilters()" /> Punjabi</label>
+                    <label class="filter-option"><input type="radio" name="language" value="Bengali"
+                            onchange="applyFilters()" /> Bengali</label>
+                    <label class="filter-option"><input type="radio" name="language" value="Tamil"
+                            onchange="applyFilters()" /> Tamil</label>
+                    <label class="filter-option"><input type="radio" name="language" value="Telugu"
+                            onchange="applyFilters()" /> Telugu</label>
+                </div>
+
+                <!-- Price range -->
+                <div class="filter-card">
+                    <div class="filter-title">Session Fee (₹)</div>
+                    <div class="price-row">
+                        <input type="number" id="minFee" placeholder="Min" min="0" step="100" />
+                        <span class="price-sep">–</span>
+                        <input type="number" id="maxFee" placeholder="Max" min="0" step="100" />
+                    </div>
+                    <button class="btn-apply" onclick="applyFilters()">Apply Filters</button>
+                    <button class="btn-clear" onclick="clearFilters()">Clear All</button>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- Results -->
+        <div class="results">
+
+            <div class="results-bar">
+                <div class="results-count" id="resultsCount">Loading therapists…</div>
+                <select class="sort-select" id="sortSelect" onchange="applyFilters()">
+                    <option value="rating">⭐ Top Rated</option>
+                    <option value="fee_asc">💰 Price: Low to High</option>
+                    <option value="fee_desc">💰 Price: High to Low</option>
+                    <option value="experience">🏅 Most Experienced</option>
+                </select>
+            </div>
+
+            <div class="cards-grid" id="cardsGrid">
+                <!-- Skeleton loaders -->
+                ${Array(6).fill(0).map(() => `
+                <div class="sk-card">
+                    <div style="display:flex;gap:14px;margin-bottom:14px">
+                        <div class="skeleton sk-circle"></div>
+                        <div style="flex:1">
+                            <div class="skeleton sk-line" style="width:70%"></div>
+                            <div class="skeleton sk-line" style="width:40%"></div>
+                        </div>
+                    </div>
+                    <div class="skeleton sk-line" style="width:100%"></div>
+                    <div class="skeleton sk-line" style="width:80%"></div>
+                    <div class="skeleton sk-line" style="width:60%;margin-top:12px"></div>
+                </div>`).join('')}
+            </div>
+
+            <div class="pagination" id="pagination"></div>
+
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        let totalPages = 1;
+
+        // ── Load on page open ──────────────────────────────────
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const sp = params.get('specialty');
+            if (sp) {
+                const radio = document.querySelector(`input[name="specialty"][value="${sp}"]`);
+                if (radio) radio.checked = true;
+            }
+            fetchTherapists(1);
+        });
+
+        // ── Build query string from current filter state ───────
+        function buildQuery(page) {
+            const params = new URLSearchParams();
+
+            const specialty = document.querySelector('input[name="specialty"]:checked')?.value;
+            const sessionType = document.querySelector('input[name="sessionType"]:checked')?.value;
+            const language = document.querySelector('input[name="language"]:checked')?.value;
+            const minFee = document.getElementById('minFee').value;
+            const maxFee = document.getElementById('maxFee').value;
+            const sort = document.getElementById('sortSelect').value;
+            const search = document.getElementById('searchInput').value.trim();
+
+            if (specialty) params.set('specialty', specialty);
+            if (sessionType) params.set('sessionType', sessionType);
+            if (language) params.set('language', language);
+            if (minFee) params.set('minFee', minFee);
+            if (maxFee) params.set('maxFee', maxFee);
+            if (sort) params.set('sort', sort);
+            if (search) params.set('search', search);
+            params.set('page', page);
+            params.set('limit', 9);
+
+            return params.toString();
+        }
+
+        // ── Fetch therapists ───────────────────────────────────
+        async function fetchTherapists(page) {
+            currentPage = page;
+            document.getElementById('resultsCount').textContent = 'Loading…';
+
+            try {
+                const res = await fetch(`http://localhost:5000/api/therapists/browse?${buildQuery(page)}`);
+                const data = await res.json();
+
+                if (!data.success) throw new Error(data.message);
+
+                totalPages = data.data.pages;
+                renderCards(data.data.therapists);
+                renderPagination(data.data.total, data.data.page, data.data.pages);
+            } catch (e) {
+                document.getElementById('cardsGrid').innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="icon">😕</div>
+          <h3>Could not load therapists</h3>
+          <p>${e.message}</p>
+        </div>`;
+                document.getElementById('resultsCount').textContent = 'Error loading';
+            }
+        }
+
+        function applyFilters() { fetchTherapists(1); }
+
+        // ── Render cards ───────────────────────────────────────
+        function renderCards(therapists) {
+            const grid = document.getElementById('cardsGrid');
+
+            if (!therapists.length) {
+                grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="icon">🔍</div>
+          <h3>No therapists found</h3>
+          <p>Try adjusting your filters or search term.</p>
+        </div>`;
+                return;
+            }
+
+            grid.innerHTML = therapists.map(t => {
+                const initials = t.fullName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+                const avatar = t.profilePhoto
+                    ? `<img src="${t.profilePhoto}" alt="${t.fullName}"/>`
+                    : initials;
+
+                const stars = t.averageRating > 0
+                    ? `${'★'.repeat(Math.round(t.averageRating))}${'☆'.repeat(5 - Math.round(t.averageRating))}`
+                    : '☆☆☆☆☆';
+
+                const specialtyTags = (t.specialties || []).slice(0, 3)
+                    .map(s => `<span class="tag">${s}</span>`).join('');
+
+                const langTags = (t.languages || []).slice(0, 2)
+                    .map(l => `<span class="tag lang">${l}</span>`).join('');
+
+                const sessionIcons = { Video: '📹', Chat: '💬', Audio: '🎙️' };
+                const sessionHtml = (t.sessionTypes || [])
+                    .map(s => `<span class="sicon">${sessionIcons[s] || ''} ${s}</span>`).join('');
+
+                const onlineHtml = t.isOnline
+                    ? `<span class="online-pill on"><span class="online-dot"></span>Online now</span>`
+                    : `<span class="online-pill off"><span class="online-dot"></span>Offline</span>`;
+
+                return `
+        <a class="therapist-card" href="book-session.html?therapistId=${t._id}">
+          <div class="card-top">
+            <div class="card-avatar">${avatar}</div>
+            <div class="card-info">
+              ${onlineHtml}
+              <div class="card-name">${t.fullName}</div>
+              <div class="card-exp">${t.yearsOfExperience || 0} yrs experience · ${t.gender || ''}</div>
+              <div class="card-rating">
+                ${stars}
+                <span>(${t.totalReviews || 0} reviews)</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-bio">${t.bio || 'Verified mental health professional.'}</div>
+          <div class="session-icons">${sessionHtml}</div>
+          <div class="tags">${specialtyTags}${langTags}</div>
+          <div class="card-footer">
+            <div class="card-fee">₹${(t.sessionFee || 0).toLocaleString('en-IN')} <span>/ session</span></div>
+            <span class="btn-book">Book Now</span>
+          </div>
+        </a>`;
+            }).join('');
+        }
+
+        // ── Pagination ─────────────────────────────────────────
+        function renderPagination(total, page, pages) {
+            document.getElementById('resultsCount').textContent =
+                `${total} therapist${total !== 1 ? 's' : ''} found`;
+
+            const pg = document.getElementById('pagination');
+            if (pages <= 1) { pg.innerHTML = ''; return; }
+
+            let html = `
+      <div class="pg-btn ${page === 1 ? 'disabled' : ''}" onclick="${page > 1 ? `fetchTherapists(${page - 1})` : ''}">‹</div>`;
+
+            for (let i = 1; i <= pages; i++) {
+                if (i === 1 || i === pages || Math.abs(i - page) <= 1) {
+                    html += `<div class="pg-btn ${i === page ? 'active' : ''}" onclick="fetchTherapists(${i})">${i}</div>`;
+                } else if (Math.abs(i - page) === 2) {
+                    html += `<div class="pg-btn disabled" style="border:none">…</div>`;
+                }
+            }
+
+            html += `
+      <div class="pg-btn ${page === pages ? 'disabled' : ''}" onclick="${page < pages ? `fetchTherapists(${page + 1})` : ''}">›</div>`;
+
+            pg.innerHTML = html;
+        }
+
+        // ── Clear filters ──────────────────────────────────────
+        function clearFilters() {
+            document.querySelector('input[name="specialty"][value=""]').checked = true;
+            document.querySelector('input[name="sessionType"][value=""]').checked = true;
+            document.querySelector('input[name="language"][value=""]').checked = true;
+            document.getElementById('minFee').value = '';
+            document.getElementById('maxFee').value = '';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('sortSelect').value = 'rating';
+            fetchTherapists(1);
+        }
+
+        // ── Search on Enter ────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('searchInput').addEventListener('keydown', e => {
+                if (e.key === 'Enter') applyFilters();
+            });
+        });
+
+        // ── Mobile filter toggle ───────────────────────────────
+        function toggleFilters() {
+            document.getElementById('filterBody').classList.toggle('open');
+        }
+    </script>
+</body>
+
+</html>

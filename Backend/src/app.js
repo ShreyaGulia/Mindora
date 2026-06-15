@@ -30,7 +30,10 @@ app.use(helmet({
 app.disable('x-powered-by');
 
 app.use(cors({
-  origin: ['http://127.0.0.1:5500', 'http://localhost:5500'],
+  origin: ['http://127.0.0.1:5500',
+    'http://localhost:5500',
+    'https://mindora-backend-4m3a.onrender.com',
+    'https://your-site.netlify.app'],
   credentials: true
 }));
 

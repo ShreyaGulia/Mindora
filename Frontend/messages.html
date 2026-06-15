@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Messages — MindCare</title>
+    <script src="config.js"></script>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <style>
         *,
@@ -470,7 +471,7 @@
         let activeTherapistId = null;
         let activeTherapistName = '';
 
-        const socket = io('http://localhost:5000', { transports: ['websocket'] });
+        const socket = io(windowAPI_BASE || 'http://localhost:5000', { transports: ['websocket'] });
 
         // ── Init ───────────────────────────────────────────────
         window.addEventListener('DOMContentLoaded', async () => {
@@ -481,7 +482,7 @@
         // ── Load thread list ───────────────────────────────────
         async function loadThreads() {
             try {
-                const res = await fetch('/api/chat/threads', {
+                const res = await fetch(`${API_BASE}/api/chat/threads`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const data = await res.json();
@@ -563,7 +564,7 @@
             area.innerHTML = '<div class="sys-msg">Loading...</div>';
 
             try {
-                const res = await fetch(`/api/chat/${therapistId}`, {
+                const res = await fetch(`${API_BASE}/api/chat/${therapistId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const data = await res.json();
@@ -583,7 +584,7 @@
             if (!text) return;
 
             try {
-                const res = await fetch(`/api/chat/${activeTherapistId}`, {
+                const res = await fetch(`${API_BASE}/api/chat/${activeTherapistId}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                     body: JSON.stringify({ text }),

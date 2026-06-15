@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Therapist Onboarding — MindCare</title>
     <link rel="stylesheet" href="auth.css" />
+    <script src="config.js"></script>
     <style>
         /* ── Layout ─────────────────────────────────────────── */
         body {
@@ -720,9 +721,9 @@
 
             try {
                 const token = localStorage.getItem('therapistToken');
-                console.log('Attempting onboarding submission to:', 'http://localhost:5000/api/therapist/onboarding');
-                
-                const res = await fetch('http://localhost:5000/api/therapist/onboarding', {
+                console.log('Attempting onboarding submission to:', `${API_BASE}/api/therapist/onboarding`);
+
+                const res = await fetch(`${API_BASE}/api/therapist/onboarding`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -765,7 +766,7 @@
 
             try {
                 // Fetch current profile data
-                const res = await fetch('http://localhost:5000/api/therapist/onboarding-status', {
+                const res = await fetch(`${API_BASE}/api/therapist/onboarding-status`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();
@@ -784,7 +785,7 @@
                     document.getElementById('submitBtn').textContent = 'Update Profile ✓';
 
                     // Fetch full profile for pre-filling
-                    const profileRes = await fetch('http://localhost:5000/api/therapist/profile', {
+                    const profileRes = await fetch(`${API_BASE}/api/therapist/profile`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     const pJson = await profileRes.json();
@@ -796,7 +797,7 @@
                         document.getElementById('bio').value = p.bio || '';
                         document.getElementById('licenseNumber').value = p.licenseNumber || '';
                         document.getElementById('yearsOfExperience').value = p.yearsOfExperience || '';
-                        
+
                         if (p.education && p.education[0]) {
                             document.getElementById('educationDegree').value = p.education[0].degree || '';
                             document.getElementById('educationInstitution').value = p.education[0].institution || '';
@@ -823,7 +824,7 @@
                         document.getElementById('bankAccountName').value = p.bankAccountName || '';
                         document.getElementById('bankAccountNumber').value = p.bankAccountNumber || '';
                         document.getElementById('bankIFSC').value = p.bankIFSC || '';
-                        
+
                         updateFeePreview();
                     }
                 }

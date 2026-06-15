@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Find a Therapist — Mindora</title>
+    <script src="config.js"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Playfair+Display:wght@600;700&display=swap"
         rel="stylesheet">
@@ -1063,7 +1064,7 @@
             document.getElementById('resultsCount').textContent = 'Loading…';
 
             try {
-                const res = await fetch(`http://localhost:5000/api/therapists/browse?${buildQuery(page)}`);
+                const res = await fetch(`${API_BASE}/api/therapists/browse?${buildQuery(page)}`);
                 const data = await res.json();
 
                 if (!data.success) throw new Error(data.message);

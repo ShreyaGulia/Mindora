@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Sessions — MindCare</title>
+    <script src="config.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
         href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap"
@@ -1081,7 +1082,6 @@
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:5000/api';
         const token = localStorage.getItem('mindoraToken') || localStorage.getItem('token');
         if (!token) window.location.href = 'login.html';
 
@@ -1103,7 +1103,7 @@
             const ids = ['all', 'confirmed', 'pending', 'completed', 'cancelled'];
             try {
                 await Promise.all(statuses.map(async (s, i) => {
-                    const url = `${API_BASE}/sessions/my?page=1&limit=1${s ? '&status=' + s : ''}`;
+                    const url = `${API_BASE}/api/sessions/my?page=1&limit=1${s ? '&status=' + s : ''}`;
                     const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
                     const d = await res.json();
                     const count = d.data?.total || 0;
@@ -1116,7 +1116,7 @@
         // ── Fetch sessions ─────────────────────────────────────
         async function fetchSessions(page) {
             currentPage = page;
-            const url = `${API_BASE}/sessions/my?page=${page}&limit=6${currentFilter ? '&status=' + currentFilter : ''}`;
+            const url = `${API_BASE}/api/sessions/my?page=${page}&limit=6${currentFilter ? '&status=' + currentFilter : ''}`;
             document.getElementById('sessionsList').innerHTML = renderSkeleton();
 
             try {
@@ -1282,7 +1282,7 @@
             if (!confirm('Are you sure you want to cancel this session?')) return;
             const reason = prompt('Reason for cancellation (optional):') || '';
             try {
-                const res = await fetch(`${API_BASE}/sessions/${id}/cancel`, {
+                const res = await fetch(`${API_BASE}/api/sessions/${id}/cancel`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                     body: JSON.stringify({ reason }),
@@ -1331,7 +1331,7 @@
             }
             const comment = document.getElementById('reviewComment').value.trim();
             try {
-                const res = await fetch(`${API_BASE}/sessions/${reviewSessionId}/review`, {
+                const res = await fetch(`${API_BASE}/api/sessions/${reviewSessionId}/review`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                     body: JSON.stringify({ rating: selectedRating, comment }),

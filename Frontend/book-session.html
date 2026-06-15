@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Book a Session — Mindora</title>
+    <script src="config.js"></script>
     <script src="https://js.stripe.com/v3/"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Playfair+Display:wght@600;700&display=swap"
@@ -977,7 +978,7 @@
 
     <script>
         // ── State ──────────────────────────────────────────────
-        const API = 'http://127.0.0.1:5000';
+        const API = API_BASE;
         const params = new URLSearchParams(window.location.search);
         const therapistId = params.get('therapistId');
         const token = localStorage.getItem('mindoraToken');

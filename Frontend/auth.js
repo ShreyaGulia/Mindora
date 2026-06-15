@@ -1,4 +1,3 @@
-const API_BASE = 'http://localhost:5000/api';
 
 // ─────────────────────────────────────
 // SIGNUP
@@ -16,7 +15,7 @@ document.getElementById("signupForm")?.addEventListener("submit", async function
   }
 
   try {
-    const res  = await fetch(`${API_BASE}/auth/signup`, {
+    const res  = await fetch(`${API_BASE}/api/auth/signup`, {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
       body:    JSON.stringify({ name, email, password })
@@ -58,7 +57,7 @@ document.getElementById("loginForm")?.addEventListener("submit", async function(
   }
 
   try {
-    const res  = await fetch(`${API_BASE}/auth/login`, {
+    const res  = await fetch(`${API_BASE}/api/auth/login`, {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
       body:    JSON.stringify({ email, password })

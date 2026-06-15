@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Login — MindCare</title>
+    <script src="config.js"></script>
     <style>
         *,
         *::before,
@@ -159,7 +160,7 @@
             btn.disabled = true; btn.textContent = 'Logging in...';
 
             try {
-                const res = await fetch('http://localhost:5000/api/auth/admin-login', {
+                const res = await fetch(`${API_BASE}/api/auth/admin-login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password }),

@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard — MindCare Therapist</title>
+    <script src="config.js"></script>
     <style>
         *,
         *::before,
@@ -1106,7 +1107,7 @@
         }
 
         async function api(url) {
-            const r = await fetch('http://localhost:5000' + url, { headers: { Authorization: 'Bearer ' + token } });
+            const r = await fetch(API_BASE + url, { headers: { Authorization: 'Bearer ' + token } });
             return r.json();
         }
 
@@ -1201,7 +1202,7 @@
 
         async function confirmSession(id, btn) {
             btn.disabled = true; btn.textContent = '...';
-            const r = await fetch('http://localhost:5000/api/therapist-dash/sessions/' + id + '/confirm', {
+            const r = await fetch(API_BASE + '/api/therapist-dash/sessions/' + id + '/confirm', {
                 method: 'PATCH', headers: { Authorization: 'Bearer ' + token }
             });
             const j = await r.json();
@@ -1237,7 +1238,7 @@
 
         async function toggleOnline(val) {
             try {
-                await fetch('http://localhost:5000/api/therapist/status', {
+                await fetch(API_BASE + '/api/therapist/status', {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
                     body: JSON.stringify({ isOnline: val }),

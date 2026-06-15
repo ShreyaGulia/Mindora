@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Wallet — MindCare</title>
+    <script src="config.js"></script>
     <style>
         *,
         *::before,
@@ -567,7 +568,7 @@
 
         async function loadWallet() {
             try {
-                const res = await fetch('/api/wallet', { headers: { Authorization: `Bearer ${token}` } });
+                const res = await fetch(`${API_BASE}/api/wallet`, { headers: { Authorization: `Bearer ${token}` } });
                 const data = await res.json();
                 if (!data.success) return;
 
@@ -608,7 +609,7 @@
 
         async function loadTransactions(page) {
             try {
-                const res = await fetch(`/api/wallet/transactions?page=${page}&limit=10`, {
+                const res = await fetch(`${API_BASE}/api/wallet/transactions?page=${page}&limit=10`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const data = await res.json();
@@ -706,7 +707,7 @@
             btn.disabled = true; btn.textContent = 'Processing...';
 
             try {
-                const res = await fetch('/api/wallet/withdraw', {
+                const res = await fetch(`${API_BASE}/api/wallet/withdraw`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                     body: JSON.stringify(body),
@@ -744,7 +745,7 @@
             }
 
             try {
-                const res = await fetch('/api/wallet/payout-details', {
+                const res = await fetch(`${API_BASE}/api/wallet/payout-details`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                     body: JSON.stringify(body),

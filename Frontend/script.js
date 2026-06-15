@@ -1,4 +1,3 @@
-const API_BASE = 'http://localhost:5000/api';
 
 function getToken() {
   return localStorage.getItem('mindoraToken');
@@ -34,7 +33,7 @@ async function loadTherapists() {
   const loadingEl = document.getElementById('therapistLoading');
 
   try {
-    const res = await fetch(`${API_BASE}/therapists`);
+    const res = await fetch(`${API_BASE}/api/therapists`);
     const list = await res.json();
 
     // Hide loading spinner
@@ -168,7 +167,7 @@ function filterTherapists(btn, tag) {
 async function saveMood(mood, note = '') {
   if (!getToken()) return;
   try {
-    await fetch(`${API_BASE}/mood`, {
+    await fetch(`${API_BASE}/api/mood`, {
       method: 'POST',
       headers: authHeaders(),
       body: JSON.stringify({ mood, note })
@@ -211,7 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
    Keep everything else (music, therapist, etc.) unchanged.
    ============================================================= */
 
-  const AI_API_URL = 'http://localhost:5000/api/ai/chat';
+  const AI_API_URL = `${API_BASE}/api/ai/chat`;
 
   // In-memory conversation history for context window
   // Keeps last 20 messages so AI remembers the conversation
@@ -412,7 +411,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      const res = await fetch(`${API_BASE}/sessions/my`, {
+      const res = await fetch(`${API_BASE}/api/sessions/my`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -595,7 +594,7 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       try {
-        const res = await fetch(`${API_BASE}/sessions/book`, {
+        const res = await fetch(`${API_BASE}/api/sessions/book`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -843,7 +842,7 @@ async function runWellnessAssessment() {
   document.querySelector('.wf-next-btn').textContent = 'Finding your match...';
 
   try {
-    const res = await fetch(`${API_BASE}/wellness/assess`, {
+    const res = await fetch(`${API_BASE}/api/wellness/assess`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -940,7 +939,7 @@ function startLiveSession(sessionRef, therapistName) {
   document.getElementById('liveSession').scrollIntoView({ behavior: 'smooth' });
 
   // Connect to Socket.io server
-  socket = io('http://localhost:5000');
+  socket = io(API_BASE || 'http://localhost:5000');
 
   socket.on('connect', () => {
     socket.emit('join_session', sessionRef);
@@ -1023,7 +1022,7 @@ async function loadWallet() {
   if (!token) return;
 
   try {
-    const res = await fetch(`${API_BASE}/wallet`, {
+    const res = await fetch(`${API_BASE}/api/wallet`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (!res.ok) return; // No wallet for this user yet — silently skip
@@ -1111,7 +1110,7 @@ async function loadWalletPanel() {
   if (!token) { document.getElementById('ppBody').innerHTML = '<p>Please log in.</p>'; return; }
 
   try {
-    const res = await fetch(`${API_BASE}/wallet`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const res = await fetch(`${API_BASE}/api/wallet`, { headers: { 'Authorization': `Bearer ${token}` } });
     const data = await res.json();
     const balance = data?.data?.balance ?? data?.balance ?? 0;
     const txns = data?.data?.transactions || data?.transactions || [];
@@ -1174,7 +1173,7 @@ async function loadSessionsPanel() {
   if (!token) return;
 
   try {
-    const res = await fetch(`${API_BASE}/sessions/my`, { headers: { 'Authorization': `Bearer ${token}` } });
+    const res = await fetch(`${API_BASE}/api/sessions/my`, { headers: { 'Authorization': `Bearer ${token}` } });
     const data = await res.json();
     let sessions = data?.data?.sessions || [];
     // Show only upcoming confirmed and paid sessions
@@ -1242,8 +1241,8 @@ async function loadBillingPanel() {
 
   try {
     const [planRes, billRes] = await Promise.all([
-      fetch(`${API_BASE}/payment/plan-status`, { headers: { 'Authorization': `Bearer ${token}` } }),
-      fetch(`${API_BASE}/payment/billing-history`, { headers: { 'Authorization': `Bearer ${token}` } })
+      fetch(`${API_BASE}/api/payment/plan-status`, { headers: { 'Authorization': `Bearer ${token}` } }),
+      fetch(`${API_BASE}/api/payment/billing-history`, { headers: { 'Authorization': `Bearer ${token}` } })
     ]);
 
     const plan = await planRes.json();

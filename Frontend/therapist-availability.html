@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Availability — MindCare</title>
     <link rel="stylesheet" href="auth.css" />
+    <script src="config.js"></script>
     <style>
         body {
             background: #f4f6fb;
@@ -492,7 +493,7 @@
         async function loadData() {
             try {
                 // Load availability settings
-                const r1 = await fetch('http://localhost:5000/api/availability/settings', {
+                const r1 = await fetch(`${API_BASE}/api/availability/settings`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const d1 = await r1.json();
@@ -501,7 +502,7 @@
                 }
 
                 // Load session duration from profile
-                const r2 = await fetch('http://localhost:5000/api/therapist/profile', {
+                const r2 = await fetch(`${API_BASE}/api/therapist/profile`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const d2 = await r2.json();
@@ -597,7 +598,7 @@
             btn.disabled = true; btn.textContent = 'Saving...';
 
             try {
-                const res = await fetch('http://localhost:5000/api/availability/settings', {
+                const res = await fetch(`${API_BASE}/api/availability/settings`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                     body: JSON.stringify({ workStart, workEnd, activeDays }),
@@ -681,7 +682,7 @@
 
         async function toggleBlock(dateStr) {
             try {
-                const res = await fetch('http://localhost:5000/api/availability/block', {
+                const res = await fetch(`${API_BASE}/api/availability/block`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                     body: JSON.stringify({ date: dateStr }),

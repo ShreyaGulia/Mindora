@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Panel — MindCare</title>
+    <script src="config.js"></script>
     <style>
         *,
         *::before,
@@ -876,7 +877,7 @@
             border-radius: 8px;
             border: 1px solid var(--border);
         }
-        
+
         .detail-value.bio {
             white-space: pre-wrap;
         }
@@ -1285,7 +1286,8 @@
                 <!-- Content injected via JS -->
             </div>
 
-            <div id="modalActions" style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:12px">
+            <div id="modalActions"
+                style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:12px">
                 <!-- Buttons injected via JS -->
             </div>
         </div>
@@ -1299,7 +1301,7 @@
         if (!adminToken) window.location.href = 'admin-login.html';
 
         let currentSection = 'dashboard';
-        const BASE = 'http://localhost:5000/api/admin';
+        const BASE = `${API_BASE}/api/admin`;
         const H = { Authorization: `Bearer ${adminToken}` };
 
         let allTherapists = [];
@@ -1560,10 +1562,10 @@
                 const res = await fetch(`${BASE}/therapists/${id}/reject`, { method: 'PATCH', headers: H });
                 const data = await res.json();
                 showToast(data.message, data.success ? 'success' : 'error');
-                if (data.success) { 
+                if (data.success) {
                     closeModal();
-                    loadTherapists(therapistPage); 
-                    loadDashboard(); 
+                    loadTherapists(therapistPage);
+                    loadDashboard();
                 }
             } catch (e) { showToast(e.message, 'error'); }
             if (btn) { btn.disabled = false; btn.textContent = 'Reject'; }
@@ -1652,7 +1654,7 @@
             document.getElementById('modalBody').innerHTML = bodyHtml;
 
             let actionsHtml = `<button class="btn btn-secondary" style="background:var(--surface2);color:var(--text);border:1px solid var(--border)" onclick="closeModal()">Close</button>`;
-            
+
             if (!t.isApproved) {
                 actionsHtml += `
                     <button class="btn btn-reject" onclick="rejectTherapist('${t._id}')">Reject</button>

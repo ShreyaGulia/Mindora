@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pricing | Mindora</title>
+    <script src="config.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <!-- Stripe.js — loads the Stripe payment library -->
@@ -610,7 +611,6 @@
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:5000/api';
 
         let stripe = null;
         let cardElement = null;
@@ -635,7 +635,7 @@
             }
 
             try {
-                const res = await fetch(`${API_BASE}/payment/plan-status`, {
+                const res = await fetch(`${API_BASE}/api/payment/plan-status`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();
@@ -723,7 +723,7 @@
 
             try {
                 // Get clientSecret from backend
-                const res = await fetch(`${API_BASE}/payment/create-intent`, {
+                const res = await fetch(`${API_BASE}/api/payment/create-intent`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ amount, purpose })
@@ -808,7 +808,7 @@
 
                 if (paymentIntent.status === 'succeeded') {
                     // Tell backend to fulfill the purchase
-                    const confirmRes = await fetch(`${API_BASE}/payment/confirm`, {
+                    const confirmRes = await fetch(`${API_BASE}/api/payment/confirm`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                         body: JSON.stringify({
